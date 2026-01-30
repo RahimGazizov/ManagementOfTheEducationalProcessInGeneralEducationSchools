@@ -1,0 +1,113 @@
+﻿@model CreateUser
+<h1>Редоктирование пользователя</h1>
+<div class="conteiner">
+    <form method="post" asp-action="EditUser">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <label asp-for="FullName">Введите ФИО</label>
+        <input type="text" asp-for="FullName" required />
+        <label asp-for="Login">Введите логин</label>
+        <input type="text" asp-for="Login" required />
+        <label asp-for="BirthDate">Введите дату рождения</label>
+        <input type="date" asp-for="BirthDate" required />
+        <label asp-for="Role">Выберите роль:</label>
+        <select asp-for="Role" asp-items="ViewBag.Roles"></select>
+        <button type="submit" class="btn_add">Обновить</button>
+        <a asp-action="ResetPassword"
+           asp-controller="Users"
+           asp-route-login="@Model.Login"
+           class="btn_res">
+            Сбросить пароль
+        </a>
+    </form>
+</div>
+<style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #f4f7fb;
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 26px;
+        margin-top: 60px;
+        color: #1f2937;
+    }
+
+    .conteiner {
+        width: 500px;
+        padding: 25px;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        margin: 20px auto;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    label {
+        color: #374151;
+        font-weight: 500;
+    }
+
+    input, select {
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        outline: none;
+        transition: 0.2s;
+    }
+
+        input:focus, select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+        }
+
+    .btn_add {
+        margin-top: 10px;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        background: #3b82f6;
+        color: white;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn_add:hover {
+            background: #2563eb;
+        }
+    
+    .text-danger {
+        color: #dc2626;
+    }
+
+    .btn_res {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #e74c3c; /* ярко-красный */
+        color: white;
+        font-weight: bold;
+        text-decoration: none;
+        border-radius: 6px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        transition: all 0.2s ease-in-out;
+    }
+
+        .btn_res:hover {
+            background-color: #c0392b; /* чуть темнее при наведении */
+            transform: translateY(-2px); /* лёгкое "подпрыгивание" */
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn_res:active {
+            transform: translateY(0); /* при клике кнопка возвращается */
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+</style>
