@@ -5,6 +5,8 @@
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <label asp-for="FullName">Введите ФИО</label>
         <input type="text" asp-for="FullName" required />
+        <label asp-for="PhoneNumber">Введите номер телефона</label>
+        <input type="text" asp-for="PhoneNumber" required />
         <label asp-for="Login">Введите логин</label>
         <input type="text" asp-for="Login" required />
         <label asp-for="Password">Введите пароль</label>
@@ -12,7 +14,23 @@
         <label asp-for="BirthDate">Введите дату рождения</label>
         <input type="date" asp-for="BirthDate" required />
         <label asp-for="Role">Выберите роль:</label>
-        <select asp-for="Role" asp-items="ViewBag.Roles"></select>
+        <select id="role" asp-for="Role" asp-items="ViewBag.Roles"></select>
+        <div id="classDiv" style="display:none; margin-top:10px;">
+            <div class="class">
+                <label>Выберите номер класса</label>
+                <select id="numClassSelect">
+                    <option value="">Выберите номер</option>
+                    @for (int i = 1; i < 12; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </select>
+                <label>Выберите букву класса</label>
+                <select id="letterClassSelect" name="ClassId">
+                    <option value="">Сначала выберите номер</option>
+                </select>
+            </div>
+        </div>
         <button type="submit" class="btn_add">Добавить</button>
     </form>
 </div>
@@ -83,4 +101,51 @@
     .text-danger {
         color: #dc2626;
     }
+
+    .class {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
 </style>
+<script>
+    // --- Показ блока класса только для учеников ---
+    const roleSelect = document.getElementById("role");
+    const classDiv = document.getElementById("classDiv");
+
+    roleSelect.addEventListener("change", function() {
+        if(this.value === "Ученик") {
+            classDiv.style.display = "block";
+        } else {
+            classDiv.style.display = "none";
+        }
+    });
+
+    // --- AJAX для подгрузки букв по номеру класса ---
+    const numClassSelect = document.getElementById("numClassSelect");
+    const letterClassSelect = document.getElementById("letterClassSelect");
+
+    numClassSelect.addEventListener("change", function() {
+        const numClass = this.value;
+        letterClassSelect.innerHTML = '<option value="">Загрузка...</option>';
+
+        if(numClass) {
+            fetch(`/Users/GetLetterClass?numClass=${numClass}`)
+                .then(res => res.json())
+                .then(data => {
+                    letterClassSelect.innerHTML = '<option value="">Выберите букву</option>';
+                    data.forEach(c => {
+                        const opt = document.createElement("option");
+                        opt.value = c.id;          // Id класса из базы
+                        opt.textContent = c.letterClass; // Буква класса
+                        letterClassSelect.appendChild(opt);
+                    });
+                })
+                .catch(() => {
+                    letterClassSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
+                });
+        } else {
+            letterClassSelect.innerHTML = '<option value="">Сначала выберите номер</option>';
+        }
+    });
+</script>
