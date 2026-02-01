@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using InformationSystemOfASchoolIducationalPortal.Models;
+using InformationSystemOfASchoolIducationalPortal.Data;
 namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
 {
     public class CRUDUser
     {
         private readonly UserManager<Users> _users;
-        public CRUDUser(UserManager<Users> users)
+        private readonly AppDbContext _context;
+        public CRUDUser(UserManager<Users> users, AppDbContext context)
         {
             _users = users;
+            _context = context;
         }
         public class OperationResult
         {
@@ -25,6 +28,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     FullName = createUser.FullName,
                     UserName = createUser.Login,
                     BirthDate = createUser.BirthDate,
+                    PhoneNumber = createUser.PhoneNumber,
                 };
                 var result = await _users.CreateAsync(user, createUser.Password);
                 if (!result.Succeeded)
@@ -32,6 +36,16 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 var addRole = await _users.AddToRoleAsync(user, createUser.Role);
                 if (!addRole.Succeeded)
                     return Errors(addRole);
+                if(createUser.Role == "Ученик")
+                {
+                    var student = new Students
+                    {
+                        UserId = user.Id,
+                        ClassId = createUser.ClassId
+                    };
+                    _context.Students.Add(student);
+                    await _context.SaveChangesAsync();
+                }
                 return OperationResult.Ok();
             }
             catch (Exception ex)
