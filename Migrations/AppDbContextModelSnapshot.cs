@@ -42,6 +42,9 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ClassId1")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -50,7 +53,10 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
 
                     b.HasIndex("ClassId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ClassId1");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Students");
                 });
@@ -257,14 +263,18 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
             modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.Students", b =>
                 {
                     b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Class", "Class")
-                        .WithMany("Students")
+                        .WithMany()
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Class", null)
+                        .WithMany("Students")
+                        .HasForeignKey("ClassId1");
+
                     b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Users", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .WithOne()
+                        .HasForeignKey("InformationSystemOfASchoolIducationalPortal.Models.Students", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
