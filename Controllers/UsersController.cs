@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
+using InformationSystemOfASchoolIducationalPortal.Data;
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
     public class UsersController : Controller
@@ -11,16 +12,19 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         private readonly UserManager<Users> _users;
         private readonly RoleManager<IdentityRole> _roles;
         private readonly CRUDUser _crudUser;
+        private readonly AppDbContext _context;
         public UsersController(UserManager<Users> users, RoleManager<IdentityRole> roles,
-            CRUDUser crudUser)
+            CRUDUser crudUser, AppDbContext context)
         {
             _users = users;
             _roles = roles;
             _crudUser = crudUser;
+            _context = context;
         }
 
         public async Task<IActionResult> Index(string? error)
         {
+            await EnsureRoles(_roles);
             TempData["Error"] = error;
             var users = await GetUsersList();
             var usersRole = new List<CreateUser>();
@@ -61,7 +65,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         {
             var result = await _crudUser.Delete(login);
             if (!result.Succeeded)
-                return RedirectToAction("Index", new {error = result.Message});
+                return RedirectToAction("Index", new { error = result.Message });
 
             return RedirectToAction("Index");
         }
@@ -93,11 +97,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             }
             return RedirectToAction("Index");
         }
-        public async  Task<IActionResult> ResetPassword(string login)
+        public async Task<IActionResult> ResetPassword(string login)
         {
             var user = await _users.FindByNameAsync(login);
             Random random = new Random();
-            string temproryPassword = "Temp" + Convert.ToString(random.Next(1000,9999)) + "!";
+            string temproryPassword = "Temp" + Convert.ToString(random.Next(1000, 9999)) + "!";
             ViewBag.TemproryPas = temproryPassword;
             ViewBag.Login = user.UserName;
             return View();
@@ -112,6 +116,15 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 return View();
             }
             return RedirectToAction("Index");
+        }
+        public async Task<JsonResult> GetLetterClass(int numClass)
+        {
+            var letters = await _context.Classes
+        .Where(c => c.NumClass == numClass)
+        .Select(c => new { c.Id, c.LetterClass })
+        .ToListAsync();
+            return Json(letters);
+
         }
         private async Task<List<SelectListItem>> GetSelectList<T>(IEnumerable<T> data)
         {
