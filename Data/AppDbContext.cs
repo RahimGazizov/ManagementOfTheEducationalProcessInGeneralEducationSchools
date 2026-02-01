@@ -8,7 +8,22 @@ namespace InformationSystemOfASchoolIducationalPortal.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         public DbSet<Class> Classes { get; set; }
         public DbSet<Students> Students { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Students>()
+                .HasOne(s => s.User)
+                .WithOne() // один пользователь = один студент
+                .HasForeignKey<Students>(s => s.UserId)
+                .IsRequired();
+
+            modelBuilder.Entity<Students>()
+                .HasOne(s => s.Class)
+                .WithMany() // если один класс может иметь много студентов
+                .HasForeignKey(s => s.ClassId)
+                .IsRequired();
+        }
     }
 
 }
