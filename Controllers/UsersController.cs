@@ -24,6 +24,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
 
         public async Task<IActionResult> Index(string? error)
         {
+            
             await EnsureRoles(_roles);
             TempData["Error"] = error;
             var users = await GetUsersList();
@@ -33,6 +34,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 var role = await _users.GetRolesAsync(user);
                 usersRole.Add(new CreateUser
                 {
+                    UserId = user.Id,
                     FullName = user.FullName,
                     Login = user.UserName,
                     BirthDate = user.BirthDate,
@@ -52,6 +54,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         [HttpPost]
         public async Task<IActionResult> AddUsers(CreateUser createUser)
         {
+            Console.WriteLine("Номера телефона" + createUser.PhoneNumber);
             var result = await _crudUser.AddUser(createUser);
             if (!result.Succeeded)
             {
@@ -63,41 +66,53 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Delete(string login)
+        public async Task<IActionResult> Delete(string id, string returnUrl)
         {
-            var result = await _crudUser.Delete(login);
+            var result = await _crudUser.Delete(id);
             if (!result.Succeeded)
                 return RedirectToAction("Index", new { error = result.Message });
-
-            return RedirectToAction("Index");
+            return Redirect(returnUrl);
         }
-        public async Task<IActionResult> EditUser(string login)
+        public async Task<IActionResult> EditUser(string id, string returnUrl)
         {
-            var user = await _users.FindByNameAsync(login);
+            Console.WriteLine($"Ссылка на редирект {returnUrl}");
+            Console.WriteLine($"Айди {id}");
+            var user = await _users.FindByIdAsync(id);
             var roles = await _users.GetRolesAsync(user);
-            if (user == null)
-                return RedirectToAction("Index", new { error = "Пользователь не найден" });
-            var create = new CreateUser
+            var dto = new EditUserDTO
             {
+                UserId = user.Id,
                 FullName = user.FullName,
                 Login = user.UserName,
-                Role = string.Join(",", roles),
+                PhoneNumber = user.PhoneNumber,
                 BirthDate = user.BirthDate,
+                Role = roles.FirstOrDefault()
             };
+            if (roles.Contains("Ученик"))
+            {
+                var student = await _context.Students.Include(c => c.Class)
+                    .FirstOrDefaultAsync(u => u.UserId == user.Id);
+                dto.StudentClassId = student.ClassId;
+                dto.StudentClassNumber = student.Class.NumClass;
+                dto.StudentClassLetter = student.Class.LetterClass;
+            }
             ViewBag.Roles = await GetSelectList(await GetRoles());
-            return View(create);
+            TempData["Url"] = returnUrl;
+            return View(dto);
         }
         [HttpPost]
-        public async Task<IActionResult> EditUser(CreateUser createUser)
+        public async Task<IActionResult> EditUser(EditUserDTO dto,string returnUrl)
         {
-            var result = await _crudUser.Edit(createUser);
+            var result = await _crudUser.Edit(dto);
             if (!result.Succeeded)
             {
                 TempData["Error"] = result.Message;
                 ViewBag.Roles = await GetSelectList(await GetRoles());
-                return View(createUser);
+                ViewBag.Url = returnUrl;
+                ViewData["ReturnUrl"] = returnUrl;
+                return View(dto);
             }
-            return RedirectToAction("Index");
+            return Redirect(returnUrl);
         }
         public async Task<IActionResult> ResetPassword(string login)
         {
@@ -109,7 +124,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> ResetPassword(string login, string newPassword)
+        public async Task<IActionResult> ResetPassword(string login, string newPassword, string returnUrl)
         {
             var result = await _crudUser.ResetPassword(login, newPassword);
             if (!result.Succeeded)
@@ -117,7 +132,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 TempData["Error"] = result.Message;
                 return View();
             }
-            return RedirectToAction("Index");
+            return Redirect(returnUrl);
         }
         public async Task<JsonResult> GetLetterClass(int numClass)
         {
