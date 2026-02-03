@@ -11,7 +11,6 @@
                 <th>Логин</th>
                 <th>Дата рождения</th>
                 <th>Роль</th>
-                <th>Действие</th>
             </tr>
         </thead>
         <tbody>
@@ -24,18 +23,6 @@
                         <td>@user.Login</td>
                         <td>@user.BirthDate.ToString("dd-MM-yyyy")</td>
                         <td>@user.Role</td>
-                        <td>
-                            <div class="action">
-                                <form method="post" action="/Users/Delete" onsubmit="return confirm('Вы уверены что хотите удалить?')">
-                                    <input type="hidden" name="login" value="@user.Login" />
-                                    <button type="submit" class="btn_del">Удалить</button>
-                                </form>
-                                <form method="get" action="/Users/EditUser">
-                                    <input type="hidden" name="login" value="@user.Login" />
-                                    <button type="submit" class="btn_edit">Редоктировать</button>
-                                </form>
-                            </div>
-                        </td>
                     </tr>
                 }
             }
