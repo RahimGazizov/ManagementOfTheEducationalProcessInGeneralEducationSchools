@@ -1,20 +1,57 @@
-﻿@model CreateUser
+﻿@model EditUserDTO
 <h1>Редоктирование пользователя</h1>
 <div class="conteiner">
+    @if (TempData["Error"] != null)
+    {
+        <div class="text-danger">@TempData["Error"]</div>
+    }
     <form method="post" asp-action="EditUser">
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <input type="hidden" name="returnUrl" value="@TempData["Url"]" />
+        <input type="hidden" asp-for="UserId" value="@Model.UserId" />
         <label asp-for="FullName">Введите ФИО</label>
         <input type="text" asp-for="FullName" required />
+        <label>Телефон</label>
+        <input type="tel" asp-for="PhoneNumber" required />
         <label asp-for="Login">Введите логин</label>
         <input type="text" asp-for="Login" required />
         <label asp-for="BirthDate">Введите дату рождения</label>
         <input type="date" asp-for="BirthDate" required />
         <label asp-for="Role">Выберите роль:</label>
-        <select asp-for="Role" asp-items="ViewBag.Roles"></select>
+        <select id="role" asp-for="Role" asp-items="ViewBag.Roles"></select>
+        <div id="classDiv" style="display:none; margin-top:10px;">
+            <div class="class">
+                <label>Выберите номер класса</label>
+                <select id="numClassSelect">
+                    <option value="">Выберите номер</option>
+                    @for (int i = 1; i < 12; i++)
+                    {
+                        if (Model.StudentClassNumber == i)
+                        {
+                            <option value="@i" selected>@i</option>
+                        }
+                        else
+                        {
+                            <option value="@i">@i</option>
+                        }
+                    }
+                </select>
+
+                <select id="letterClassSelect" name="StudentClassId">
+                    @if (Model.StudentClassLetter != null)
+                    {
+                        <option value="@Model.StudentClassId" selected>@Model.StudentClassLetter</option>
+                    }
+                    else
+                    {
+                        <option value="">Сначала выберите номер</option>
+                    }
+                </select>
+            </div>
+        </div>
         <button type="submit" class="btn_add">Обновить</button>
         <a asp-action="ResetPassword"
            asp-controller="Users"
-           asp-route-login="@Model.Login"
+           asp-route-login="@Model"
            class="btn_res">
             Сбросить пароль
         </a>
@@ -42,6 +79,12 @@
         background: white;
         box-shadow: 0 10px 25px rgba(0,0,0,0.08);
         margin: 20px auto;
+    }
+
+    .inputPhone {
+        display: flex;
+        justify-content: left;
+        gap: 10px;
     }
 
     form {
@@ -83,9 +126,15 @@
         .btn_add:hover {
             background: #2563eb;
         }
-    
+
     .text-danger {
         color: #dc2626;
+    }
+
+    .class {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
     }
 
     .btn_res {
@@ -111,3 +160,51 @@
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
         }
 </style>
+<script>
+    const roleSelect = document.getElementById("role");
+    const classDiv = document.getElementById("classDiv");
+
+    function toggleClassDiv() {
+        if (roleSelect.value === "Ученик") {
+            classDiv.style.display = "block";
+        } else {
+            classDiv.style.display = "none";
+        }
+    }
+
+    roleSelect.addEventListener("change", toggleClassDiv);
+    toggleClassDiv();
+
+    const numClassSelect = document.getElementById("numClassSelect");
+    const letterClassSelect = document.getElementById("letterClassSelect");
+
+    // передаем текущую букву из модели в JS
+    const currentClassId = "@(Model.StudentClassId ?? "")";
+    function loadLettersForSelectedClass() {
+      const numClass = numClassSelect.value;
+      if (!numClass) return;
+
+      letterClassSelect.innerHTML = '<option value="">Загрузка...</option>';
+
+      fetch(`/Users/GetLetterClass?numClass=${numClass}`)
+          .then(res => res.json())
+          .then(data => {
+              letterClassSelect.innerHTML = '<option value="">Выберите букву</option>';
+                 data.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.id;          // ID класса
+        opt.textContent = c.letterClass; // буква для отображения
+        if (c.id === currentClassId) {   // СРАВНИВАЕМ ID, а не букву
+            opt.selected = true;
+        }
+        letterClassSelect.appendChild(opt);
+    });
+          })
+          .catch(() => {
+              letterClassSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
+          });
+    }
+
+    loadLettersForSelectedClass();
+    numClassSelect.addEventListener("change", loadLettersForSelectedClass);
+</script>
