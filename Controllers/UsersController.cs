@@ -45,6 +45,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         {
             var roles = await GetRoles();
             ViewBag.Roles = await GetSelectList(roles);
+            Random random = new Random();
+            ViewBag.TemproryPassword = "Temp" + random.Next(1000, 9999) + "!";
             return View();
         }
         [HttpPost]
