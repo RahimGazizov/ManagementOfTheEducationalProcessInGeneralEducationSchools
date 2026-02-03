@@ -15,12 +15,13 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         public async Task<IActionResult> Index(string? error)
         {
+            
             TempData["Error"] = error;
             var classes = await _context.Classes.ToListAsync();
             return View(classes);
         }
         [HttpPost]
-        public async Task<IActionResult> AddClass(int numClass, char letterClass)
+        public async Task<IActionResult> AddClass(int numClass, string letterClass)
         {
             if (_context.Classes.FirstOrDefault(c => c.LetterClass == letterClass && c.NumClass == numClass) != null)
                 return RedirectToAction("Index", new { error = "Такой класс уже существует" });
@@ -44,7 +45,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             return RedirectToAction("Index");
         }
         [HttpPost]
-        public async Task<IActionResult> Edit(string id, int numClass, char letterClass)
+        public async Task<IActionResult> Edit(string id, int numClass, string letterClass)
         {
             var cls = await _context.Classes.FindAsync(id);
             if (cls == null)
