@@ -1,18 +1,15 @@
 ﻿@model CreateUser
 <h1>Добавление пользователя</h1>
 <div class="conteiner">
+    @if (TempData["Error"] != null){
+        <div class="text-danger">@TempData["Error"]</div>
+    }
     <form method="post" asp-action="AddUsers">
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        
         <label asp-for="FullName">Введите ФИО</label>
         <input type="text" asp-for="FullName" required />
         <label>Телефон</label>
-        <div class="inputPhone">
-            <select id="countryCode">
-                <option value="+996">🇰🇬 +996</option>
-            </select>
-            <input id="phone" type="tel" placeholder="(___) ___ ___">
-            <input type="hidden" name="PhoneNumber" id="phoneHidden">
-        </div>
+        <input type="tel" asp-for="PhoneNumber" required />
         <label asp-for="Login">Введите логин</label>
         <input type="text" asp-for="Login" required />
         <label asp-for="Password">Пароль</label>
@@ -158,31 +155,4 @@
             letterClassSelect.innerHTML = '<option value="">Сначала выберите номер</option>';
         }
     });
-        const country = document.getElementById("country");
-    const phone = document.getElementById("phone");
-    const hidden = document.getElementById("phoneHidden");
-
-    phone.addEventListener("input", formatPhone);
-    country.addEventListener("change", formatPhone);
-
-    function formatPhone() {
-
-        let digits = phone.value.replace(/\D/g, "");
-
-        let formatted = "";
-
-        if (digits.length > 0)
-            formatted = "(" + digits.substring(0,3);
-
-        if (digits.length >= 4)
-            formatted += ") " + digits.substring(3,6);
-
-        if (digits.length >= 7)
-            formatted += " " + digits.substring(6,9);
-
-        phone.value = formatted;
-
-        hidden.value = country.value.replace("+","") + digits;
-    }
-
 </script>
