@@ -22,7 +22,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<char>("LetterClass")
+                    b.Property<string>("LetterClass")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("NumClass")
