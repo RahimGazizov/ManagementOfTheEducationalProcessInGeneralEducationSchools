@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using InformationSystemOfASchoolIducationalPortal.Models;
 using InformationSystemOfASchoolIducationalPortal.Data;
+using Microsoft.EntityFrameworkCore;
 namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
 {
     public class CRUDUser
@@ -36,7 +37,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 var addRole = await _users.AddToRoleAsync(user, createUser.Role);
                 if (!addRole.Succeeded)
                     return Errors(addRole);
-                if(createUser.Role == "Ученик")
+                if (createUser.Role == "Ученик")
                 {
                     var student = new Students
                     {
@@ -53,11 +54,11 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 return OperationResult.Fail(ex.Message);
             }
         }
-        public async Task<OperationResult> Delete(string login)
+        public async Task<OperationResult> Delete(string id)
         {
             try
             {
-                var user = await _users.FindByNameAsync(login);
+                var user = await _users.FindByIdAsync(id);
                 if (user == null)
                     return OperationResult.Fail("Пользователь не найден");
                 var result = await _users.DeleteAsync(user);
@@ -70,29 +71,42 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 return OperationResult.Fail(ex.Message);
             }
         }
-        public async Task<OperationResult> Edit(CreateUser user)
+        public async Task<OperationResult> Edit(EditUserDTO dto)
         {
             try
             {
-                var findUser = await _users.FindByNameAsync(user.Login);
+                var findUser = await _users.FindByIdAsync(dto.UserId);
                 if (findUser == null)
                     return OperationResult.Fail("Пользователь не найден");
                 var roles = await _users.GetRolesAsync(findUser);
                 var removeRoles = await _users.RemoveFromRolesAsync(findUser, roles);
                 if (!removeRoles.Succeeded)
                     return Errors(removeRoles);
-                var aadRole = await _users.AddToRoleAsync(findUser, user.Role);
+                var aadRole = await _users.AddToRoleAsync(findUser, dto.Role);
                 if (!aadRole.Succeeded)
                     return Errors(aadRole);
-                findUser.FullName = user.FullName;
-                findUser.UserName = user.Login;
-                findUser.BirthDate = user.BirthDate;
+                findUser.FullName = dto.FullName;
+                findUser.UserName = dto.Login;
+                findUser.BirthDate = dto.BirthDate;
+                findUser.PhoneNumber = dto.PhoneNumber;
+                if (dto.Role.Contains("Ученик"))
+                {
+                    var student = await _context.Students.FirstOrDefaultAsync(u => u.UserId == findUser.Id);
+                    if (student != null)
+                    {
+                        student.ClassId = dto.StudentClassId;
+                        _context.Students.Update(student);
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                        return OperationResult.Fail("Пользователь не найден");
+                }
                 var result = await _users.UpdateAsync(findUser);
                 if (!result.Succeeded)
                     return Errors(result);
                 return OperationResult.Ok();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return OperationResult.Fail(ex.Message);
             }
@@ -110,7 +124,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     return Errors(result);
                 return OperationResult.Ok();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return OperationResult.Fail(ex.Message);
             }
