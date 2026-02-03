@@ -4,7 +4,7 @@
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public int NumClass { get; set; }
-        public char LetterClass { get; set; }
+        public string LetterClass { get; set; }
         public List<Students>? Students { get; set; }
     }
 }
