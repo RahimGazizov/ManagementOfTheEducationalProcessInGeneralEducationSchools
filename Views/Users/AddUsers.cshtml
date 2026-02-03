@@ -5,12 +5,18 @@
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <label asp-for="FullName">Введите ФИО</label>
         <input type="text" asp-for="FullName" required />
-        <label asp-for="PhoneNumber">Введите номер телефона</label>
-        <input type="text" asp-for="PhoneNumber" required />
+        <label>Телефон</label>
+        <div class="inputPhone">
+            <select id="countryCode">
+                <option value="+996">🇰🇬 +996</option>
+            </select>
+            <input id="phone" type="tel" placeholder="(___) ___ ___">
+            <input type="hidden" name="PhoneNumber" id="phoneHidden">
+        </div>
         <label asp-for="Login">Введите логин</label>
         <input type="text" asp-for="Login" required />
-        <label asp-for="Password">Введите пароль</label>
-        <input type="text" asp-for="Password" required />
+        <label asp-for="Password">Пароль</label>
+        <input type="text" asp-for="Password" value="@ViewBag.TemproryPassword" readonly required />
         <label asp-for="BirthDate">Введите дату рождения</label>
         <input type="date" asp-for="BirthDate" required />
         <label asp-for="Role">Выберите роль:</label>
@@ -57,7 +63,11 @@
         box-shadow: 0 10px 25px rgba(0,0,0,0.08);
         margin: 20px auto;
     }
-
+    .inputPhone{
+        display: flex;
+        justify-content: left;
+        gap: 10px;
+    }
     form {
         display: flex;
         flex-direction: column;
@@ -148,4 +158,31 @@
             letterClassSelect.innerHTML = '<option value="">Сначала выберите номер</option>';
         }
     });
+        const country = document.getElementById("country");
+    const phone = document.getElementById("phone");
+    const hidden = document.getElementById("phoneHidden");
+
+    phone.addEventListener("input", formatPhone);
+    country.addEventListener("change", formatPhone);
+
+    function formatPhone() {
+
+        let digits = phone.value.replace(/\D/g, "");
+
+        let formatted = "";
+
+        if (digits.length > 0)
+            formatted = "(" + digits.substring(0,3);
+
+        if (digits.length >= 4)
+            formatted += ") " + digits.substring(3,6);
+
+        if (digits.length >= 7)
+            formatted += " " + digits.substring(6,9);
+
+        phone.value = formatted;
+
+        hidden.value = country.value.replace("+","") + digits;
+    }
+
 </script>
