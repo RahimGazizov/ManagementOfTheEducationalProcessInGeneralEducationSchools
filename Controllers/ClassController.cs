@@ -15,9 +15,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         public async Task<IActionResult> Index(string? error)
         {
-            
             TempData["Error"] = error;
-            var classes = await _context.Classes.ToListAsync();
+            var classes = await _context.Classes.Include(c => c.Students).ToListAsync();
             return View(classes);
         }
         [HttpPost]
