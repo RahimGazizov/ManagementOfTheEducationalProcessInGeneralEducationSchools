@@ -20,7 +20,9 @@
                     <tr>
                         <td>@student.User.FullName</td>
                         <td>@student.User.BirthDate</td>
-                        <td>@student.Class.NumClass@student.Class.LetterClass</td>
+                        <td>
+                            @(student.Class != null ? $"{student.Class.NumClass}{student.Class.LetterClass}" : "Нет класса")
+                        </td>
                         <td>@student.User.FullName</td>
                         <td>@student.User.PhoneNumber</td>
                         <td>
