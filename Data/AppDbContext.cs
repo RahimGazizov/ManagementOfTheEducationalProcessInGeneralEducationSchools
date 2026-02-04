@@ -22,7 +22,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Data
                 .HasOne(s => s.Class)
                 .WithMany(c => c.Students) // если один класс может иметь много студентов
                 .HasForeignKey(s => s.ClassId)
-                .IsRequired();
+                 .OnDelete(DeleteBehavior.SetNull);
         }
     }
 
