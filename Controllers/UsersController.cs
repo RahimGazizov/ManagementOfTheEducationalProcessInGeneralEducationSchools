@@ -75,8 +75,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         public async Task<IActionResult> EditUser(string id, string returnUrl)
         {
-            Console.WriteLine($"Ссылка на редирект {returnUrl}");
-            Console.WriteLine($"Айди {id}");
             var user = await _users.FindByIdAsync(id);
             var roles = await _users.GetRolesAsync(user);
             var dto = new EditUserDTO
@@ -93,8 +91,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 var student = await _context.Students.Include(c => c.Class)
                     .FirstOrDefaultAsync(u => u.UserId == user.Id);
                 dto.StudentClassId = student.ClassId;
-                dto.StudentClassNumber = student.Class.NumClass;
-                dto.StudentClassLetter = student.Class.LetterClass;
+                dto.StudentClassNumber = student.Class?.NumClass ?? 0;
+                dto.StudentClassLetter = student.Class?.LetterClass ?? "нет буквы";
             }
             ViewBag.Roles = await GetSelectList(await GetRoles());
             TempData["Url"] = returnUrl;
@@ -139,6 +137,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             var letters = await _context.Classes
         .Where(c => c.NumClass == numClass)
         .Select(c => new { c.Id, c.LetterClass })
+        .OrderBy(c => c.LetterClass)
         .ToListAsync();
             return Json(letters);
 
