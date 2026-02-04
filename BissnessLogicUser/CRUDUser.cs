@@ -46,6 +46,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     };
                     _context.Students.Add(student);
                     await _context.SaveChangesAsync();
+
                 }
                 return OperationResult.Ok();
             }
