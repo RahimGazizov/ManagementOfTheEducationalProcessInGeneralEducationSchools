@@ -20,7 +20,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Data
 
             modelBuilder.Entity<Students>()
                 .HasOne(s => s.Class)
-                .WithMany() // если один класс может иметь много студентов
+                .WithMany(c => c.Students) // если один класс может иметь много студентов
                 .HasForeignKey(s => s.ClassId)
                 .IsRequired();
         }
