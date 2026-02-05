@@ -8,6 +8,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         public DbSet<Class> Classes { get; set; }
         public DbSet<Students> Students { get; set; }
+        public DbSet<Subjects> Subjects { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
