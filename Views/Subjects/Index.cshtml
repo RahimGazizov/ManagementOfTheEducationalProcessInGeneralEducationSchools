@@ -1,0 +1,287 @@
+﻿@model List<Subjects>
+
+<h1>Предметы</h1>
+<div class="conteiner">
+    <button type="button" id="openModalBtn" class="btn_add">Добавить предмет</button>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div style="color:red;">@TempData["ErrorMessage"]</div>
+    }
+
+    <table>
+        <thead>
+            <tr>
+                <th>Наименование предмета</th>
+                <th>Действие</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var s in Model)
+                {
+                    <tr>
+                        <td>@s.Name</td>
+                        <td>
+                            <div class="action">
+                                <form method="post" asp-action="Delete" asp-route-id="@s.Id"
+                                      onsubmit="return confirm('Вы уверены что хотите удалить?')">
+                                    <button type="submit" class="btn_del">Удалить</button>
+                                </form>
+                                <button type="button"
+                                        data-id="@s.Id"
+                                        data-name="@s.Name"
+                                        class="btn_edit editBtn">
+                                    Редактировать
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td>Список предметов пуст</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Модалка добавления -->
+<div id="subjectWindow" class="modal">
+    <div class="modal-content">
+        <span id="closeAddModalBtn" class="close">&times;</span>
+        @if (TempData["Error"] != null)
+        {
+            <div style="color:red;">@TempData["Error"]</div>
+        }
+        <form method="post" asp-action="AddSubject">
+            <label>Название предмета</label>
+            <input type="text" name="subjectName" value="@(TempData["SubjectName"] ?? "")" required />
+            <button type="submit" class="add">Добавить</button>
+        </form>
+    </div>
+</div>
+
+<!-- Модалка редактирования -->
+<div id="editSubjectWindow" class="modal">
+    <div class="modal-content">
+        <span id="closeEditModalBtn" class="close">&times;</span>
+        @if (TempData["EditError"] != null)
+        {
+            <div style="color:red;">@TempData["EditError"]</div>
+        }
+        <form method="post" asp-action="EditSubject">
+            <input id="subjectId" type="hidden" name="id" value="@(TempData["IdSub"] ?? "")" />
+            <label>Название предмета</label>
+            <input id="editSubjectName" type="text" name="subjectName" value="@(TempData["editSub"] ?? "")" required />
+            <button type="submit" class="add">Обновить</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    body {
+        font-family: 'Times New Roman', Times, serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9fa;
+    }
+
+    h1 {
+        font-size: 28px;
+        font-weight: bold;
+        margin-top: 20px;
+        text-align: center;
+        color: #333;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        background-color: rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .close {
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .modal-content {
+        width: 400px;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    .add {
+        margin-top: 10px;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        background: #3b82f6;
+        color: white;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .add:hover {
+            background: #2563eb;
+        }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+        form input {
+            padding: 8px 12px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        form label {
+            font-size: 20px;
+            display: inline-block;
+            color: dimgrey;
+        }
+
+    .conteiner {
+        width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        background-color: #ffffff;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+
+        table th {
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+    tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tbody tr:hover {
+        background-color: #e0f7fa;
+    }
+
+    .action {
+        display: flex;
+        justify-content: left;
+        gap: 10px;
+    }
+
+    .btn_del {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        background-color: red;
+        color: white;
+        transition: background-color 0.2s;
+    }
+
+        .btn_del:hover {
+            background-color: darkred;
+        }
+
+    .btn_edit {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        background-color: green;
+        color: white;
+        transition: background-color 0.2s;
+    }
+
+        .btn_edit:hover {
+            background-color: forestgreen;
+        }
+
+    .btn_add {
+        display: inline-block;
+        padding: 8px 12px;
+        color: white;
+        border: none;
+        background-color: blue;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: transform 0.3s ease-in-out;
+    }
+
+        .btn_add:hover {
+            transform: scale(1.1);
+        }
+</style>
+
+<script>
+    window.onload = function() {
+        const addModal = document.getElementById("subjectWindow");
+        const openModalBtn = document.getElementById("openModalBtn");
+        const closeAddModalBtn = document.getElementById("closeAddModalBtn");
+
+        const editModal = document.getElementById("editSubjectWindow");
+        const closeEditModalBtn = document.getElementById("closeEditModalBtn");
+
+        // Клик по кнопке "Добавить предмет"
+        openModalBtn.onclick = function() {
+            addModal.style.display = "flex";
+        };
+
+        // Закрытие крестиком
+        closeAddModalBtn.onclick = function() {
+            addModal.style.display = "none";
+        };
+        closeEditModalBtn.onclick = function() {
+            editModal.style.display = "none";
+        };
+
+        // Клик по кнопке редактирования
+        document.querySelectorAll(".editBtn").forEach(btn => {
+            btn.onclick = function() {
+                document.getElementById("subjectId").value = this.dataset.id;
+                document.getElementById("editSubjectName").value = this.dataset.name;
+                editModal.style.display = "flex";
+            };
+        });
+
+        // Закрытие по клику вне модалки
+        window.onclick = function(event) {
+            if (event.target === addModal) addModal.style.display = "none";
+            if (event.target === editModal) editModal.style.display = "none";
+        };
+
+        // Показ модалки если есть ошибка
+    @if (TempData["Error"] != null)
+    {
+        <text>addModal.style.display = "flex";</text>
+    }
+
+    @if (TempData["EditError"] != null)
+    {
+        <text>editModal.style.display = "flex";</text>
+    }
+    };
+</script>
