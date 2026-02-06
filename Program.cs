@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<CRUDUser>();
 builder.Services.AddScoped<CRUDClass>();
+builder.Services.AddScoped<CRUDSubject>();
 builder.Services.AddDbContext<AppDbContext>(options =>
 options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddIdentity<Users, IdentityRole>(options =>
@@ -42,8 +43,11 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// MVC стартовая
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
 
 app.Run();
