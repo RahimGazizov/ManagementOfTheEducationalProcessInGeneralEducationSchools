@@ -9,6 +9,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Data
         public DbSet<Class> Classes { get; set; }
         public DbSet<Students> Students { get; set; }
         public DbSet<Subjects> Subjects { get; set; }
+        public DbSet<Teachers> Teachers { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -24,6 +25,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Data
                 .WithMany(c => c.Students) // если один класс может иметь много студентов
                 .HasForeignKey(s => s.ClassId)
                  .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<Teachers>()
+                .HasOne(s => s.User)
+                .WithOne()
+                .HasForeignKey<Teachers>(s => s.UserId)
+                .IsRequired();
         }
     }
 
