@@ -56,7 +56,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.ToTable("Students");
                 });
 
-            modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.SubjectsModal", b =>
+            modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.Subjects", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -68,6 +68,23 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Subjects");
+                });
+
+            modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.Teachers", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Teachers");
                 });
 
             modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.Users", b =>
@@ -283,6 +300,17 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .IsRequired();
 
                     b.Navigation("Class");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.Teachers", b =>
+                {
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Users", "User")
+                        .WithOne()
+                        .HasForeignKey("InformationSystemOfASchoolIducationalPortal.Models.Teachers", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
