@@ -42,7 +42,6 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-
 // MVC стартовая
 app.MapControllerRoute(
     name: "default",
