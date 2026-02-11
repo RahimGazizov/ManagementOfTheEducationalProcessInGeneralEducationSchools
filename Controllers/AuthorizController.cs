@@ -9,9 +9,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
     public class AuthorizController : Controller
     {
         private readonly UserManager<Users> _users;
-        public AuthorizController(UserManager<Users> users)
+        private readonly SignInManager<Users> _signInManager;
+        public AuthorizController(UserManager<Users> users, SignInManager<Users> signInManager)
         {
             _users = users;
+            _signInManager = signInManager;
         }
         public IActionResult Index()
         {
@@ -29,9 +31,15 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 ViewBag.Password = password;
                 return View();
             }
-            var result = await _users.CheckPasswordAsync(user, password);
-            if (result)
-                return RedirectToAction("Index", "Home");
+            var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
+            if (result.Succeeded)
+            {
+                if (await _users.IsInRoleAsync(user, "Админ"))
+                    return RedirectToAction("Index", "AdminPersonalAccount");
+                if (await _users.IsInRoleAsync(user, "Учитель"))
+                    return RedirectToAction("Index", "Teachers");
+                return RedirectToAction("Index", "Authoriz");
+            }
             else
             {
                 TempData["Error"] = "Не верный логин или пароль";
