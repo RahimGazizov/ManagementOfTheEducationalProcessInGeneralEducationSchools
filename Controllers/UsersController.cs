@@ -61,6 +61,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 TempData["Error"] = result.Message;
                 var roles = await GetRoles();
                 ViewBag.Roles = await GetSelectList(roles);
+                ViewBag.TemproryPassword = createUser.Password;
                 return View(createUser);
             }
             return RedirectToAction("Index");
