@@ -46,7 +46,7 @@ app.UseAuthorization();
 // MVC стартовая
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Authoriz}/{action=Index}/{id?}");
 
 
 
