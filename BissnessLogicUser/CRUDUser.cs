@@ -48,6 +48,15 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     await _context.SaveChangesAsync();
 
                 }
+                if(createUser.Role == "Учитель")
+                {
+                    var teacher = new Teachers
+                    {
+                        UserId = user.Id,
+                    };
+                    _context.Teachers.Add(teacher);
+                    await _context.SaveChangesAsync();
+                }
                 return OperationResult.Ok();
             }
             catch (Exception ex)
