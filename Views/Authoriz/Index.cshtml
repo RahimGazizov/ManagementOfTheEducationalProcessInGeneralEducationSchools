@@ -1,0 +1,83 @@
+﻿<h1>Авторизация</h1>
+<div class="conteiner">
+    @if (TempData["Error"] != null)
+    {
+        <div style="color:red;font-size:18px;">@TempData["Error"]</div>
+    }
+    <form method="post" asp-action="Index">
+        <input placeholder="Логин" type="text" name="login" @(ViewBag?.Login != null ? $"value={ViewBag.Login}" : "") required />
+
+
+        <div style="position:relative;">
+            <input placeholder="Пароль" type="password" name="password" id="password" value="@(ViewBag?.Password ?? "")" required  />
+            <span id="togglePassword" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">
+                👁
+            </span>
+        </div>
+
+        <button class="btn" type="submit">Войти</button>
+    </form>
+</div>
+<style>
+    body {
+        padding: 0;
+        margin: 0;
+        font-family: 'Times New Roman', Times, serif;
+    }
+
+    h1 {
+        font-size: 28px;
+        font-weight: 700;
+        text-align: center;
+        margin-top: 60px;
+    }
+
+    .conteiner {
+        width: 400px;
+        margin: 10px auto;
+        padding: 20px;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+        form input {
+            padding: 8px 12px;
+            border-radius: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+        }
+
+    input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+    }
+
+    .btn {
+        margin-top: 10px;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        background: #3b82f6;
+        color: white;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+</style>
+<script>
+    const toggle = document.getElementById("togglePassword");
+    const password = document.getElementById("password");
+
+    toggle.addEventListener("click", () => {
+        const type = password.type === "password" ? "text" : "password";
+        password.type = type;
+    });
+</script>
