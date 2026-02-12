@@ -51,7 +51,8 @@
         <button type="submit" class="btn_add">Обновить</button>
         <a asp-action="ResetPassword"
            asp-controller="Users"
-           asp-route-login="@Model"
+           asp-route-id="@Model.UserId"
+           asp-route-returnUrl="@TempData["Url"]"
            class="btn_res">
             Сбросить пароль
         </a>
