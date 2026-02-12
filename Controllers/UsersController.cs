@@ -5,14 +5,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
 using InformationSystemOfASchoolIducationalPortal.Data;
+using Microsoft.AspNetCore.Authorization;
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
+    [Authorize(Roles = "Админ")]
     public class UsersController : Controller
     {
         private readonly UserManager<Users> _users;
         private readonly RoleManager<IdentityRole> _roles;
         private readonly CRUDUser _crudUser;
         private readonly AppDbContext _context;
+        
         public UsersController(UserManager<Users> users, RoleManager<IdentityRole> roles,
             CRUDUser crudUser, AppDbContext context)
         {
@@ -21,11 +24,10 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             _crudUser = crudUser;
             _context = context;
         }
-
         public async Task<IActionResult> Index(string? error)
         {
-            
-            await EnsureRoles(_roles);
+            if (!User.Identity.IsAuthenticated)
+                return RedirectToAction("Index", "Authoriz");
             TempData["Error"] = error;
             var users = await GetUsersList();
             var usersRole = new List<CreateUser>();
@@ -36,7 +38,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 {
                     UserId = user.Id,
                     FullName = user.FullName,
-                    Login = user.UserName,
+                    Login = user?.UserName ?? "Нет логина",
                     BirthDate = user.BirthDate,
                     Role = string.Join(", ", role)
                 });
@@ -113,26 +115,31 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             }
             return Redirect(returnUrl);
         }
-        public async Task<IActionResult> ResetPassword(string login)
+        public async Task<IActionResult> ResetPassword(string id, string returnUrl)
         {
-            var user = await _users.FindByNameAsync(login);
+            var user = await _users.FindByIdAsync(id);
+            if (user == null)
+                return RedirectToAction(returnUrl, new { error = "Пользователь не найден" });
+            
             Random random = new Random();
             string temproryPassword = "Temp" + Convert.ToString(random.Next(1000, 9999)) + "!";
             ViewBag.TemproryPas = temproryPassword;
-            ViewBag.Login = user.UserName;
+            ViewBag.Id = user.Id;
+            ViewData["UrlAction"] = returnUrl;
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> ResetPassword(string login, string newPassword, string returnUrl)
+        public async Task<IActionResult> ResetPassword(string id, string newPassword, string returnUrl)
         {
-            var result = await _crudUser.ResetPassword(login, newPassword);
+            Console.WriteLine($"ID-{id}");
+            var result = await _crudUser.ResetPassword(id, newPassword);
             if (!result.Succeeded)
             {
                 TempData["Error"] = result.Message;
                 return View();
             }
             return Redirect(returnUrl);
-        }
+        }   
         public async Task<JsonResult> GetLetterClass(int numClass)
         {
             var letters = await _context.Classes

@@ -1,9 +1,11 @@
 ﻿using InformationSystemOfASchoolIducationalPortal.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
+    [Authorize(Roles = "Админ")]
     public class StudentsController : Controller
     {
         private readonly AppDbContext _context;

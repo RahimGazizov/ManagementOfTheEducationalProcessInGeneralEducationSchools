@@ -59,7 +59,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.ToTable("Students");
                 });
 
-            modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.Users", b =>
+            modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -265,7 +265,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Users", "User")
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.User", "User")
                         .WithOne()
                         .HasForeignKey("InformationSystemOfASchoolIducationalPortal.Models.Students", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -287,7 +287,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Users", null)
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -296,7 +296,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Users", null)
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -311,7 +311,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Users", null)
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -320,7 +320,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Users", null)
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

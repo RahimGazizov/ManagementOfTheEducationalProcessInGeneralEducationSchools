@@ -10,6 +10,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Data
         public DbSet<Students> Students { get; set; }
         public DbSet<Subjects> Subjects { get; set; }
         public DbSet<Teachers> Teachers { get; set; }
+        public DbSet<Admins> Admins { get; set; }
+        public DbSet<TeacherAssigment> TeacherAssigments { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -29,6 +31,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Data
                 .HasOne(s => s.User)
                 .WithOne()
                 .HasForeignKey<Teachers>(s => s.UserId)
+                .IsRequired();
+            modelBuilder.Entity<Admins>()
+                .HasOne(s => s.User)
+                .WithOne()
+                .HasForeignKey<Admins>(s => s.UserId)
                 .IsRequired();
         }
     }
