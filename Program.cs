@@ -10,6 +10,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<CRUDUser>();
 builder.Services.AddScoped<CRUDClass>();
 builder.Services.AddScoped<CRUDSubject>();
+builder.Services.AddScoped<TeachingAssigmentLogic>();
 builder.Services.AddDbContext<AppDbContext>(options =>
 options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddIdentity<Users, IdentityRole>(options =>
