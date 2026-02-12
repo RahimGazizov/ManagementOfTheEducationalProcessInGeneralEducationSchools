@@ -1,12 +1,14 @@
 ﻿using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
 using InformationSystemOfASchoolIducationalPortal.Data;
 using InformationSystemOfASchoolIducationalPortal.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
+    [Authorize(Roles = "Админ")]
     public class ClassController : Controller
     {
         private readonly AppDbContext _context;
