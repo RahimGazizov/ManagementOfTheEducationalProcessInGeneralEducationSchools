@@ -57,6 +57,15 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     _context.Teachers.Add(teacher);
                     await _context.SaveChangesAsync();
                 }
+                if(createUser.Role == "Админ")
+                {
+                    var admin = new Admins
+                    {
+                        UserId = user.Id
+                    };
+                    _context.Admins.Add(admin);
+                    await _context.SaveChangesAsync();
+                }
                 return OperationResult.Ok();
             }
             catch (Exception ex)
@@ -121,11 +130,11 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 return OperationResult.Fail(ex.Message);
             }
         }
-        public async Task<OperationResult> ResetPassword(string login, string newPassword)
+        public async Task<OperationResult> ResetPassword(string id, string newPassword)
         {
             try
             {
-                var user = await _users.FindByNameAsync(login);
+                var user = await _users.FindByIdAsync(id);
                 if (user == null)
                     return OperationResult.Fail("Пользователь не найден");
                 var token = await _users.GeneratePasswordResetTokenAsync(user);
