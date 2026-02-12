@@ -37,14 +37,15 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 if (await _users.IsInRoleAsync(user, "Админ"))
                     return RedirectToAction("Index", "AdminPersonalAccount");
                 if (await _users.IsInRoleAsync(user, "Учитель"))
-                    return RedirectToAction("Index", "Teachers");
+                    return RedirectToAction("Index", "TeacherPerAcc");
+                if (await _users.IsInRoleAsync(user, "Ученик"))
+                    return RedirectToAction("Index", "StudentPerAcc");
                 return RedirectToAction("Index", "Authoriz");
             }
             else
             {
                 TempData["Error"] = "Не верный логин или пароль";
                 ViewBag.Login = login;
-                ViewBag.Password = password;
                 return View();
             }
         }
