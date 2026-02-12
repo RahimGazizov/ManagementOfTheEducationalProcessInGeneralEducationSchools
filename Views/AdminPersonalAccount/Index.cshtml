@@ -1,5 +1,9 @@
-﻿<a href="/Users/Index">Пользователи</a>
+﻿@model Admins
+<h1>Добро пожаловать @Model.User.FullName!</h1>
+<a href="/Users/Index">Пользователи</a>
 <a href="/Class/Index">Классы</a>
 <a href="/Students/Index">Ученики</a>
 <a href="/Subjects/Index">Предметы</a>
 <a href="/Teachers/Index">Учителя</a>
+<a href="/TeachingAssignment/Index">TeachingAssigment</a>
+<a asp-action="LogOut">Выйти</a>
