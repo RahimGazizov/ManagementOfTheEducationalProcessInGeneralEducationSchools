@@ -1,0 +1,140 @@
+﻿@model TeacherAssigment
+@{
+    var listT = ViewBag.ListTeachers as List<SelectListItem>;
+    var listS = ViewBag.ListSubjects as List<SelectListItem>;
+}
+<h3>Добавление новой записи</h3>
+<div class="conteiner">
+    @if(TempData["Error"] != null){
+        <div class="text-danger">@TempData["Error"]</div>
+    }
+    <form method="post" asp-action="Add">
+        <label>Учитель</label>
+        <select asp-for="TeacherId">
+            <option>Выберите учителя</option>
+            @foreach (var t in listT)
+            {
+                <option value="@t.Value">@t.Text</option>
+            }
+        </select>
+        <label>Предмет</label>
+        <select asp-for="SubjectId">
+            <option>Выберите Предмет</option>
+            @foreach (var s in listS)
+            {
+                <option value="@s.Value">@s.Text</option>
+            }
+        </select>
+            <label>Выберите номер класса</label>
+            <select id="numClassSelect">
+                <option value="">Выберите номер</option>
+                @for (int i = 1; i < 12; i++)
+                {
+                    <option value="@i">@i</option>
+                }
+            </select>
+            <label>Выберите букву класса</label>
+            <select id="letterClassSelect" asp-for="ClassId">
+                <option value="">Сначала выберите номер</option>
+            </select>
+            <button type="submit" class="btn_add">Добавить</button>
+    </form>
+</div>
+<style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #f4f7fb;
+    }
+
+    h3 {
+        text-align: center;
+        font-size: 26px;
+        margin-top: 60px;
+        color: #1f2937;
+    }
+
+    .conteiner {
+        width: 500px;
+        padding: 25px;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        margin: 20px auto;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    label {
+        color: #374151;
+        font-weight: 500;
+    }
+
+    input, select {
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        outline: none;
+        transition: 0.2s;
+    }
+
+        input:focus, select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+        }
+
+    .btn_add {
+        margin-top: 10px;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        background: #3b82f6;
+        color: white;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn_add:hover {
+            background: #2563eb;
+        }
+
+    .text-danger {
+        color: #dc2626;
+        font-size: 18px;
+    }
+</style>
+<script>
+     // --- AJAX для подгрузки букв по номеру класса ---
+    const numClassSelect = document.getElementById("numClassSelect");
+    const letterClassSelect = document.getElementById("letterClassSelect");
+
+    numClassSelect.addEventListener("change", function() {
+        const numClass = this.value;
+        letterClassSelect.innerHTML = '<option value="">Загрузка...</option>';
+
+        if(numClass) {
+            fetch(`/Users/GetLetterClass?numClass=${numClass}`)
+                .then(res => res.json())
+                .then(data => {
+                    letterClassSelect.innerHTML = '<option value="">Выберите букву</option>';
+                    data.forEach(c => {
+                        const opt = document.createElement("option");
+                        opt.value = c.id;          // Id класса из базы
+                        opt.textContent = c.letterClass; // Буква класса
+                        letterClassSelect.appendChild(opt);
+                    });
+                })
+                .catch(() => {
+                    letterClassSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
+                });
+        } else {
+            letterClassSelect.innerHTML = '<option value="">Сначала выберите номер</option>';
+        }
+    });
+</script>
