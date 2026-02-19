@@ -36,27 +36,50 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(TeacherAssigment assigment)
         {
-            Console.WriteLine($"Teacherid-{assigment.TeacherId}\nSubjectId-{assigment.SubjectId}\nClassId-{assigment.ClassId}");
-            var exists = await _context.TeacherAssigments
-               .AnyAsync(a => a.TeacherId == assigment.TeacherId &&
-               a.SubjectId == assigment.SubjectId && a.ClassId == assigment.ClassId);
-            if (exists)
+            var exists = await _assigmentLogic.Add(assigment);
+            if (!exists.Success)
             {
-                TempData["Error"] = "Такая сущность уже есть";
+                TempData["Error"] = exists.Message;
                 ViewBag.ListTeachers = await _assigmentLogic.GetListTeachers();
                 ViewBag.ListSubjects = await _assigmentLogic.GetListSubjects();
                 return View(assigment);
             }
-            var newAssigment = new TeacherAssigment
-            {
-                TeacherId = assigment.TeacherId,
-                SubjectId = assigment.SubjectId,
-                ClassId = assigment.ClassId,
-            };
-            _context.TeacherAssigments.Add(newAssigment);
-            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
-
+        public async Task<IActionResult> Edit(string id)
+        {
+            var assigment = await GetTeachingAssigment(id);
+            if (assigment == null)
+            {
+                TempData["Error"] = "Запись не найдена";
+                return RedirectToAction("Index");
+            }
+            ViewBag.ListTeachers = await _assigmentLogic.GetListTeachers();
+            ViewBag.ListSubjects = await _assigmentLogic.GetListSubjects();
+            return View(assigment);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Edit(TeacherAssigment assigment)
+        {
+            var findAssigment = await _assigmentLogic.Edit(assigment);
+            if (!findAssigment.Success)
+            {
+                TempData["Error"] = findAssigment.Message;
+                ViewBag.ListTeachers = await _assigmentLogic.GetListTeachers();
+                ViewBag.ListSubjects = await _assigmentLogic.GetListSubjects();
+                var assig = await GetTeachingAssigment(assigment.Id);
+                return View(assig);
+            }
+            return RedirectToAction("Index");
+        }
+        private async Task<TeacherAssigment> GetTeachingAssigment(string id)
+        {
+            return await _context.TeacherAssigments
+         .Include(t => t.Teacher)
+             .ThenInclude(u => u.User)
+         .Include(t => t.Subject)
+         .Include(t => t.Class)
+         .FirstOrDefaultAsync(a => a.Id == id);
+        }
     }
 }

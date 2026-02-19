@@ -1,3 +1,179 @@
 ﻿@model Teachers
+@{
+    var listS = ViewBag.ListSubjects as List<Subjects>;
+}
 <h1>Добро пожаловать!@Model.User.FullName Это ваш личный кабинет</h1>
-<a asp-action="LogOut">Выйти</a>
+<button type="button" id="openForm" class="btn_open">Создать электронный журнал</button>
+<button type="button" id="openFormJournal" class="btn_open">История журналов</button>
+<div id="modal" class="modal_window">
+    <div class="modal_content">
+        <span id="closeModal" class="close">&times;</span>
+        <form method="post" asp-controller="Journal" asp-action="Create">
+            <input type="hidden" name="teacherId" value="@Model.Id" />
+            <div class="form_row">
+                <label>Предмет:</label>
+                <select id="subjectSelectCreate" name="subjectId">
+                    <option>Выберите предмет</option>
+                    @foreach (var s in listS)
+                    {
+                        <option value="@s.Id">@s.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="form_row">
+                <label>Класс:</label>
+                <select id="classSelectCreate" name="classId" disabled>
+                    <option>Сначала выберите предмет</option>
+                </select>
+            </div>
+            <div class="form_row buttons">
+                <button type="submit" class="btn_create">Создать</button>
+                <a href="/TeacherPerAcc/Index" class="btn_exit">Выйти</a>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="modelForm" class="modal_window">
+    <div class="modal_content">
+        <form asp-action="JournalHistory" method="post">
+            <div class="form_row">
+                <label>Предмет:</label>
+                <select id="subjectSelectHistory" name="subjectId">
+                    <option>Выберите предмет</option>
+                    @foreach (var s in listS)
+                    {
+                        <option value="@s.Id">@s.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="form_row">
+                <label>Класс:</label>
+                <select id="classSelectHistory" name="classId" disabled>
+                    <option>Сначала выберите предмет</option>
+                </select>
+            </div>
+            <div class="form_row">
+                <label>Дата с</label>
+                <input type="date" name="dateFrom" required />
+            </div>
+
+            <div class="form_row">
+                <label>Дата по</label>
+                <input type="date" name="dateTo" required />
+            </div>
+            <div class="form_row buttons">
+                <button type="submit" class="btn_create">Отправить</button>
+                <a href="/TeacherPerAcc/Index" class="btn_exit">Выйти</a>
+            </div>
+        </form>
+    </div>
+</div>
+<a asp-action="LogOut" class="btn_exit">Выйти</a>
+<style>
+    .modal_window {
+        display: none; /* скрыто по умолчанию */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        background-color: rgba(0,0,0,0.5); /* полупрозрачный фон */
+
+
+        justify-content: center; /* по горизонтали */
+        align-items: center; /* по вертикали */
+    }
+
+    .modal_content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        width: 400px;
+        max-width: 90%; /* чтобы на мобильных помещалось */
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        position: relative;
+    }
+
+    h1 {
+        margin-bottom: 20px;
+        font-family: Arial, sans-serif;
+    }
+
+    .btn_open {
+        padding: 8px 15px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .close {
+        position: absolute; /* кнопка закрытия в углу */
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+        font-size: 20px;
+    }
+
+
+    .form_row {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+    }
+
+        .form_row select {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+    input {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    .form_row.buttons {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .btn_create {
+        padding: 6px 12px;
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn_exit {
+        padding: 6px 12px;
+        background-color: #dc3545;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        text-align: center;
+    }
+</style>
+<script>
+    var openModal = document.getElementById("openForm");
+    var model = document.getElementById("modal");
+    var close = document.getElementById("closeModal");
+    openModal.onclick = ()=> {
+        model.style.display = "flex";
+    }
+    close.onclick = ()=> {
+        model.style.display = "none";
+    }
+
+    const openModalForJournal = document.getElementById("openFormJournal");
+    const modelJournal = document.getElementById("modelForm");
+    openModalForJournal.onclick = ()=>{
+        modelJournal.style.display = "flex";
+    }
+</script>
+<script src="/js/getClassesForTeachers.js"></script>

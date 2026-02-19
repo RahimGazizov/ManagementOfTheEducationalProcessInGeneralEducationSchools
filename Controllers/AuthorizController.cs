@@ -15,10 +15,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             _users = users;
             _signInManager = signInManager;
         }
-        public IActionResult Index()
-        {
-            return View();
-        }
+        public IActionResult Index() => View();
+        
         [HttpPost]
         public async Task<IActionResult> Index(string login, string password)
         {
@@ -31,7 +29,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 ViewBag.Password = password;
                 return View();
             }
-            var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
+            var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: false, false);
             if (result.Succeeded)
             {
                 if (await _users.IsInRoleAsync(user, "Админ"))

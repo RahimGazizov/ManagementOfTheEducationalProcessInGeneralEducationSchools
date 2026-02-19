@@ -1,0 +1,138 @@
+﻿@model Journal
+<div class="conteiner">
+    <h3>Предмет: @Model.Subject.Name</h3>
+    <p>Учитель: @Model.Teacher.User.FullName</p>
+    <p>Класс: @Model.Class.NumClass@Model.Class.LetterClass</p>
+
+    @if (TempData["Error"] != null)
+    {
+        <p>@TempData["Error"]</p>
+    }
+    <form method="post" asp-controller="Journal" asp-action="SaveJournal">
+        <input type="hidden" asp-for="Id" value="@Model.Id" />
+        <button type="submit" class="btn_save">Сохранить</button>
+        <table id="journalTable">
+            <thead>
+                <tr>
+                    <th>ФИО учеников</th>
+                    <th>Оценка</th>
+                    <th>Присутствие</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int j = 0; j < Model.Entries.Count; j++)
+                {
+                    <input type="hidden" name="Entries[@j].Id" value="@Model.Entries[j].Id" />
+
+                    <tr>
+                        <td>@Model.Entries[j].Student.User.FullName</td>
+
+                        <td>
+                            <select name="Entries[@j].Grade">
+                                <option value="">-</option>
+                                @for (int g = 2; g <= 5; g++)
+                                {
+                                    if (Model.Entries[j].Grade == g)
+                                    {
+                                        <option value="@g" selected>@g</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@g">@g</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+
+                        <td>
+                            <select name="Entries[@j].IsPresent">
+                                <option value="true" selected="@(Model.Entries[j].IsPresent)">Присутствует</option>
+                                <option value="false" selected="@(!Model.Entries[j].IsPresent)">Отсутствует</option>
+                            </select>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+
+    </form>
+</div>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f6f8;
+        margin: 0;
+        padding: 0;
+    }
+
+    h2 {
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+
+    p {
+        color: #34495e;
+        margin: 2px 0 10px 0;
+    }
+
+    .conteiner {
+        background-color: #fff;
+        padding: 20px;
+        margin: 20px auto;
+        border-radius: 12px;
+        max-width: 900px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+
+        table th, table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+
+        table tr:hover {
+            background-color: #f1f7fb;
+        }
+
+    select {
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        background-color: #fff;
+    }
+
+    .btn_save {
+        padding: 8px 20px;
+        background-color: #2ecc71;
+        border: none;
+        color: white;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-bottom: 10px;
+    }
+
+        .btn_save:hover {
+            background-color: #27ae60;
+        }
+
+    p.error {
+        color: #e74c3c;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+</style>

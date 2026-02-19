@@ -26,8 +26,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         public async Task<IActionResult> Index(string? error)
         {
-            if (!User.Identity.IsAuthenticated)
-                return RedirectToAction("Index", "Authoriz");
             TempData["Error"] = error;
             var users = await GetUsersList();
             var usersRole = new List<CreateUser>();

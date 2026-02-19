@@ -127,32 +127,5 @@
             classDiv.style.display = "none";
         }
     });
-
-    // --- AJAX для подгрузки букв по номеру класса ---
-    const numClassSelect = document.getElementById("numClassSelect");
-    const letterClassSelect = document.getElementById("letterClassSelect");
-
-    numClassSelect.addEventListener("change", function() {
-        const numClass = this.value;
-        letterClassSelect.innerHTML = '<option value="">Загрузка...</option>';
-
-        if(numClass) {
-            fetch(`/Users/GetLetterClass?numClass=${numClass}`)
-                .then(res => res.json())
-                .then(data => {
-                    letterClassSelect.innerHTML = '<option value="">Выберите букву</option>';
-                    data.forEach(c => {
-                        const opt = document.createElement("option");
-                        opt.value = c.id;          // Id класса из базы
-                        opt.textContent = c.letterClass; // Буква класса
-                        letterClassSelect.appendChild(opt);
-                    });
-                })
-                .catch(() => {
-                    letterClassSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
-                });
-        } else {
-            letterClassSelect.innerHTML = '<option value="">Сначала выберите номер</option>';
-        }
-    });
 </script>
+<script src="~/js/classLetter.js"></script>

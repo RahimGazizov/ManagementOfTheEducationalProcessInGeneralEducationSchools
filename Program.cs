@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using InformationSystemOfASchoolIducationalPortal.Data;
 using InformationSystemOfASchoolIducationalPortal.Models;
 using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
+using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -11,6 +12,7 @@ builder.Services.AddScoped<CRUDUser>();
 builder.Services.AddScoped<CRUDClass>();
 builder.Services.AddScoped<CRUDSubject>();
 builder.Services.AddScoped<TeachingAssigmentLogic>();
+builder.Services.AddScoped<TeacherPerAccLogic>();
 builder.Services.AddDbContext<AppDbContext>(options =>
 options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddIdentity<Users, IdentityRole>(options =>
@@ -25,7 +27,15 @@ builder.Services.AddIdentity<Users, IdentityRole>(options =>
 })
     .AddDefaultTokenProviders()
 .AddEntityFrameworkStores<AppDbContext>();
-
+builder.Services.ConfigureApplicationCookie(option =>
+{
+    option.LoginPath = "/Authoriz/Index"; // адрес редиректа если пользователь не авторизован
+    option.ExpireTimeSpan = TimeSpan.FromHours(1); // кука удалиться после закрытия браузера
+    option.SlidingExpiration = true; // не продливать автоматически
+    option.Cookie.HttpOnly = true;
+    option.Cookie.IsEssential = true;
+    option.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
 
 var app = builder.Build();
 

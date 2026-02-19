@@ -3,18 +3,28 @@
     var listT = ViewBag.ListTeachers as List<SelectListItem>;
     var listS = ViewBag.ListSubjects as List<SelectListItem>;
 }
-<h3>Добавление новой записи</h3>
+<h3>Редоктирование</h3>
 <div class="conteiner">
-    @if(TempData["Error"] != null){
+    @if (TempData["Error"] != null)
+    {
         <div class="text-danger">@TempData["Error"]</div>
     }
-    <form method="post" asp-action="Add">
+    <form method="post" asp-action="Edit">
+        <input type="hidden" asp-for="Id" value="@Model.Id" />
         <label>Учитель</label>
         <select asp-for="TeacherId">
             <option>Выберите учителя</option>
             @foreach (var t in listT)
             {
-                <option value="@t.Value">@t.Text</option>
+                if (Model.Teacher.User.FullName == t.Text)
+                {
+                    <option value="@t.Value" selected>@t.Text</option>
+                }
+                else
+                {
+                    <option value="@t.Value">@t.Text</option>
+
+                }
             }
         </select>
         <label>Предмет</label>
@@ -22,22 +32,43 @@
             <option>Выберите Предмет</option>
             @foreach (var s in listS)
             {
-                <option value="@s.Value">@s.Text</option>
+                if (Model.Subject.Name == s.Text)
+                {
+                    <option value="@s.Value" selected>@s.Text</option>
+                }
+                else
+                {
+                    <option value="@s.Value">@s.Text</option>
+                }
             }
         </select>
-            <label>Выберите номер класса</label>
-            <select id="numClassSelect">
-                <option value="">Выберите номер</option>
-                @for (int i = 1; i < 12; i++)
+        <label>Выберите номер класса</label>
+        <select id="numClassSelect">
+            <option value="">Выберите номер</option>
+            @for (int i = 1; i < 12; i++)
+            {
+                if (Model.Class.NumClass == i)
+                {
+                    <option value="@i" selected>@i</option>
+                }
+                else
                 {
                     <option value="@i">@i</option>
                 }
-            </select>
-            <label>Выберите букву класса</label>
-            <select id="letterClassSelect" asp-for="ClassId">
+            }
+        </select>
+        <label>Выберите букву класса</label>
+        <select id="letterClassSelect" asp-for="ClassId">
+            @if (Model.Class.LetterClass != null)
+            {
+                <option value="@Model.ClassId" selected>@Model.Class.LetterClass</option>
+            }
+            else
+            {
                 <option value="">Сначала выберите номер</option>
-            </select>
-            <button type="submit" class="btn_add">Добавить</button>
+            }
+        </select>
+        <button type="submit" class="btn_add">Обновить</button>
     </form>
 </div>
 <style>

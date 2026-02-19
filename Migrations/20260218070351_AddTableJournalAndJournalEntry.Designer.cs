@@ -3,6 +3,7 @@ using System;
 using InformationSystemOfASchoolIducationalPortal.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InformationSystemOfASchoolIducationalPortal.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260218070351_AddTableJournalAndJournalEntry")]
+    partial class AddTableJournalAndJournalEntry
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.23");
@@ -87,8 +90,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("Grade")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Grade")
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsPresent")
                         .HasColumnType("INTEGER");

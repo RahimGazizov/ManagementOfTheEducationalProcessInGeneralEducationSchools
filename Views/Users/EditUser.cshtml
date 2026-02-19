@@ -175,37 +175,5 @@
 
     roleSelect.addEventListener("change", toggleClassDiv);
     toggleClassDiv();
-
-    const numClassSelect = document.getElementById("numClassSelect");
-    const letterClassSelect = document.getElementById("letterClassSelect");
-
-    // передаем текущую букву из модели в JS
-    const currentClassId = "@(Model.StudentClassId ?? "")";
-    function loadLettersForSelectedClass() {
-      const numClass = numClassSelect.value;
-      if (!numClass) return;
-
-      letterClassSelect.innerHTML = '<option value="">Загрузка...</option>';
-
-      fetch(`/Users/GetLetterClass?numClass=${numClass}`)
-          .then(res => res.json())
-          .then(data => {
-              letterClassSelect.innerHTML = '<option value="">Выберите букву</option>';
-                 data.forEach(c => {
-        const opt = document.createElement("option");
-        opt.value = c.id;          // ID класса
-        opt.textContent = c.letterClass; // буква для отображения
-        if (c.id === currentClassId) {   // СРАВНИВАЕМ ID, а не букву
-            opt.selected = true;
-        }
-        letterClassSelect.appendChild(opt);
-    });
-          })
-          .catch(() => {
-              letterClassSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
-          });
-    }
-
-    loadLettersForSelectedClass();
-    numClassSelect.addEventListener("change", loadLettersForSelectedClass);
 </script>
+<script src="~/js/classLetter.js"></script>
