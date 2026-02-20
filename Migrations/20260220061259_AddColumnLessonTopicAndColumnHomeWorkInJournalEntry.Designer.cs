@@ -3,6 +3,7 @@ using System;
 using InformationSystemOfASchoolIducationalPortal.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InformationSystemOfASchoolIducationalPortal.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260220061259_AddColumnLessonTopicAndColumnHomeWorkInJournalEntry")]
+    partial class AddColumnLessonTopicAndColumnHomeWorkInJournalEntry
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.23");
@@ -60,12 +63,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("HomeWork")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("LessonTopic")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("SubjectId")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -96,11 +93,17 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.Property<int?>("Grade")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("HomeWork")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsPresent")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("JournalId")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LessonTopic")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("StudentId")

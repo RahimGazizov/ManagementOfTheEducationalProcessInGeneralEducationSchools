@@ -1,11 +1,13 @@
 ﻿using InformationSystemOfASchoolIducationalPortal.Data;
 using InformationSystemOfASchoolIducationalPortal.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SQLitePCL;
 
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
+    [Authorize(Roles = "Учитель")]
     public class JournalController : Controller
     {
         private readonly AppDbContext _context;
@@ -20,7 +22,9 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             {
                 TeacherId = teacherId,
                 SubjectId = subjectId,
-                ClassId = classId
+                ClassId = classId,
+                HomeWork = null,
+                LessonTopic = null
             };
 
             var students = await _context.Students.Where(s => s.ClassId == classId).ToListAsync();
@@ -30,8 +34,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 {
                     StudentId = student.Id,
                     Date = DateTime.Now,
-                    Grade = null,
-                   
+                    Grade = null
                 };
                 journal.Entries.Add(journalEntri);
             }
@@ -39,8 +42,10 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction("Edit", new { id = journal.Id });
         }
+        [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
+            Console.WriteLine($"ID-{id}");
             var journal = await _context.Journal
                 .Include(c => c.Class)
                 .Include(t => t.Teacher)
@@ -63,6 +68,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 TempData["Error"] = "Журнал не найден";
                 return View("Edit");
             }
+            exists.LessonTopic = journal.LessonTopic;
+            exists.HomeWork = journal.HomeWork;
             foreach (var entryModal in journal.Entries)
             {
                 Console.WriteLine($"Оценки:{entryModal.Grade}");
@@ -72,11 +79,21 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 {
                     entry.Grade = entryModal.Grade;
                     entry.IsPresent = entryModal.IsPresent;
+
                 }
 
             }
             await _context.SaveChangesAsync();
             return RedirectToAction("Edit", new { id = journal.Id });
+        }
+        public async Task<IActionResult> Delete(string id)
+        {
+            var journal = await _context.Journal.Include(j => j.Entries)
+                .Where(j => j.Id == id)
+                .FirstOrDefaultAsync();
+            _context.RemoveRange(journal);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index", "TeacherPerAcc");
         }
     }
 }

@@ -1,10 +1,12 @@
 ﻿@model Teachers
 @{
     var listS = ViewBag.ListSubjects as List<Subjects>;
+
 }
 <h1>Добро пожаловать!@Model.User.FullName Это ваш личный кабинет</h1>
 <button type="button" id="openForm" class="btn_open">Создать электронный журнал</button>
 <button type="button" id="openFormJournal" class="btn_open">История журналов</button>
+@* <a href="/TeacherPerAcc/ListJournal">журналы</a> *@
 <div id="modal" class="modal_window">
     <div class="modal_content">
         <span id="closeModal" class="close">&times;</span>
@@ -54,12 +56,17 @@
             </div>
             <div class="form_row">
                 <label>Дата с</label>
-                <input type="date" name="dateFrom" required />
+                <input type="date" name="dateFrom" id="dateFrom" required />
             </div>
 
             <div class="form_row">
                 <label>Дата по</label>
-                <input type="date" name="dateTo" required />
+                <input type="date" name="dateTo" id="dateTo" required />
+            </div>
+            <div class="form_row">
+                <div id="journalsList" class="journals_list">
+                    Выберите предмет и класс, чтобы увидеть журналы
+                </div>
             </div>
             <div class="form_row buttons">
                 <button type="submit" class="btn_create">Отправить</button>
@@ -150,6 +157,47 @@
         cursor: pointer;
     }
 
+    .journals_list {
+        border: 1px solid #e5e5e5;
+        border-radius: 6px;
+        padding: 10px;
+        max-height: 220px;
+        overflow-y: auto;
+        background: #fafafa;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+    }
+
+    .journal_item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+        border-radius: 6px;
+        background: #fff;
+        border: 1px solid #eee;
+        margin-bottom: 8px;
+    }
+
+        .journal_item:last-child {
+            margin-bottom: 0;
+        }
+
+    .journal_meta {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .journal_open {
+        padding: 6px 10px;
+        background: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        white-space: nowrap;
+    }
     .btn_exit {
         padding: 6px 12px;
         background-color: #dc3545;
@@ -175,5 +223,16 @@
     openModalForJournal.onclick = ()=>{
         modelJournal.style.display = "flex";
     }
+
+    window.onclick = function(event){
+        if(event.target == model){
+            model.style.display = "none";
+        }
+
+        if(event.target == modelJournal){
+            modelJournal.style.display = "none";
+        }
+    }
 </script>
 <script src="/js/getClassesForTeachers.js"></script>
+<script src="/js/getJournalList.js"></script>

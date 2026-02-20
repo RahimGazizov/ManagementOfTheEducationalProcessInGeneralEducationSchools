@@ -6,7 +6,8 @@
 
         public string StudentId { get; set; }
         public Students Student { get; set; }
-
+        public string JournalId { get; set; }
+        public Journal Journal { get; set; }
         public DateTime Date { get; set; }
 
         public int? Grade { get; set; } // оценка

@@ -1,8 +1,12 @@
 ﻿@model Journal
+@{
+    var date = @Model.Entries.Select(d => d.Date).FirstOrDefault();
+}
 <div class="conteiner">
     <h3>Предмет: @Model.Subject.Name</h3>
     <p>Учитель: @Model.Teacher.User.FullName</p>
     <p>Класс: @Model.Class.NumClass@Model.Class.LetterClass</p>
+    <p>Дата: @date</p>
 
     @if (TempData["Error"] != null)
     {
@@ -10,7 +14,18 @@
     }
     <form method="post" asp-controller="Journal" asp-action="SaveJournal">
         <input type="hidden" asp-for="Id" value="@Model.Id" />
-        <button type="submit" class="btn_save">Сохранить</button>
+        <div class="action">
+            <button type="submit" class="btn_save">Сохранить</button>
+            <a asp-controller="Journal" asp-action="Delete" asp-route-id="@Model.Id"
+               onclick="return confirm('Вы уверены что хотите удалить?')" class="btn_del">Удалить</a>
+            <a href="/TeacherPerAcc/Index" class="btn_back">Вернуться</a>
+        </div>
+        <div class="classInfo">
+            <label>Тема урока:</label>
+            <input type="text" asp-for="LessonTopic" required />
+            <label>Домашнее задание:</label>
+            <input type="text" asp-for="HomeWork" required />
+        </div>
         <table id="journalTable">
             <thead>
                 <tr>
@@ -85,6 +100,28 @@
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
+    .action {
+        display: flex;
+        justify-content: left;
+        gap: 10px;
+        align-items: center;
+    }
+
+        .action a {
+            border-radius: 5px;
+            text-decoration: none;
+            color: white;
+            padding: 8px 20px;
+        }
+
+    .btn_back {
+        background-color: #007bff;
+    }
+
+    .btn_del {
+        background-color: red;
+    }
+
     table {
         width: 100%;
         border-collapse: collapse;
@@ -107,6 +144,20 @@
             background-color: #f1f7fb;
         }
 
+    .classInfo {
+        margin: 10px;
+        display: flex;
+        justify-content: left;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .classInfo input {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
     select {
         padding: 6px 10px;
         border-radius: 6px;
@@ -123,7 +174,7 @@
         border-radius: 8px;
         cursor: pointer;
         transition: background-color 0.3s ease;
-        margin-bottom: 10px;
+       
     }
 
         .btn_save:hover {
