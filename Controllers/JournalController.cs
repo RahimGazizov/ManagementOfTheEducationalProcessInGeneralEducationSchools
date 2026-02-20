@@ -2,6 +2,7 @@
 using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using SQLitePCL;
 
@@ -91,7 +92,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             var journal = await _context.Journal.Include(j => j.Entries)
                 .Where(j => j.Id == id)
                 .FirstOrDefaultAsync();
-            _context.RemoveRange(journal);
+            if(journal != null) _context.Remove(journal);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index", "TeacherPerAcc");
         }
