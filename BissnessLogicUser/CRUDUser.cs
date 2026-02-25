@@ -44,11 +44,17 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                         UserId = user.Id,
                         ClassId = createUser.ClassId
                     };
+                    var studentCount = await _context.Classes.Include(s => s.Students).FirstOrDefaultAsync(c => c.Id == createUser.ClassId);
+                    if (studentCount.Students.Count == 30)
+                    {
+                        await _users.DeleteAsync(user);
+                        return OperationResult.Fail($"Класс {studentCount.NumClass + studentCount.LetterClass} полный." + " Больше нельзя добавлять");
+                    }
                     _context.Students.Add(student);
                     await _context.SaveChangesAsync();
-
+                        
                 }
-                if(createUser.Role == "Учитель")
+                if (createUser.Role == "Учитель")
                 {
                     var teacher = new Teachers
                     {
@@ -57,7 +63,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     _context.Teachers.Add(teacher);
                     await _context.SaveChangesAsync();
                 }
-                if(createUser.Role == "Админ")
+                if (createUser.Role == "Админ")
                 {
                     var admin = new Admins
                     {
@@ -66,6 +72,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     _context.Admins.Add(admin);
                     await _context.SaveChangesAsync();
                 }
+
                 return OperationResult.Ok();
             }
             catch (Exception ex)
