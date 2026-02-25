@@ -1,7 +1,10 @@
 ﻿@model List<TeacherAssigment>
 <h1>Список учителей, ведущих предметы для каждого класса</h1>
 <div class="conteiner">
-    <a href="/TeachingAssignment/Add" class="btn_add">Добавить</a>
+    <div class="action">
+        <a href="/TeachingAssignment/Add" class="btn_add">Добавить запись</a>
+        <a href="/AdminPersonalAccount/Index" class="btn_back">Вернуться на главную</a>
+    </div>
     <table>
         <thead>
             <tr>
@@ -147,6 +150,7 @@
         display: inline-block;
         padding: 8px 12px;
         color: white;
+        border: none;
         background-color: blue;
         text-decoration: none;
         border-radius: 5px;
@@ -158,4 +162,12 @@
             background-color: #007bff;
             transform: scale(1.1);
         }
+
+    .btn_back {
+        padding: 8px 12px;
+        text-decoration: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: white;
+    }
 </style>

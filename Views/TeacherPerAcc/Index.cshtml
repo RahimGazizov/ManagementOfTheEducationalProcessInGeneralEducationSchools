@@ -40,7 +40,7 @@
         <form asp-action="JournalHistory" method="post">
             <div class="form_row">
                 <label>Предмет:</label>
-                <select id="subjectSelectHistory" name="subjectId">
+                <select id="subjectSelectHistory">
                     <option>Выберите предмет</option>
                     @foreach (var s in listS)
                     {
@@ -50,18 +50,18 @@
             </div>
             <div class="form_row">
                 <label>Класс:</label>
-                <select id="classSelectHistory" name="classId" disabled>
+                <select id="classSelectHistory" disabled>
                     <option>Сначала выберите предмет</option>
                 </select>
             </div>
             <div class="form_row">
                 <label>Дата с</label>
-                <input type="date" name="dateFrom" id="dateFrom" required />
+                <input type="date" id="dateFrom" required />
             </div>
 
             <div class="form_row">
                 <label>Дата по</label>
-                <input type="date" name="dateTo" id="dateTo" required />
+                <input type="date" id="dateTo" required />
             </div>
             <div class="form_row">
                 <div id="journalsList" class="journals_list">
@@ -184,11 +184,11 @@
             margin-bottom: 0;
         }
 
-    .journal_meta {
+    /* .journal_meta {
         display: flex;
         flex-direction: column;
         gap: 2px;
-    }
+    } */
 
     .journal_open {
         padding: 6px 10px;
@@ -198,6 +198,7 @@
         border-radius: 5px;
         white-space: nowrap;
     }
+
     .btn_exit {
         padding: 6px 12px;
         background-color: #dc3545;

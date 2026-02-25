@@ -3,7 +3,12 @@
     var listT = ViewBag.ListTeachers as List<SelectListItem>;
     var listS = ViewBag.ListSubjects as List<SelectListItem>;
 }
-<h3>Редоктирование</h3>
+<h3>Редактирование</h3>
+<div class="page-header">
+    <div style="display: flex; justify-content: left">
+        <a asp-action="Index" class="back-link">← Назад</a>
+    </div>
+</div>
 <div class="conteiner">
     @if (TempData["Error"] != null)
     {
@@ -105,6 +110,22 @@
         color: #374151;
         font-weight: 500;
     }
+
+    .page-header {
+        width: 500px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        text-decoration: none;
+        color: #2a5298;
+        font-weight: 500;
+        text-align: left;
+    }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
 
     input, select {
         padding: 10px 12px;

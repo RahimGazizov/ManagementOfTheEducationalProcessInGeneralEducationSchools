@@ -11,7 +11,7 @@
         <div style="position:relative;">
             <input placeholder="Пароль" type="password" name="password" id="password" required  />
             <span id="togglePassword" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">
-                👁
+                🙈
             </span>
         </div>
 
@@ -54,6 +54,7 @@
     input:focus {
         border-color: #3b82f6;
         box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+
     }
 
     .btn {
@@ -73,11 +74,20 @@
         }
 </style>
 <script>
-    const toggle = document.getElementById("togglePassword");
-    const password = document.getElementById("password");
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggle = document.getElementById("togglePassword");
+        const password = document.getElementById("password");
 
-    toggle.addEventListener("click", () => {
-        const type = password.type === "password" ? "text" : "password";
-        password.type = type;
+        if (!toggle || !password) return;
+
+        toggle.addEventListener("click", () => {
+            if (password.type === "password") {
+                password.type = "text";
+                toggle.textContent = "🙉";
+            } else {
+                password.type = "password";
+                toggle.textContent = "🙈";
+            }
+        });
     });
 </script>

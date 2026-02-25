@@ -2,7 +2,10 @@
 
 <h1>Предметы</h1>
 <div class="conteiner">
-    <button type="button" id="openModalBtn" class="btn_add">Добавить предмет</button>
+    <div class="action">
+        <button type="button" id="openModalBtn" class="btn_add">Добавить предмет</button>
+        <a href="/AdminPersonalAccount/Index" class="btn_back">Вернуться на главную</a>
+    </div>
 
     @if (TempData["ErrorMessage"] != null)
     {
@@ -234,6 +237,20 @@
         .btn_add:hover {
             transform: scale(1.1);
         }
+
+    .action {
+        display: flex;
+        justify-content: left;
+        gap: 10px;
+    }
+
+    .btn_back {
+        padding: 8px 12px;
+        text-decoration: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: white;
+    }
 </style>
 
 <script>

@@ -1,7 +1,10 @@
 ﻿@model List<CreateUser>
 <h1>Пользователи</h1>
 <div class="conteiner">
-    <a href="/Users/AddUsers" class="btn_add">Добавить пользователя</a>
+    <div class="action">
+        <a href="/Users/AddUsers" class="btn_add">Добавить пользователя</a>
+        <a href="/AdminPersonalAccount/Index" class="btn_back">Вернуться на главную</a>
+    </div>
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
     <table>
@@ -23,6 +26,9 @@
                         <td>@user.Login</td>
                         <td>@user.BirthDate.ToString("dd-MM-yyyy")</td>
                         <td>@user.Role</td>
+                       @*  <td>
+                            <a asp-action="Delete" asp-route-id="@user.UserId" asp-route-returnUrl="@Url.Action("Index", "Users")">Удалить</a>
+                        </td> *@
                     </tr>
                 }
             }
@@ -117,10 +123,12 @@
             color: white;
             background-color: forestgreen;
         }
+
     .btn_add {
         display: inline-block;
         padding: 8px 12px;
         color: white;
+        border: none;
         background-color: blue;
         text-decoration: none;
         border-radius: 5px;
@@ -133,8 +141,22 @@
             transform: scale(1.1);
         }
 
-    .text-danger{
+    .text-danger {
         color: red;
         font-size: 20px;
+    }
+
+    .action {
+        display: flex;
+        justify-content: left;
+        gap: 10px;
+    }
+
+    .btn_back {
+        padding: 8px 12px;
+        text-decoration: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: white;
     }
 </style>

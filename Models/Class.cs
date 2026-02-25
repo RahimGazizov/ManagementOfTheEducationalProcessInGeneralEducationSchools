@@ -5,6 +5,6 @@
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public int NumClass { get; set; }
         public string LetterClass { get; set; }
-        public List<Students> Students { get; set; } = new List<Students>();
+        public List<Students> Students { get; set; }
     }
 }

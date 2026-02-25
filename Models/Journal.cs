@@ -17,6 +17,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Models
         public Class Class { get; set; }
         public string? HomeWork { get; set; }
         public string? LessonTopic { get; set; }
+        public bool CanIEdit { get; set; } = true;
         public List<JournalEntry> Entries { get; set; } = new(); // записи по ученикам
     }
 }

@@ -1,6 +1,9 @@
 ﻿@model List<Students>
 <h1>Ученики школы</h1>
 <div class="conteiner">
+    <div class="action">
+        <a href="/AdminPersonalAccount/Index" class="btn_back">Вернуться на главную</a>
+    </div>
     <table>
         <thead>
             <tr>
@@ -23,7 +26,7 @@
                         <td>
                             @(student.Class != null ? $"{student.Class.NumClass}{student.Class.LetterClass}" : "Нет класса")
                         </td>
-                        <td>@student.User.FullName</td>
+                        <td>@student.User.UserName</td>
                         <td>@student.User.PhoneNumber</td>
                         <td>
                             <div class="action">
@@ -147,4 +150,17 @@
             transform: scale(1.1);
         }
 
+    .action {
+        display: flex;
+        justify-content: left;
+        gap: 10px;
+    }
+
+    .btn_back {
+        padding: 8px 12px;
+        text-decoration: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: white;
+    }
 </style>

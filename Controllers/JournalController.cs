@@ -25,7 +25,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 SubjectId = subjectId,
                 ClassId = classId,
                 HomeWork = null,
-                LessonTopic = null
+                LessonTopic = null,
+                CanIEdit = true
             };
 
             var students = await _context.Students.Where(s => s.ClassId == classId).ToListAsync();
@@ -56,13 +57,21 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 .ThenInclude(j => j.Student)
                 .ThenInclude(j => j.User)
                 .FirstOrDefaultAsync(j => j.Id == id);
-
+            var dateJour = journal.Entries.Select(j => j.Date).FirstOrDefault();
+            DateTime now = DateTime.Now;
+            if (dateJour != default)
+            {
+                journal.CanIEdit = (DateTime.Now - dateJour).TotalDays <= 1;
+            }
+            else
+            {
+                journal.CanIEdit = true; // ещё нет записей, редактировать можно
+            }
             return View(journal);
         }
         [HttpPost]
         public async Task<IActionResult> SaveJournal(Journal journal)
         {
-
             var exists = await _context.Journal.FirstOrDefaultAsync(j => j.Id == journal.Id);
             if (exists == null)
             {
@@ -92,7 +101,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             var journal = await _context.Journal.Include(j => j.Entries)
                 .Where(j => j.Id == id)
                 .FirstOrDefaultAsync();
-            if(journal != null) _context.Remove(journal);
+            if (journal != null) _context.Remove(journal);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index", "TeacherPerAcc");
         }

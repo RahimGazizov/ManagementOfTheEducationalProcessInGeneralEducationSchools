@@ -1,7 +1,10 @@
 ﻿@model List<Class>
 <h1>Классы</h1>
 <div class="conteiner">
-    <button type="button" id="openModalBtn" class="btn_add">Добавить класс</button>
+    <div class="action">
+        <button type="button" id="openModalBtn" class="btn_add">Добавить класс</button>
+        <a href="/AdminPersonalAccount/Index" class="btn_back">Вернуться на главную</a>
+    </div>
     @if (TempData["Error"] != null)
     {
         <div style="color:red;font-size:20px;">@TempData["Error"]</div>
@@ -119,20 +122,23 @@
         transition: 0.2s;
     }
 
-    .add:hover {
-        background: #2563eb;
-    }
-    form{
-        display:flex;
+        .add:hover {
+            background: #2563eb;
+        }
+
+    form {
+        display: flex;
         flex-direction: column;
         gap: 10px;
     }
-    form input{
-        width: 100%;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        padding: 8px 12px;
-    }
+
+        form input {
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+        }
+
     .close {
         float: right;
         cursor: pointer;
@@ -212,6 +218,7 @@
         display: inline-block;
         padding: 8px 12px;
         color: white;
+        border: none;
         background-color: blue;
         text-decoration: none;
         border-radius: 5px;
@@ -223,6 +230,14 @@
             background-color: #007bff;
             transform: scale(1.1);
         }
+
+    .btn_back {
+        padding: 8px 12px;
+        text-decoration: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: white;
+    }
 
 </style>
 <script>

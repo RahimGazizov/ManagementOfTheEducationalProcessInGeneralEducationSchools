@@ -25,11 +25,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            //var entri = await _context.JournalEntri.ToListAsync();
-            //  _context.RemoveRange(entri);
-            // var journal = await _context.Journal.ToListAsync();
-            // _context.RemoveRange(journal);
-            // await _context.SaveChangesAsync();
+        //    var entri = await _context.JournalEntri.ToListAsync();
+        //    _context.RemoveRange(entri);
+        //    var journal = await _context.Journal.ToListAsync();
+        //    _context.RemoveRange(journal);
+        //    await _context.SaveChangesAsync();
             var userId = _userMan.GetUserId(User);
             var teacher = await _context.Teachers.Include(u => u.User)
                 .FirstOrDefaultAsync(id => id.UserId == userId);
@@ -49,7 +49,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 .Where(r => r.TeacherId == teacherId && r.SubjectId == subjectId)
                 .Select(c => new
                 {
-                    Id = c.Class.Id,
+                    id = c.Class.Id,
                     Name = c.Class.NumClass + c.Class.LetterClass,
                 })
                 .OrderBy(x => x.Name)
@@ -63,7 +63,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             var journalList = journals
                 .Select(j => new
                 {
-                    Id = j.Id,
+                    id = j.Id,
                     firstDate = _context.JournalEntri
                     .Where(it => it.JournalId == j.Id)
                     .Min(it => (DateTime?)it.Date),

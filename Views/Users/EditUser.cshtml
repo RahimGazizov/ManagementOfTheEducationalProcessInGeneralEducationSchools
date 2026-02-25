@@ -1,5 +1,10 @@
 ﻿@model EditUserDTO
 <h1>Редоктирование пользователя</h1>
+<div class="page-header">
+    <div style="display: flex; justify-content: left">
+        <a asp-action="Index" class="back-link">← Назад</a>
+    </div>
+</div>
 <div class="conteiner">
     @if (TempData["Error"] != null)
     {
@@ -159,6 +164,22 @@
         .btn_res:active {
             transform: translateY(0); /* при клике кнопка возвращается */
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
+    .page-header {
+        width: 500px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        text-decoration: none;
+        color: #2a5298;
+        font-weight: 500;
+        text-align: left;
+    }
+
+        .back-link:hover {
+            text-decoration: underline;
         }
 </style>
 <script>

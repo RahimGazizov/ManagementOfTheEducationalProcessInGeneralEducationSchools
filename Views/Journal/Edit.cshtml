@@ -1,78 +1,111 @@
 ﻿@model Journal
 @{
-    var date = @Model.Entries.Select(d => d.Date).FirstOrDefault();
+    var date = Model.Entries.Select(d => d.Date).FirstOrDefault();
 }
-<div class="conteiner">
-    <h3>Предмет: @Model.Subject.Name</h3>
-    <p>Учитель: @Model.Teacher.User.FullName</p>
-    <p>Класс: @Model.Class.NumClass@Model.Class.LetterClass</p>
-    <p>Дата: @date</p>
+@if(Model.CanIEdit){
+    <div class="conteiner">
+        <h3>Предмет: @Model.Subject.Name</h3>
+        <p>Учитель: @Model.Teacher.User.FullName</p>
+        <p>Класс: @Model.Class.NumClass@Model.Class.LetterClass</p>
+        <p>Дата: @date</p>
 
-    @if (TempData["Error"] != null)
-    {
-        <p>@TempData["Error"]</p>
-    }
-    <form method="post" asp-controller="Journal" asp-action="SaveJournal">
-        <input type="hidden" asp-for="Id" value="@Model.Id" />
+        @if (TempData["Error"] != null)
+        {
+            <p>@TempData["Error"]</p>
+        }
+        <form method="post" asp-controller="Journal" asp-action="SaveJournal">
+            <input type="hidden" asp-for="Id" value="@Model.Id" />
+            <div class="action">
+                <button type="submit" class="btn_save">Сохранить</button>
+                <a asp-controller="Journal" asp-action="Delete" asp-route-id="@Model.Id"
+                   onclick="return confirm('Вы уверены что хотите удалить?')" class="btn_del">Удалить</a>
+                <a href="/TeacherPerAcc/Index" class="btn_back">Вернуться</a>
+            </div>
+            <div class="classInfo">
+                <label>Тема урока:</label>
+                <textarea asp-for="LessonTopic" required></textarea>
+                <label>Домашнее задание:</label>
+                <textarea asp-for="HomeWork" required></textarea>
+            </div>
+            <table id="journalTable">
+                <thead>
+                    <tr>
+                        <th>ФИО учеников</th>
+                        <th>Оценка</th>
+                        <th>Присутствие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int j = 0; j < Model.Entries.Count; j++)
+                    {
+                        <input type="hidden" name="Entries[@j].Id" value="@Model.Entries[j].Id" />
+
+                        <tr>
+                            <td>@Model.Entries[j].Student.User.FullName</td>
+
+                            <td>
+                                <select name="Entries[@j].Grade">
+                                    <option value="">-</option>
+                                    @for (int g = 2; g <= 5; g++)
+                                    {
+                                        if (Model.Entries[j].Grade == g)
+                                        {
+                                            <option value="@g" selected>@g</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@g">@g</option>
+                                        }
+                                    }
+                                </select>
+                            </td>
+
+                            <td>
+                                <select name="Entries[@j].IsPresent">
+                                    <option value="true" selected="@(Model.Entries[j].IsPresent)">Присутствует</option>
+                                    <option value="false" selected="@(!Model.Entries[j].IsPresent)">Отсутствует</option>
+                                </select>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+
+        </form>
+    </div>
+}
+else {
+    <div class="conteiner">
+        <h3>Предмет: @Model.Subject.Name</h3>
+        <p>Учитель: @Model.Teacher.User.FullName</p>
+        <p>Дата: @Model.Entries.Select(d => d.Date.ToString("dd-MM-yyyy")).FirstOrDefault()</p>
+        <p>Домашнее задание: @Model.HomeWork</p>
+        <p>Тема урока: @Model.LessonTopic</p>
         <div class="action">
-            <button type="submit" class="btn_save">Сохранить</button>
-            <a asp-controller="Journal" asp-action="Delete" asp-route-id="@Model.Id"
-               onclick="return confirm('Вы уверены что хотите удалить?')" class="btn_del">Удалить</a>
-            <a href="/TeacherPerAcc/Index" class="btn_back">Вернуться</a>
+            <a asp-action="Index" class="btn_back">Вернуться</a>
         </div>
-        <div class="classInfo">
-            <label>Тема урока:</label>
-            <input type="text" asp-for="LessonTopic" required />
-            <label>Домашнее задание:</label>
-            <input type="text" asp-for="HomeWork" required />
-        </div>
-        <table id="journalTable">
+        <table>
             <thead>
                 <tr>
-                    <th>ФИО учеников</th>
+                    <th>ФИО ученика</th>
                     <th>Оценка</th>
                     <th>Присутствие</th>
                 </tr>
             </thead>
             <tbody>
-                @for (int j = 0; j < Model.Entries.Count; j++)
+                @foreach (var j in Model.Entries)
                 {
-                    <input type="hidden" name="Entries[@j].Id" value="@Model.Entries[j].Id" />
-
                     <tr>
-                        <td>@Model.Entries[j].Student.User.FullName</td>
-
-                        <td>
-                            <select name="Entries[@j].Grade">
-                                <option value="">-</option>
-                                @for (int g = 2; g <= 5; g++)
-                                {
-                                    if (Model.Entries[j].Grade == g)
-                                    {
-                                        <option value="@g" selected>@g</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@g">@g</option>
-                                    }
-                                }
-                            </select>
-                        </td>
-
-                        <td>
-                            <select name="Entries[@j].IsPresent">
-                                <option value="true" selected="@(Model.Entries[j].IsPresent)">Присутствует</option>
-                                <option value="false" selected="@(!Model.Entries[j].IsPresent)">Отсутствует</option>
-                            </select>
-                        </td>
+                        <td>@j.Student.User.FullName</td>
+                        <td>@(j.Grade != null ? j.Grade : "-")</td>
+                        <td>@(j.IsPresent ? "Присутствовал" : "Отсутствовал")</td>
                     </tr>
                 }
-
             </tbody>
         </table>
-
-    </form>
-</div>
+    </div>
+}
 <style>
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -81,7 +114,7 @@
         padding: 0;
     }
 
-    h2 {
+    h3 {
         color: #2c3e50;
         margin-bottom: 5px;
     }
@@ -152,11 +185,23 @@
         gap: 10px;
     }
 
-        .classInfo input {
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+        .classInfo textarea {         
+            min-height: 80px; /* можно увеличить, если много текста */
+            padding: 12px; /* внутренние отступы */
+            border-radius: 8px; /* скругление углов */
+            border: 1px solid #ccc; /* нейтральная рамка */
+            font-size: 14px; /* читаемый размер шрифта */
+            font-family: Inter, sans-serif;
+            resize: vertical; /* разрешить менять только высоту */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* лёгкая тень */
+            transition: all 0.2s ease; /* плавные эффекты */
         }
+
+    textarea:focus {
+        border-color: #007bff; /* синий цвет при фокусе */
+        box-shadow: 0 0 8px rgba(0,123,255,0.3);
+        outline: none; /* убираем стандартный контур */
+    }
 
     select {
         padding: 6px 10px;
@@ -174,7 +219,6 @@
         border-radius: 8px;
         cursor: pointer;
         transition: background-color 0.3s ease;
-       
     }
 
         .btn_save:hover {
