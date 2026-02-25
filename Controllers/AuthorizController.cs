@@ -16,34 +16,42 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             _signInManager = signInManager;
         }
         public IActionResult Index() => View();
-        
+
         [HttpPost]
         public async Task<IActionResult> Index(string login, string password)
         {
-            var user = await _users.FindByNameAsync(login);
+            try
+            {
+                var user = await _users.FindByNameAsync(login);
 
-            if (user == null)
-            {
-                TempData["Error"] = "Пользователь с таким логином не существует";
-                ViewBag.Login = login;
-                ViewBag.Password = password;
-                return View();
+                if (user == null)
+                {
+                    TempData["Error"] = "Пользователь с таким логином не существует";
+                    ViewBag.Login = login;
+                    ViewBag.Password = password;
+                    return View();
+                }
+                var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: false, false);
+                if (result.Succeeded)
+                {
+                    if (await _users.IsInRoleAsync(user, "Админ"))
+                        return RedirectToAction("Index", "AdminPersonalAccount");
+                    if (await _users.IsInRoleAsync(user, "Учитель"))
+                        return RedirectToAction("Index", "TeacherPerAcc");
+                    if (await _users.IsInRoleAsync(user, "Ученик"))
+                        return RedirectToAction("Index", "StudentPerAcc");
+                    return RedirectToAction("Index", "Authoriz");
+                }
+                else
+                {
+                    TempData["Error"] = "Не верный логин или пароль";
+                    ViewBag.Login = login;
+                    return View();
+                }
             }
-            var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: false, false);
-            if (result.Succeeded)
+            catch (Exception ex)
             {
-                if (await _users.IsInRoleAsync(user, "Админ"))
-                    return RedirectToAction("Index", "AdminPersonalAccount");
-                if (await _users.IsInRoleAsync(user, "Учитель"))
-                    return RedirectToAction("Index", "TeacherPerAcc");
-                if (await _users.IsInRoleAsync(user, "Ученик"))
-                    return RedirectToAction("Index", "StudentPerAcc");
-                return RedirectToAction("Index", "Authoriz");
-            }
-            else
-            {
-                TempData["Error"] = "Не верный логин или пароль";
-                ViewBag.Login = login;
+                TempData["Error"] = ex.Message;
                 return View();
             }
         }
