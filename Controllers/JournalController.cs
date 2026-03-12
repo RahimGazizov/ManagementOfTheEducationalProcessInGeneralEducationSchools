@@ -61,7 +61,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             DateTime now = DateTime.Now;
             if (dateJour != default)
             {
-                journal.CanIEdit = (DateTime.Now - dateJour).TotalDays <= 1;
+                journal.CanIEdit = (DateTime.Now - dateJour).TotalDays <= 7;
             }
             else
             {
@@ -84,7 +84,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             {
                 Console.WriteLine($"Оценки:{entryModal.Grade}");
                 Console.WriteLine($"Присутсвие :{entryModal.IsPresent}");
-                var entry = await _context.JournalEntri.FirstOrDefaultAsync(e => e.Id == entryModal.Id);
+                var entry = await _context.JournalEntry.FirstOrDefaultAsync(e => e.Id == entryModal.Id);
                 if (entry != null)
                 {
                     entry.Grade = entryModal.Grade;

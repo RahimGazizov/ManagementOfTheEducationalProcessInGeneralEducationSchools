@@ -64,13 +64,13 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 .Select(j => new
                 {
                     id = j.Id,
-                    firstDate = _context.JournalEntri
+                    firstDate = _context.JournalEntry
                     .Where(it => it.JournalId == j.Id)
                     .Min(it => (DateTime?)it.Date),
-                    lastDate = _context.JournalEntri
+                    lastDate = _context.JournalEntry
                     .Where(it => it.JournalId == j.Id)
                     .Max(j => (DateTime?)j.Date),
-                    markCount = _context.JournalEntri.Count(j => j.Id == j.Id)
+                    markCount = _context.JournalEntry.Count(j => j.Id == j.Id)
                 }).OrderByDescending(j => j.lastDate)
                 .ToList();
             return Json(journalList);

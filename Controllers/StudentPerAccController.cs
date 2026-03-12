@@ -35,7 +35,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                     .Include(s => s.Subject)
                     .Select(s => s.Subject)
                     .ToListAsync();
-                var averageGrade = await _context.JournalEntri
+                var averageGrade = await _context.JournalEntry
                     .Where(t => t.StudentId == student.Id && t.Grade != null)
                     .AverageAsync(e => e.Grade);
                 ViewBag.AverageGrade = Math.Round(averageGrade.Value, 1);
@@ -61,7 +61,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 var toD = dateTo?.Date.AddDays(1);
 
                 journals = journals
-                    .Where(j => _context.JournalEntri.Any(it => it.JournalId == j.Id && it.StudentId == studentId &&
+                    .Where(j => _context.JournalEntry.Any(it => it.JournalId == j.Id && it.StudentId == studentId &&
                     (!fromD.HasValue || it.Date >= fromD) &&
                     (!toD.HasValue || it.Date < toD))).ToList();
             }
@@ -69,10 +69,10 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             {
                 id = j.Id,
                 subjectName = j.Subject.Name,
-                firstDate = _context.JournalEntri
+                firstDate = _context.JournalEntry
                     .Where(it => it.JournalId == j.Id)
                     .Min(it => (DateTime?)it.Date),
-                lastDate = _context.JournalEntri
+                lastDate = _context.JournalEntry
                     .Where(it => it.JournalId == j.Id)
                     .Max(j => (DateTime?)j.Date),
             }).OrderByDescending(d => d.lastDate).ToList();

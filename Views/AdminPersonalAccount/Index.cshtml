@@ -1,9 +1,86 @@
 ﻿@model Admins
-<h1>Добро пожаловать @Model.User.FullName!</h1>
-<a href="/Users/Index">Пользователи</a>
-<a href="/Class/Index">Классы</a>
-<a href="/Students/Index">Ученики</a>
-<a href="/Subjects/Index">Предметы</a>
-<a href="/Teachers/Index">Учителя</a>
-<a href="/TeachingAssignment/Index">TeachingAssigment</a>
-<a asp-action="LogOut">Выйти</a>
+
+<style>
+    .admin-container {
+        max-width: 900px;
+        margin: 40px auto;
+        font-family: Arial;
+        text-align: center;
+    }
+
+    .admin-title {
+        margin-bottom: 30px;
+    }
+
+    .menu {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+        .menu a {
+            display: block;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            transition: 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+            .menu a:hover {
+                background: #e0f7fa;
+                transform: translateY(-2px);
+            }
+
+    .logout {
+        margin-top: 40px;
+    }
+
+        .logout a {
+            padding: 10px 20px;
+            background: #e53935;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+            .logout a:hover {
+                background: #c62828;
+            }
+</style>
+
+<div class="admin-container">
+
+    <h1 class="admin-title">
+        Добро пожаловать, @Model.User.FullName!
+    </h1>
+
+    <div class="menu">
+
+        <a href="/Users/Index">Пользователи</a>
+
+        <a href="/Class/Index">Классы</a>
+
+        <a href="/Students/Index">Ученики</a>
+
+        <a href="/Subjects/Index">Предметы</a>
+
+        <a href="/Teachers/Index">Учителя</a>
+
+        <a href="/LessonSlot/Index">Время уроков</a>
+
+        <a href="/ScheduleLesson/Index">Расписание</a>
+
+        <a href="/TeachingAssignment/Index">Назначения учителей</a>
+
+    </div>
+
+    <div class="logout">
+        <a asp-action="LogOut">Выйти</a>
+    </div>
+
+</div>

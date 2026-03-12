@@ -72,7 +72,15 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     _context.Admins.Add(admin);
                     await _context.SaveChangesAsync();
                 }
-
+                if(createUser.Role == "АдмнистрацияШколы")
+                {
+                    var schoolAdmin = new SchoolAdministrations
+                    {
+                        UserId = user.Id,
+                    };
+                    _context.Administrations.Add(schoolAdmin);
+                    await _context.SaveChangesAsync();
+                }
                 return OperationResult.Ok();
             }
             catch (Exception ex)

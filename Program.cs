@@ -13,6 +13,7 @@ builder.Services.AddScoped<CRUDClass>();
 builder.Services.AddScoped<CRUDSubject>();
 builder.Services.AddScoped<TeachingAssigmentLogic>();
 builder.Services.AddScoped<TeacherPerAccLogic>();
+builder.Services.AddScoped<ScheduleLogic>();
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
@@ -33,6 +34,19 @@ builder.Services.AddIdentity<Users, IdentityRole>(options =>
 })
     .AddDefaultTokenProviders()
 .AddEntityFrameworkStores<AppDbContext>();
+async Task EnsureRoles(IServiceProvider serviceProvider)
+{
+    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    string[] roles = { "јдмин", "”читель", "”ченик", "јдмнистраци€Ўколы" };
+
+    foreach(var role in roles)
+    {
+        if(!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));  
+        }
+    }
+}
 builder.Services.ConfigureApplicationCookie(option =>
 {
     option.LoginPath = "/Authoriz/Index"; // адрес редиректа если пользователь не авторизован
@@ -44,7 +58,23 @@ builder.Services.ConfigureApplicationCookie(option =>
 });
 
 var app = builder.Build();
+//using (var scope = app.Services.CreateScope())
+//{
+//    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
+//    db.Database.ExecuteSqlRaw(@"
+//        CREATE TABLE IF NOT EXISTS LessonSlots (
+//            Id TEXT NOT NULL PRIMARY KEY,
+//            LessonNumber INTEGER NOT NULL,
+//            StartTime TEXT NOT NULL,
+//            EndTime TEXT NOT NULL
+//        );
+//    ");
+//}
+using (var scope = app.Services.CreateScope())
+{
+    await EnsureRoles(scope.ServiceProvider);
+}
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

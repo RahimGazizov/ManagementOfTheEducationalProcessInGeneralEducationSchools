@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InformationSystemOfASchoolIducationalPortal.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260220085402_EdtiColumnInJournal")]
-    partial class EdtiColumnInJournal
+    [Migration("20260311070907_updatetableschedule")]
+    partial class updatetableschedule
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,14 +59,19 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("CanIEdit")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("ClassId")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("HomeWork")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LessonTopic")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("SubjectId")
@@ -116,7 +121,75 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("JournalEntri");
+                    b.ToTable("JournalEntry");
+                });
+
+            modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.LessonSlot", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("LessonNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LessonSlots");
+                });
+
+            modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.ScheduleLesson", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AssigmentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DayOfWeek")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LessonSlotId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Room")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TeachinsAssignmentId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssigmentId");
+
+                    b.HasIndex("LessonSlotId");
+
+                    b.ToTable("Schedules");
+                });
+
+            modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.SchoolAdministrations", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Administrations");
                 });
 
             modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.Students", b =>
@@ -454,6 +527,34 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.Navigation("Journal");
 
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.ScheduleLesson", b =>
+                {
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.TeacherAssigment", "Assigment")
+                        .WithMany()
+                        .HasForeignKey("AssigmentId");
+
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.LessonSlot", "LessonSlot")
+                        .WithMany()
+                        .HasForeignKey("LessonSlotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Assigment");
+
+                    b.Navigation("LessonSlot");
+                });
+
+            modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.SchoolAdministrations", b =>
+                {
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.Students", b =>

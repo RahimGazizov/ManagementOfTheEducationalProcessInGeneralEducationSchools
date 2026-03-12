@@ -50,7 +50,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 var fromDate = dateFrom?.Date;
                 var toDate = dateTo?.Date.AddDays(1);
 
-                journals = journals.Where(j => _context.JournalEntri.Any(it => it.JournalId == j.Id &&
+                journals = journals.Where(j => _context.JournalEntry.Any(it => it.JournalId == j.Id &&
                 (!fromDate.HasValue || it.Date >= fromDate) &&
                 (!toDate.HasValue || it.Date < toDate))).ToList();
             }

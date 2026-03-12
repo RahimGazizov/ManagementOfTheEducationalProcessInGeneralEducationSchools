@@ -5,7 +5,7 @@
 namespace InformationSystemOfASchoolIducationalPortal.Migrations
 {
     /// <inheritdoc />
-    public partial class TeacherTable : Migration
+    public partial class updatetableschedule : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

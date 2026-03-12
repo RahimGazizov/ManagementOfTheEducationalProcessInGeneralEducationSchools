@@ -159,14 +159,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         private async Task<List<IdentityRole>> GetRoles() => await _roles.Roles.ToListAsync();
         private async Task<List<Users>> GetUsersList() => await _users.Users.ToListAsync();
-        private async Task EnsureRoles(RoleManager<IdentityRole> roleManager)
-        {
-            string[] roles = { "Админ", "Учитель", "Ученик" };
-            foreach (var role in roles)
-            {
-                if (!await roleManager.RoleExistsAsync(role))
-                    await roleManager.CreateAsync(new IdentityRole(role));
-            }
-        }
+       
     }
 }

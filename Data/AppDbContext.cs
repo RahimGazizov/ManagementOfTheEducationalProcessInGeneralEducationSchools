@@ -12,8 +12,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Data
         public DbSet<Teachers> Teachers { get; set; }
         public DbSet<Admins> Admins { get; set; }
         public DbSet<Journal> Journal { get; set; }
-        public DbSet<JournalEntry> JournalEntri { get; set; }
+        public DbSet<JournalEntry> JournalEntry { get; set; }
         public DbSet<TeacherAssigment> TeacherAssigments { get; set; }
+        public DbSet<SchoolAdministrations> Administrations { get; set; }
+        public DbSet<ScheduleLesson> Schedules {  get; set; }
+        public DbSet<LessonSlot> LessonSlots { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

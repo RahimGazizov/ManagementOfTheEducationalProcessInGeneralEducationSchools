@@ -1,0 +1,277 @@
+﻿@model ScheduleLessonViewModal
+@{
+    var assignment = ViewBag.Assignment as List<SelectListItem>;
+    var lesson = ViewBag.LessonSlot as List<SelectListItem>;
+    var days = ViewBag.DaysOfWeek as List<SelectListItem>;
+}
+<h3>Расписание уроков</h3>
+<div class="conteiner">
+    <button type="button" class="btn btn_add" id="openModalBtn">Добавить расписание</button>
+    <table>
+        <thead>
+            <tr>
+                <th>День</th>
+                <th>Урок</th>
+                <th>Занятие</th>
+                <th>Кабинет</th>
+                <th>Действие</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.ScheduleLessons != null && Model.ScheduleLessons != null)
+            {
+                @foreach (var s in Model.ScheduleLessons)
+                {
+                    <tr>
+                        <td>@s.DayOfWeek</td>
+                        <td>@(s.LessonSlot.LessonNumber + " - " + s.LessonSlot.StartTime.ToString(@"hh\:mm") + "-" + s.LessonSlot.EndTime.ToString(@"hh\:mm"))</td>
+                        <td>@(s.Assigment.Subject.Name + " - " + s.Assigment.Class.NumClass + s.Assigment.Class.LetterClass + $"({s.Assigment.Teacher.User.FullName})")</td>
+                        <td>@s.Room</td>
+                        <td>
+                            <div class="action">
+                                <a asp-action="Delete" asp-route-id="@s.Id"
+                                   onclick="return confirm('Вы уверены что хотите удалить?')" class="btn btn_del">Удалить</a>
+                                <button type="button" class="btn btn_edit js-edit"
+                                        data-id="@s.Id"
+                                        data-dayWeek="@s.DayOfWeek"
+                                        data-lessonSlotId="@s.LessonSlotId"
+                                        data-assigmentId="@s.TeachinsAssignmentId"
+                                        data-room="@s.Room">
+                                    Редоктировать
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="4" style="text-align:center; font-style:initial;">Данных пока нет</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="modal @(Model.IsOpenModalAdd ? "show" : "")" id="openModal">
+    <div class="modal-content">
+        @if (TempData["Error"] != null)
+        {
+            <p style="color: red; font-size: 19px;">@TempData["Error"]</p>
+        }
+        <form method="post" asp-action="AddSchedule">
+            <select asp-for="FormSchedule.TeachinsAssignmentId" required>
+                <option>Выберите занятие</option>
+                @foreach (var ass in assignment)
+                {
+                    <option value="@ass.Value">@ass.Text</option>
+                }
+            </select>
+            <select asp-for="FormSchedule.DayOfWeek" required>
+                <option>Выберите день недели</option>
+                @foreach (var ass in days)
+                {
+                    if (ass.Text != "воскресенье")
+                    {
+                        <option value="@ass.Value">@ass.Text</option>
+                    }
+                }
+            </select>
+            <select asp-for="FormSchedule.LessonSlotId" required>
+                <option>Выберите урок и время</option>
+                @foreach (var ass in lesson)
+                {
+                    <option value="@ass.Value">@ass.Text</option>
+                }
+            </select>
+            <input type="text" asp-for="FormSchedule.Room" placeholder="Кабинет" required />
+            <button type="submit" class="btn btn_add">Добавить</button>
+            <a href="@Url.Action("Index")" class="btn btn_del">Назад</a>
+        </form>
+    </div>
+</div>
+
+<div class="modal @(Model.IsOpenModalEdit ? "show" : "")" id="openModalEdit">
+    <div class="modal-content">
+        @if (TempData["Error"] != null)
+        {
+            <p style="color: red; font-size: 19px;">@TempData["Error"]</p>
+        }
+        <form asp-action="EditSchedule" method="post">
+            <input type="hidden" asp-for="FormSchedule.Id" />
+            <select asp-for="FormSchedule.TeachinsAssignmentId">
+                @foreach (var s in assignment)
+                {
+                    <option value="@s.Value">@s.Text</option>
+                }
+            </select>
+            <select asp-for="FormSchedule.DayOfWeek">
+                @foreach (var s in days)
+                {
+                    <option value="@s.Value">@s.Text</option>
+                }
+            </select>
+            <select asp-for="FormSchedule.LessonSlotId">
+                @foreach (var s in lesson)
+                {
+                    <option value="@s.Value">@s.Text</option>
+                }
+            </select>
+            <input type="text" asp-for="FormSchedule.Room" required />
+            <button type="submit" class="btn btn_add">Сохранить</button>
+            <a href="@Url.Action("Index")" class="btn btn_del">Назад</a>
+        </form>
+    </div>
+</div>
+<style>
+    body {
+        padding: 0;
+        margin: 0;
+        font-family: 'Times New Roman', Times, serif;
+    }
+
+    h3 {
+        text-align: center;
+        margin-top: 40px;
+        color: dimgrey;
+    }
+
+    .conteiner {
+        width: 1000px;
+        padding: 20px;
+        margin: 15px auto;
+        border-radius: 15px;
+        box-shadow: 0 6px 8px rgba(0,0,0,0.1);
+    }
+
+    table {
+        width: 100%;
+        margin: 15px auto;
+        border-collapse: collapse;
+    }
+
+        table th {
+            padding: 8px 12px;
+            background: #007bff;
+            color: white;
+            text-align: left;
+        }
+
+        table td {
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        table tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+
+        table tr: hover {
+            background: #e0f7fa;
+        }
+
+    .action {
+        display: flex;
+        justify-content: left;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .btn.btn_del {
+            background: red;
+        }
+
+        .btn.btn_edit {
+            background: green;
+        }
+
+        .btn.btn_add {
+            background: #007bff;
+        }
+
+    .modal {
+        display: none;
+        width: 100%;
+        background: rgba(0,0,0,.5);
+        position: fixed;
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .modal.show {
+            display: flex;
+            width: 100%;
+            background: rgba(0,0,0,.5);
+            position: fixed;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+    .modal-content {
+        width: 600px;
+        padding: 15px;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+        form select, input {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            width: 100%;
+            border-radius: 5px;
+        }
+
+</style>
+<script>
+    const openModal = document.getElementById("openModal");
+    const btnOpenAddModal = document.getElementById("openModalBtn");
+    const editModal = document.getElementById("openModalEdit");
+    btnOpenAddModal.onclick = function(){
+        openModal.classList.add("show");
+    }
+      document.querySelectorAll(".js-edit").forEach(btn => {
+        btn.addEventListener("click", () => {
+            // Получаем данные из кнопки
+            const id = btn.dataset.id;
+            const dayWeek = btn.dataset.dayweek;
+            const lessonSlotId = btn.dataset.lessonslotid;
+            const assigmentId = btn.dataset.assigmentid;
+            const room = btn.dataset.room;
+
+            // Находим модалку и поля формы
+            const modal = editModal;
+            const form = modal.querySelector("form");
+
+            // Подставляем значения
+            form.querySelector("[name='FormSchedule.Id']").value = id; // если есть скрытое поле для Id
+            form.querySelector("[name='FormSchedule.TeachinsAssignmentId']").value = assigmentId;
+            form.querySelector("[name='FormSchedule.DayOfWeek']").value = dayWeek;
+            form.querySelector("[name='FormSchedule.LessonSlotId']").value = lessonSlotId;
+            form.querySelector("[name='FormSchedule.Room']").value = room;
+
+            // Показываем модалку
+            modal.classList.add("show");
+        });
+    });
+    window.onclick = function(event){
+        if(event.target == openModal){
+            openModal.classList.remove("show");
+        }
+         if(event.target == editModal){
+            editModal.classList.remove("show");
+        }
+    }
+</script>
