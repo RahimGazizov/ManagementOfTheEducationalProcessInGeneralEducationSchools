@@ -19,7 +19,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         {
             var lessonSlot = new LessonSlotViewModal
             {
-                LessonSlots = await _context.LessonSlots.ToListAsync()
+                LessonSlots = await _context.LessonSlots.OrderBy(t => t.LessonNumber).ToListAsync()
             };
             return View(lessonSlot);
         }

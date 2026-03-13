@@ -16,9 +16,9 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             _context = context;
             _assigmentLogic = assigmentLogic;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? error)
         {
-
+            TempData["Error"] = error;
             var techingsAssigment = await _context.TeacherAssigments
                 .Include(t => t.Teacher)
                 .ThenInclude(t => t.User)
@@ -69,6 +69,20 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 ViewBag.ListSubjects = await _assigmentLogic.GetListSubjects();
                 var assig = await GetTeachingAssigment(assigment.Id);
                 return View(assig);
+            }
+            return RedirectToAction("Index");
+        }
+        public async Task<IActionResult> Delete(string id)
+        {
+            var assigment = await _context.TeacherAssigments.FindAsync(id);
+            if (assigment != null)
+            {
+                _context.TeacherAssigments.Remove(assigment);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                return RedirectToAction("Index", new {error = "Данные не найдены"});
             }
             return RedirectToAction("Index");
         }

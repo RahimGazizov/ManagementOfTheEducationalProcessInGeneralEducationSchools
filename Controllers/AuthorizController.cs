@@ -10,19 +10,22 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
     {
         private readonly UserManager<Users> _users;
         private readonly SignInManager<Users> _signInManager;
-        public AuthorizController(UserManager<Users> users, SignInManager<Users> signInManager)
+        private readonly AppDbContext _context;
+        public AuthorizController(UserManager<Users> users, SignInManager<Users> signInManager, AppDbContext context)
         {
             _users = users;
             _signInManager = signInManager;
+            _context = context;
         }
         public IActionResult Index() => View();
+        
 
         [HttpPost]
         public async Task<IActionResult> Index(string login, string password)
         {
             try
             {
-                var user = await _users.FindByNameAsync(login);
+                var user = await _users.FindByNameAsync(login.Trim());
 
                 if (user == null)
                 {

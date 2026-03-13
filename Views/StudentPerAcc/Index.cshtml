@@ -1,6 +1,7 @@
 ﻿@model Students
 @{
     var subjectList = ViewBag.ListSubject as List<Subjects>;
+    var schedule = ViewBag.Schedule as List<ScheduleLesson>;
 }
 @if (TempData["Error"] != null)
 {
@@ -13,14 +14,33 @@
             <p style="font-weight: 500; font-size: 16px;">
                 Твоё расписание<br>
                 на сегодня
+                @if (schedule != null && schedule.Any())
+                {
+                    @foreach (var sch in schedule)
+                    {
+                        <div class="schedule-content">
+                            <div class="schedule-info">
+                                <div class="div-time">
+                                    <p class="time">@($"{sch.LessonSlot.StartTime.ToString(@"hh\:mm")}-{sch.LessonSlot.EndTime.ToString(@"hh\:mm")}")</p>
+                                </div>
+                                <p class="room">@($"каб.№{sch.Room}")</p>
+                            </div>
+                            <p class="sub-name">@sch.Assigment.Subject.Name</p>
+                        </div>
+                    }
+                }
+                else
+                {
+                <p>Расписание пока нет</p>
+                }
             </p>
         </div>
         <div class="studentInfo">
             <p style="font-weight: 700;font-size:19px;color:rgba(255, 255, 255, 1);">@Model.User.FullName.ToShortName()</p>
             <p style="font-weight: 700;font-size:19px;color:rgba(255, 255, 255, 0.8);">@Model.Class.NumClass"@Model.Class.LetterClass"</p>
-            <p style="font-weight: 400; font-style: italic; font-size:8px; color:rgba(255, 255, 255, 0.8);">Средний балл</p>
+            <p style="font-weight: 400; font-style: italic; font-size:10px; color:rgba(255, 255, 255, 0.8);">Средний балл</p>
             <p style="font-weight: 700; font-size:26px; color:rgba(255, 255, 255, 1);">@ViewBag.AverageGrade</p>
-            <button type="button" class="form" id="openModalBtn">Посмотреть успеваймость</button>
+            <a class="btnModalOpen" id="openModalBtn">Посмотреть успеваймость</a>
         </div>
     </div>
 </div>
@@ -29,13 +49,22 @@
         <form method="post" asp-action="JournalSet">
             <input type="hidden" name="studentId" id="studentID" value="@Model.Id" />
             <label>Предмет</label>
-            <select name="subjectId" id="subjectSelectHistory">
-                <option>Выберите предмет</option>
-                @foreach (var s in subjectList)
-                {
-                    <option value="@s.Id">@s.Name</option>
-                }
-            </select>
+            @if (subjectList != null && subjectList.Any())
+            {
+
+
+                <select name="subjectId" id="subjectSelectHistory">
+                    <option>Выберите предмет</option>
+                    @foreach (var s in subjectList)
+                    {
+                        <option value="@s.Id">@s.Name</option>
+                    }
+                </select>
+            }
+            else
+            {
+                <input value="Вам пока не назначены предметы" readonly />
+            }
             <input type="hidden" name="classId" id="classID" value="@Model.ClassId" />
             <label>Дата начало:</label>
             <input type="date" id="dateFrom" />
@@ -87,6 +116,7 @@
         padding: 16px;
         background-color: rgba(173, 173, 173, 1);
         border-radius: 15px;
+        overflow-y: auto;
     }
 
     .studentInfo {
@@ -174,6 +204,67 @@
             color: white;
             text-decoration: none;
         }
+
+    .schedule-content {
+        width: 100%;
+        height: 75px;
+        background-color: rgba(124, 124, 124, 1);
+        border-radius: 15px;
+        padding: 10px 5px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .div-time {
+        width: 100%;
+        max-width: 86px;
+        height: 100%;
+        max-height: 25px;
+        background-color: rgba(217, 217, 217, 1);
+        border-radius: 9px;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .time {
+        color: rgba(0, 0, 0, 1);
+        font-size: 12px;
+        margin: 0;
+        font-weight: 500;
+    }
+
+    .room {
+        color: rgba(221, 221, 221, 1);
+        font-size: 12px;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    .schedule-info {
+        display: flex;
+        justify-content: left;
+        gap: 8px;
+    }
+
+    .sub-name {
+        font-size: 16px;
+        color: rgba(221, 221, 221, 1);
+        font-weight: 500;
+        margin: 0;
+    }
+
+    .btnModalOpen {
+        color: rgba(255, 255, 255, 1);
+        font-size: 14px;
+        text-decoration: none;
+        font-weight: 700;
+        font-style: italic;
+        cursor: pointer;
+    }
 </style>
 
 <script>

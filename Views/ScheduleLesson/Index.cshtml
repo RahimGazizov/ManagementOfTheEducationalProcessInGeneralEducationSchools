@@ -6,7 +6,10 @@
 }
 <h3>Расписание уроков</h3>
 <div class="conteiner">
-    <button type="button" class="btn btn_add" id="openModalBtn">Добавить расписание</button>
+    <div class="action">
+        <button id="openModalBtn" class="btn btn_add">Добавить расписание</button>
+        <a href="@Url.Action("Index", "AdminPersonalAccount")" class="btn_back">Вернуться</a>
+    </div>
     <table>
         <thead>
             <tr>
@@ -194,6 +197,21 @@
             background: #007bff;
         }
 
+    .btn_back {
+        display: inline-block;
+        padding: 8px 12px;
+        color: white;
+        text-decoration: none;
+        background-color: blue;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .btn_add:hover {
+        transform: scale(1.1);
+        color: white;
+    }
     .modal {
         display: none;
         width: 100%;

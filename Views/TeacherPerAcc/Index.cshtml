@@ -14,13 +14,20 @@
             <input type="hidden" name="teacherId" value="@Model.Id" />
             <div class="form_row">
                 <label>Предмет:</label>
-                <select id="subjectSelectCreate" name="subjectId">
-                    <option>Выберите предмет</option>
-                    @foreach (var s in listS)
-                    {
-                        <option value="@s.Id">@s.Name</option>
-                    }
-                </select>
+                @if (listS != null && listS.Any())
+                {
+                    <select id="subjectSelectCreate" name="subjectId">
+                        <option>Выберите предмет</option>
+                        @foreach (var s in listS)
+                        {
+                            <option value="@s.Id">@s.Name</option>
+                        }
+                    </select>
+                }
+                else
+                {
+                    <input value="Вам пока не назначены предметы" readonly />
+                }
             </div>
             <div class="form_row">
                 <label>Класс:</label>
@@ -185,10 +192,10 @@
         }
 
     /* .journal_meta {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    } */
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            } */
 
     .journal_open {
         padding: 6px 10px;

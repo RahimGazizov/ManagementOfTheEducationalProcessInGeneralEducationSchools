@@ -1,6 +1,10 @@
 ﻿@model List<TeacherAssigment>
 <h1>Список учителей, ведущих предметы для каждого класса</h1>
 <div class="conteiner">
+    @if (TempData["Error"] != null)
+    {
+        <p style="color:red;font-size:19px;">@TempData["Error"]</p>
+    }
     <div class="action">
         <a href="/TeachingAssignment/Add" class="btn_add">Добавить запись</a>
         <a href="/AdminPersonalAccount/Index" class="btn_back">Вернуться на главную</a>
@@ -84,7 +88,7 @@
         table td {
             padding: 10px;
             border-bottom: 1px solid #ddd;
-            text-align:left;
+            text-align: left;
         }
 
     tbody tr:nth-child(even) {

@@ -57,6 +57,11 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 .Where(t => t.Id == fm.TeachinsAssignmentId)
                 .Select(t => t.Subject.Name)
                 .FirstOrDefaultAsync();
+            exists = await _context.Schedules
+                .AnyAsync(t => t.DayOfWeek == fm.DayOfWeek && t.LessonSlotId == fm.LessonSlotId &&
+                t.Room == fm.Room);
+            if (exists)
+                return OperationResult.Fail("Кабинет занят другим классом");
             var count = await _context.Schedules.
                 Where(t => t.Assigment.ClassId == classId && t.Assigment.Subject.Name == subName)
                 .Include(t => t.Assigment)
@@ -143,11 +148,13 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
         public async Task<List<SelectListItem>> LessonSlotList()
         {
             var lessonSlot = await _context.LessonSlots
+                .OrderBy(t => t.LessonNumber)
                 .Select(l => new SelectListItem
                 {
                     Value = l.Id,
                     Text = $"{l.LessonNumber} - {l.StartTime.ToString(@"hh\:mm")}-{l.EndTime.ToString(@"hh\:mm")}"
                 })
+                
                 .ToListAsync();
             return lessonSlot;
         }

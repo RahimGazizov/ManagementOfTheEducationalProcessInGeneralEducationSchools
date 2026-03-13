@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
@@ -35,17 +36,38 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                     .Include(s => s.Subject)
                     .Select(s => s.Subject)
                     .ToListAsync();
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"StudentClassId-{studentClassId}");
                 var averageGrade = await _context.JournalEntry
                     .Where(t => t.StudentId == student.Id && t.Grade != null)
                     .AverageAsync(e => e.Grade);
+                if (averageGrade == null)
+                    averageGrade = 0;
+                var dayToday = DateTime.Today.ToString("dddd", new CultureInfo("ru-RU")).ToLower();
+                var schedule = await _context.Schedules
+                    .Include(t => t.Assigment)
+                    .ThenInclude(t => t.Subject)
+                    .Include(t => t.Assigment)
+                    .ThenInclude(t => t.Class)
+                    .Include(t => t.LessonSlot)
+                    .Include(t => t.Assigment)
+                    .ThenInclude(t => t.Teacher)
+                    .ThenInclude(t => t.User)
+                    .Where(t => t.Assigment != null && t.Assigment.ClassId == studentClassId && t.DayOfWeek.ToLower() == dayToday)
+                    .ToListAsync();
                 ViewBag.AverageGrade = Math.Round(averageGrade.Value, 1);
                 ViewBag.ListSubject = listSubject;
+                ViewBag.Schedule = schedule;
                 return View(student);
             }
             catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
-                return View();
+                var userId = _userMan.GetUserId(User);
+                var student = await _context.Students.Include(u => u.User)
+                     .Include(c => c.Class)
+                     .FirstOrDefaultAsync(s => s.UserId == userId);
+                return View(student);
             }
         }
         [HttpGet]
