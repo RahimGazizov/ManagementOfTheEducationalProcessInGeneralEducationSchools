@@ -1,6 +1,6 @@
 ﻿@model List<Subjects>
 
-<h1>Предметы</h1>
+<h3>Предметы</h3>
 <div class="conteiner">
     <div class="action">
         <button type="button" id="openModalBtn" class="btn_add">Добавить предмет</button>
@@ -62,7 +62,7 @@
         <form method="post" asp-action="AddSubject">
             <label>Название предмета</label>
             <input type="text" name="subjectName" value="@(TempData["SubjectName"] ?? "")" required />
-            <button type="submit" class="add">Добавить</button>
+            <button type="submit" class="btn_add">Добавить</button>
         </form>
     </div>
 </div>
@@ -79,173 +79,13 @@
             <input id="subjectId" type="hidden" name="id" value="@(TempData["IdSub"] ?? "")" />
             <label>Название предмета</label>
             <input id="editSubjectName" type="text" name="subjectName" value="@(TempData["editSub"] ?? "")" required />
-            <button type="submit" class="add">Обновить</button>
+            <button type="submit" class="btn_add">Обновить</button>
         </form>
     </div>
 </div>
 
-<style>
-    body {
-        font-family: 'Times New Roman', Times, serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f8f9fa;
-    }
-
-    h1 {
-        font-size: 28px;
-        font-weight: bold;
-        margin-top: 20px;
-        text-align: center;
-        color: #333;
-    }
-
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        background-color: rgba(0,0,0,0.5);
-        justify-content: center;
-        align-items: center;
-    }
-
-    .close {
-        font-size: 20px;
-        cursor: pointer;
-    }
-
-    .modal-content {
-        width: 400px;
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-    }
-
-    .add {
-        margin-top: 10px;
-        padding: 10px;
-        border: none;
-        border-radius: 6px;
-        background: #3b82f6;
-        color: white;
-        font-size: 15px;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-        .add:hover {
-            background: #2563eb;
-        }
-
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-        form input {
-            padding: 8px 12px;
-            width: 100%;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        form label {
-            font-size: 20px;
-            display: inline-block;
-            color: dimgrey;
-        }
-
-    .conteiner {
-        width: 800px;
-        margin: 20px auto;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-        background-color: #ffffff;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 15px;
-    }
-
-        table th {
-            background-color: #007bff;
-            color: white;
-            padding: 12px;
-            text-align: left;
-        }
-
-        table td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-
-    tbody tr:nth-child(even) {
-        background-color: #f2f2f2;
-    }
-
-    tbody tr:hover {
-        background-color: #e0f7fa;
-    }
-
-    .action {
-        display: flex;
-        justify-content: left;
-        gap: 10px;
-    }
-
-    .btn_del {
-        padding: 8px 12px;
-        border: none;
-        border-radius: 5px;
-        background-color: red;
-        color: white;
-        transition: background-color 0.2s;
-    }
-
-        .btn_del:hover {
-            background-color: darkred;
-        }
-
-    .btn_edit {
-        padding: 8px 12px;
-        border: none;
-        border-radius: 5px;
-        background-color: green;
-        color: white;
-        transition: background-color 0.2s;
-    }
-
-        .btn_edit:hover {
-            background-color: forestgreen;
-        }
-
-    .btn_add {
-        display: inline-block;
-        padding: 8px 12px;
-        color: white;
-        border: none;
-        background-color: blue;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: transform 0.3s ease-in-out;
-    }
-
-        .btn_add:hover {
-            transform: scale(1.1);
-        }
-    .btn_back {
-        padding: 8px 12px;
-        text-decoration: none;
-        border-radius: 5px;
-        background-color: #007bff;
-        color: white;
-    }
-</style>
+<link rel="stylesheet" href="~/css/index.css" />
+<link rel="stylesheet" href="~/css/modalWindow.css" />
 
 <script>
     window.onload = function() {
@@ -258,15 +98,15 @@
 
         // Клик по кнопке "Добавить предмет"
         openModalBtn.onclick = function() {
-            addModal.style.display = "flex";
+            addModal.classList.add("show");
         };
 
         // Закрытие крестиком
         closeAddModalBtn.onclick = function() {
-            addModal.style.display = "none";
+            addModal.classList.remove("show");
         };
         closeEditModalBtn.onclick = function() {
-            editModal.style.display = "none";
+            editModal.classList.remove("show");
         };
 
         // Клик по кнопке редактирования
@@ -274,25 +114,25 @@
             btn.onclick = function() {
                 document.getElementById("subjectId").value = this.dataset.id;
                 document.getElementById("editSubjectName").value = this.dataset.name;
-                editModal.style.display = "flex";
+                editModal.classList.add("show");
             };
         });
 
         // Закрытие по клику вне модалки
         window.onclick = function(event) {
-            if (event.target === addModal) addModal.style.display = "none";
-            if (event.target === editModal) editModal.style.display = "none";
+            if (event.target === addModal) addModal.classList.remove("show");
+            if (event.target === editModal) editModal.classList.remove("show");
         };
 
         // Показ модалки если есть ошибка
     @if (TempData["Error"] != null)
     {
-        <text>addModal.style.display = "flex";</text>
+        <text>addModal.classList.add("show");</text>
     }
 
     @if (TempData["EditError"] != null)
     {
-        <text>editModal.style.display = "flex";</text>
+        <text>editModal.classList.add("show");</text>
     }
     };
 </script>

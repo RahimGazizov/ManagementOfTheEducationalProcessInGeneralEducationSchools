@@ -56,6 +56,7 @@
 </div>
 <div class="modal @(Model.IsOpenModalAdd ? "show" : "")" id="openModal">
     <div class="modal-content">
+        <h4 style="text-align: center;margin-bottom: 15px;">Добавления расписания</h4>
         @if (TempData["Error"] != null)
         {
             <p style="color: red; font-size: 19px;">@TempData["Error"]</p>
@@ -94,6 +95,7 @@
 
 <div class="modal @(Model.IsOpenModalEdit ? "show" : "")" id="openModalEdit">
     <div class="modal-content">
+        <h4 style="text-align: center;margin-bottom: 15px;">Редактирование расписания</h4>
         @if (TempData["Error"] != null)
         {
             <p style="color: red; font-size: 19px;">@TempData["Error"]</p>
@@ -124,135 +126,9 @@
         </form>
     </div>
 </div>
-<style>
-    body {
-        padding: 0;
-        margin: 0;
-        font-family: 'Times New Roman', Times, serif;
-    }
 
-    h3 {
-        text-align: center;
-        margin-top: 40px;
-        color: dimgrey;
-    }
-
-    .conteiner {
-        width: 1000px;
-        padding: 20px;
-        margin: 15px auto;
-        border-radius: 15px;
-        box-shadow: 0 6px 8px rgba(0,0,0,0.1);
-    }
-
-    table {
-        width: 100%;
-        margin: 15px auto;
-        border-collapse: collapse;
-    }
-
-        table th {
-            padding: 8px 12px;
-            background: #007bff;
-            color: white;
-            text-align: left;
-        }
-
-        table td {
-            padding: 8px 12px;
-            text-align: left;
-        }
-
-        table tr:nth-child(even) {
-            background: #f2f2f2;
-        }
-
-        table tr: hover {
-            background: #e0f7fa;
-        }
-
-    .action {
-        display: flex;
-        justify-content: left;
-        gap: 10px;
-    }
-
-    .btn {
-        padding: 8px 12px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        color: white;
-    }
-
-        .btn.btn_del {
-            background: red;
-        }
-
-        .btn.btn_edit {
-            background: green;
-        }
-
-        .btn.btn_add {
-            background: #007bff;
-        }
-
-    .btn_back {
-        display: inline-block;
-        padding: 8px 12px;
-        color: white;
-        text-decoration: none;
-        background-color: blue;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: transform 0.3s ease-in-out;
-    }
-
-    .btn_add:hover {
-        transform: scale(1.1);
-        color: white;
-    }
-    .modal {
-        display: none;
-        width: 100%;
-        background: rgba(0,0,0,.5);
-        position: fixed;
-        z-index: 1000;
-        justify-content: center;
-        align-items: center;
-    }
-
-        .modal.show {
-            display: flex;
-            width: 100%;
-            background: rgba(0,0,0,.5);
-            position: fixed;
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-    .modal-content {
-        width: 600px;
-        padding: 15px;
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-        form select, input {
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            width: 100%;
-            border-radius: 5px;
-        }
-
-</style>
+<link rel="stylesheet" href="~/css/index.css" />
+<link rel="stylesheet" href="~/css/modalWindow.css" />
 <script>
     const openModal = document.getElementById("openModal");
     const btnOpenAddModal = document.getElementById("openModalBtn");

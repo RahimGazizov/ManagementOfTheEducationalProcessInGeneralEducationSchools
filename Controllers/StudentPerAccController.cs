@@ -1,4 +1,5 @@
-﻿using InformationSystemOfASchoolIducationalPortal.Data;
+﻿using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
+using InformationSystemOfASchoolIducationalPortal.Data;
 using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -14,12 +15,14 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         private readonly UserManager<Users> _userMan;
         private readonly SignInManager<Users> _signIn;
         private readonly AppDbContext _context;
+        private readonly StudentPerAccLogic _studentPer;
         public StudentPerAccController(UserManager<Users> userMan, SignInManager<Users> signIn
-            , AppDbContext context)
+            , AppDbContext context, StudentPerAccLogic studentPerAcc)
         {
             _userMan = userMan;
             _signIn = signIn;
             _context = context;
+            _studentPer = studentPerAcc;
         }
         public async Task<IActionResult> Index()
         {
@@ -31,33 +34,10 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 var student = await _context.Students.Include(u => u.User)
                     .Include(c => c.Class)
                     .FirstOrDefaultAsync(s => s.UserId == userId);
-                var listSubject = await _context.TeacherAssigments
-                    .Where(t => t.ClassId == studentClassId)
-                    .Include(s => s.Subject)
-                    .Select(s => s.Subject)
-                    .ToListAsync();
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"StudentClassId-{studentClassId}");
-                var averageGrade = await _context.JournalEntry
-                    .Where(t => t.StudentId == student.Id && t.Grade != null)
-                    .AverageAsync(e => e.Grade);
-                if (averageGrade == null)
-                    averageGrade = 0;
-                var dayToday = DateTime.Today.ToString("dddd", new CultureInfo("ru-RU")).ToLower();
-                var schedule = await _context.Schedules
-                    .Include(t => t.Assigment)
-                    .ThenInclude(t => t.Subject)
-                    .Include(t => t.Assigment)
-                    .ThenInclude(t => t.Class)
-                    .Include(t => t.LessonSlot)
-                    .Include(t => t.Assigment)
-                    .ThenInclude(t => t.Teacher)
-                    .ThenInclude(t => t.User)
-                    .Where(t => t.Assigment != null && t.Assigment.ClassId == studentClassId && t.DayOfWeek.ToLower() == dayToday)
-                    .ToListAsync();
-                ViewBag.AverageGrade = Math.Round(averageGrade.Value, 1);
-                ViewBag.ListSubject = listSubject;
-                ViewBag.Schedule = schedule;
+               
+                ViewBag.AverageGrade = Math.Round(await _studentPer.AverageGrade(student), 1);
+                ViewBag.ListSubject = await _studentPer.ListSubjects(studentClassId);
+                ViewBag.Schedule = await _studentPer.ScheduleLessons(studentClassId);
                 return View(student);
             }
             catch (Exception ex)

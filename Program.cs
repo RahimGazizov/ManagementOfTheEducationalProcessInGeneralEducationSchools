@@ -13,7 +13,10 @@ builder.Services.AddScoped<CRUDClass>();
 builder.Services.AddScoped<CRUDSubject>();
 builder.Services.AddScoped<TeachingAssigmentLogic>();
 builder.Services.AddScoped<TeacherPerAccLogic>();
+builder.Services.AddScoped<StudentPerAccLogic>();
+builder.Services.AddScoped<TermLogic>();
 builder.Services.AddScoped<ScheduleLogic>();
+builder.Services.AddScoped<AcademicYearLogic>();
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {

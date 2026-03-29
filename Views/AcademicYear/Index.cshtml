@@ -1,0 +1,132 @@
+﻿@model AcademicYearViewModel
+<h3>Учебный год</h3>
+<div class="conteiner">
+    <div class="action">
+        <button type="button" id="btnOpenModal" class="btn btn_add">Добавить учебный год</button>
+        <a href="@Url.Action("Index","AdminPersonalAccount")" class="btn btn_back">Вернуться</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Название учебного года</th>
+                <th>Дата начало</th>
+                <th>Дата конца</th>
+                <th>Четверти</th>
+                <th>Действие</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.AcademicYears != null && Model.AcademicYears.Any())
+            {
+                @foreach (var ac in Model.AcademicYears)
+                {
+                    <tr>
+                        <td>@ac.Name</td>
+                        <td>@ac.StartDateYear.ToString("dd-MM-yyyy")</td>
+                        <td>@ac.EndDateYear.ToString("dd-MM-yyyy")</td>
+                        <td>
+                            @if (ac.Terms != null && ac.Terms.Any())
+                            {
+                                @foreach (var te in ac.Terms)
+                                {
+                                    <span>@te.Name<br />@($"{te.DateStartTerm.ToString("dd-MM-yyyy")}-{te.DateEndTerm.ToString("dd-MM-yyyy")}")</span> <br>
+                                }
+                            }
+                            else
+                            {
+                                <span>Четверти пока нет</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="action">
+                                <a asp-action="Delete" asp-route-id="@ac.Id" class="btn btn_del" onclick="return confirm('Вы уверены что хотите удалить?')">Удалить</a>
+                                <button type="button" class="btn btn_edit js-edit"
+                                        data-id="@ac.Id"
+                                        data-name="@ac.Name"
+                                        data-start-date="@ac.StartDateYear.ToString("yyyy-MM-dd")"
+                                        data-end-date="@ac.EndDateYear.ToString("yyyy-MM-dd")">
+                                    Редактировать
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="5">Данных учебного года пока пусты</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal @(Model.IsAdd ? "show" : "")" id="modalOpenAdd">
+    <div class="modal-content">
+        <h4>Добавление учебного года</h4>
+        @if (TempData["Error"] != null)
+        {
+            <p style="color: red; font-size: 18px;">@TempData["Error"]</p>
+        }
+        <form method="post" asp-action="AddAcademicYear">
+            <input type="text" asp-for="From.Name" placeholder="Название учебного года пример(2025-2026)" required>
+            <input type="date" asp-for="From.StartDateYear" placeholder="Дата начало года" required>
+            <input type="date" asp-for="From.EndDateYear" placeholder="Дата конца года" required>
+            <button type="submit" class="btn btn_add">Добавить</button>
+            <a href="@Url.Action("Index")" class="btn btn_back">Вернуться</a>
+        </form>
+    </div>
+</div>
+<div class="modal @(Model.IsEdit ? "show" : "")" id="modalOpenEdit">
+    <div class="modal-content">
+        <h4>Редоктирование учебного года</h4>
+        @if (TempData["Error"] != null)
+        {
+            <p style="color: red; font-size: 18px;">@TempData["Error"]</p>
+        }
+        <form method="post" asp-action="Edit">
+            <input type="hidden" asp-for="From.Id" />
+            <input type="text" asp-for="From.Name" placeholder="Название учебного года пример(2025-2026)" required>
+            <input type="date" asp-for="From.StartDateYear" placeholder="Дата начало года" required>
+            <input type="date" asp-for="From.EndDateYear" placeholder="Дата конца года" required>
+            <button type="submit" class="btn btn_add">Сохранить</button>
+            <a href="@Url.Action("Index")" class="btn btn_back">Вернуться</a>
+        </form>
+    </div>
+</div>
+<link rel="stylesheet" href="~/css/index.css">
+<link rel="stylesheet" href="~/css/modalWindow.css">
+<script>
+    const btnOpen = document.getElementById("btnOpenModal");
+    const openModal = document.getElementById("modalOpenAdd");
+    const openEditModal = document.getElementById("modalOpenEdit");
+
+    document.querySelectorAll(".js-edit").forEach(btn => {
+         btn.addEventListener("click", () => {
+             const id = btn.dataset.id;
+             const name = btn.dataset.name;
+             const startDate = btn.dataset.startDate;
+             const endDate = btn.dataset.endDate;
+
+             const form = openEditModal.querySelector("form");
+
+             form.querySelector("[name='From.Id']").value = id;
+             form.querySelector("[name='From.Name']").value = name;
+             form.querySelector("[name='From.StartDateYear']").value = startDate;
+             form.querySelector("[name='From.EndDateYear']").value = endDate;
+
+             openEditModal.classList.add("show");
+         });
+     });
+
+    btnOpen.onclick = function(){
+        openModal.classList.add("show");
+    }
+    window.onclick = function(event){
+        if(event.target == openModal){
+            openModal.classList.remove("show");
+        }
+        if(event.target == openEditModal){
+            openEditModal.classList.remove("show");
+        }
+    }
+</script>

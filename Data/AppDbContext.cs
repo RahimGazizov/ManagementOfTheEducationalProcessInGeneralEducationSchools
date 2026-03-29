@@ -17,6 +17,9 @@ namespace InformationSystemOfASchoolIducationalPortal.Data
         public DbSet<SchoolAdministrations> Administrations { get; set; }
         public DbSet<ScheduleLesson> Schedules {  get; set; }
         public DbSet<LessonSlot> LessonSlots { get; set; }
+        public DbSet<AcademicYear> AcademicYear { get; set; }
+        public DbSet<Term> Term { get; set; }
+        public DbSet<StudentsHistory> StudentsHistory { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

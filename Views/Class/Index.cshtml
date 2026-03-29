@@ -1,5 +1,5 @@
 ﻿@model List<Class>
-<h1>Классы</h1>
+<h3>Классы</h3>
 <div class="conteiner">
     <div class="action">
         <button type="button" id="openModalBtn" class="btn_add">Добавить класс</button>
@@ -57,7 +57,7 @@
             <input type="number" name="numClass" min="1" max="11" required />
             <label>Буква класса</label>
             <input type="text" name="letterClass" maxlength="1" required />
-            <button type="submit" class="add">Сохранить</button>
+            <button type="submit" class="btn_add">Сохранить</button>
         </form>
     </div>
 </div>
@@ -74,172 +74,12 @@
             <label>Буква класса</label>
             <input type="text" name="letterClass" id="editLetter" maxlength="1" required />
 
-            <button class="add">Обновить</button>
+            <button class="btn_add">Обновить</button>
         </form>
     </div>
 </div>
-<style>
-    body {
-        font-family: 'Times New Roman', Times, serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f8f9fa;
-    }
-
-    h1 {
-        font-size: 28px;
-        font-weight: bold;
-        margin-top: 20px;
-        text-align: center;
-        color: #333;
-    }
-
-    .modal {
-        display: none; /* скрыто по умолчанию */
-        position: fixed;
-        z-index: 1000;
-        background-color: rgba(0,0,0,0.5);
-        justify-content: center;
-        align-items: center;
-    }
-
-    .modal-content {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        width: 400px;
-    }
-
-    .add {
-        margin-top: 10px;
-        padding: 10px;
-        border: none;
-        border-radius: 6px;
-        background: #3b82f6;
-        color: white;
-        font-size: 15px;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-        .add:hover {
-            background: #2563eb;
-        }
-
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-        form input {
-            width: 100%;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            padding: 8px 12px;
-        }
-
-    .close {
-        float: right;
-        cursor: pointer;
-        font-size: 20px;
-    }
-
-    .conteiner {
-        width: 1000px;
-        margin: 20px auto;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        background-color: #ffffff;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 15px;
-    }
-
-        table th {
-            background-color: #007bff;
-            color: white;
-            padding: 12px;
-            text-align: left;
-        }
-
-        table td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-    tbody tr:nth-child(even) {
-        background-color: #f2f2f2;
-    }
-
-    tbody tr:hover {
-        background-color: #e0f7fa;
-    }
-
-    .action {
-        display: flex;
-        justify-content: left;
-        gap: 10px;
-    }
-
-    .btn_del {
-        padding: 8px 12px;
-        border: none;
-        border-radius: 5px;
-        background-color: red;
-        color: white;
-        transition: background-color 0.2s;
-    }
-
-        .btn_del:hover {
-            color: white;
-            background-color: darkred;
-        }
-
-    .btn_edit {
-        padding: 8px 12px;
-        border: none;
-        border-radius: 5px;
-        background-color: green;
-        color: white;
-        transition: background-color 0.2s;
-    }
-
-        .btn_edit:hover {
-            color: white;
-            background-color: forestgreen;
-        }
-
-    .btn_add {
-        display: inline-block;
-        padding: 8px 12px;
-        color: white;
-        border: none;
-        background-color: blue;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: transform 0.3s ease-in-out;
-    }
-
-        .btn_add:hover {
-            color: white;
-            background-color: #007bff;
-            transform: scale(1.1);
-        }
-
-    .btn_back {
-        padding: 8px 12px;
-        text-decoration: none;
-        border-radius: 5px;
-        background-color: #007bff;
-        color: white;
-    }
-
-</style>
+<link rel="stylesheet" href="~/css/index.css" />
+<link rel="stylesheet" href="~/css/modalWindow.css" />
 <script>
     // Добавление класса
     var addModal = document.getElementById("addClassModal");
@@ -247,11 +87,11 @@
     var closeAdd = document.getElementById("closeModalBtn");
 
     openAddBtn.onclick = function() {
-        addModal.style.display = "flex";
+        addModal.classList.add("show");
     }
 
     closeAdd.onclick = function() {
-        addModal.style.display = "none";
+        addModal.classList.remove("show");
     }
 
     // Редактирование класса
@@ -264,21 +104,21 @@
             document.getElementById("editNum").value = this.dataset.num;
             document.getElementById("editLetter").value = this.dataset.letter;
 
-            editModal.style.display = "flex";
+            editModal.classList.add("show");
         }
     });
 
     closeEdit.onclick = function () {
-        editModal.style.display = "none";
+        editModal.classList.remove("show");
     }
 
     // Закрытие при клике вне окна для обоих модалок
     window.onclick = function(event) {
         if (event.target == addModal) {
-            addModal.style.display = "none";
+            addModal.classList.remove("show");
         }
         if (event.target == editModal) {
-            editModal.style.display = "none";
+            editModal.classList.remove("show");
         }
     }
 </script>

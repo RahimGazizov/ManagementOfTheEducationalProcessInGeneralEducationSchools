@@ -47,7 +47,7 @@
     <div class="modal-content">
         @if (TempData["Error"] != null)
         {
-            <div>@TempData["Error"]</div>
+            <div style="color:red; font-size: 18px;">@TempData["Error"]</div>
         }
         <form method="post" asp-action="AddLessonSlot">
             <input type="number" asp-for="Form.LessonNumber" placeholder="Номер урока" required />
@@ -63,7 +63,7 @@
     <div class="modal-content">
         @if (TempData["Error"] != null)
         {
-            <div>@TempData["Error"]</div>
+            <div style="color:red; font-size: 18px;">@TempData["Error"]</div>
         }
         <form method="post" asp-action="EditLessonSlot">
             <input type="hidden" asp-for="Form.Id" id="editId" required />
@@ -77,173 +77,8 @@
     </div>
 </div>
 
-<style>
-    body {
-        padding: 0;
-        margin: 0;
-        font-family: 'Times New Roman', Times, serif;
-    }
-
-    .conteiner {
-        width: 800px;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin: 15px auto;
-        background: #fff;
-    }
-
-    h3 {
-        text-align: center;
-        margin-top: 40px;
-        color: dimgray;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 15px auto;
-    }
-
-        table th {
-            background-color: #007bff;
-            color: white;
-            padding: 12px;
-            text-align: left;
-        }
-
-        table td {
-            padding: 10px;
-            /*     border-bottom: 1px solid #ddd; */
-            text-align: left;
-        }
-
-    tbody tr:nth-child(even) {
-        background-color: #f2f2f2;
-    }
-
-    tbody tr:hover {
-        background-color: #e0f7fa;
-    }
-
-    .action {
-        display: flex;
-        justify-content: left;
-        gap: 10px;
-    }
-
-    .btn_del {
-        padding: 8px 12px;
-        border: none;
-        border-radius: 5px;
-        background-color: red;
-        color: white;
-        transition: background-color 0.2s;
-    }
-
-        .btn_del:hover {
-            background-color: darkred;
-        }
-
-    .btn_edit {
-        padding: 8px 12px;
-        border: none;
-        border-radius: 5px;
-        background-color: green;
-        color: white;
-        transition: background-color 0.2s;
-    }
-
-        .btn_edit:hover {
-            background-color: forestgreen;
-        }
-
-    .btn_add {
-        display: inline-block;
-        padding: 8px 12px;
-        color: white;
-        border: none;
-        background-color: blue;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: transform 0.3s ease-in-out;
-    }
-
-        .btn_add:hover {
-            transform: scale(1.1);
-        }
-
-    .btn_back {
-        display: inline-block;
-        padding: 8px 12px;
-        color: white;
-        text-decoration: none;
-        background-color: blue;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: transform 0.3s ease-in-out;
-    }
-
-        .btn_add:hover {
-            transform: scale(1.1);
-            color: white;
-        }
-
-    .modal {
-        display: none;
-        width: 100%;
-        background: rgba(0,0,0,0.5);
-        justify-content: center;
-        align-items: center;
-        position: fixed;
-    }
-
-        .modal.show {
-            display: flex;
-            width: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-        }
-
-    .modal-content {
-        width: 100%;
-        max-width: 400px;
-        background-color: #fff;
-        border-radius: 12px;
-        padding: 15px;
-    }
-
-    form {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-        form input {
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
-
-    .btn {
-        padding: 8px 12px;
-        border-radius: 5px;
-        color: white;
-    }
-
-        .btn.btn_add {
-            background: #007bff;
-            border: none;
-        }
-
-        .btn.btn_back {
-            background: red;
-            text-decoration: none;
-        }
-</style>
+<link rel="stylesheet" href="~/css/index.css" />
+<link rel="stylesheet" href="~/css/modalWindow.css" />
 <script>
     const modalDiv = document.getElementById("modalAdd");
     const openBtn = document.getElementById("openModalBtn");

@@ -1,0 +1,155 @@
+﻿@model TermViewModel
+@{
+    var listAcademic = ViewBag.AcademicList as List<SelectListItem>;
+}
+<h3>Четверти</h3>
+<div class="conteiner">
+    <div class="action">
+        <button type="button" id="btnOpenModal" class="btn btn_add">Добавить четверть</button>
+        <a href="@Url.Action("Index","Term")" class="btn btn_back">Вернуться</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Название четверти</th>
+                <th>Дата начало</th>
+                <th>Дата конца</th>
+                <th>Учебный год</th>
+                <th>Действие</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Terms != null && Model.Terms.Any())
+            {
+                @foreach (var ac in Model.Terms)
+                {
+                    <tr>
+                        <td>@ac.Name</td>
+                        <td>@ac.DateStartTerm.ToString("dd-MM-yyyy")</td>
+                        <td>@ac.DateEndTerm.ToString("dd-MM-yyyy")</td>
+                        <td>@ac.AcademicYear.Name</td>
+                        <td>
+                            <div class="action">
+                                <a asp-action="Delete" asp-route-id="@ac.Id" class="btn btn_del" onclick="return confirm('Вы уверены что хотите удалить?')">Удалить</a>
+                                <button type="button" class="btn btn_edit js-edit"
+                                        data-id="@ac.Id"
+                                        data-name="@ac.Name"
+                                        data-start-date="@ac.DateStartTerm.ToString("yyyy-MM-dd")"
+                                        data-end-date="@ac.DateEndTerm.ToString("yyyy-MM-dd")"
+                                        data-academic-Id="@ac.AcademicYearId">
+                                    Редактировать
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="5">Четверти пока не добавлены</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal @(Model.IsAdd ? "show" : "")" id="modalOpenAdd">
+    <div class="modal-content">
+        <h4>Добавление четверти</h4>
+        @if (TempData["Error"] != null)
+        {
+            <p style="color: red; font-size: 18px;">@TempData["Error"]</p>
+        }
+        <form method="post" asp-action="AddTerm">
+            <input type="text" asp-for="Form.Name" placeholder="Название четверти пример (1 четверть)" required>
+            <input type="date" asp-for="Form.DateStartTerm" placeholder="Дата начало года" required>
+            <input type="date" asp-for="Form.DateEndTerm" placeholder="Дата конца года" required>
+            @if (listAcademic != null && listAcademic.Any())
+            {
+                <select asp-for="Form.AcademicYearId" required>
+                    <option>Выберите учебный год</option>
+                    @foreach (var a in listAcademic)
+                    {
+                        <option value="@a.Value" selected>@a.Text</option>
+                    }
+                </select>
+            }
+            else
+            {
+                <input value="Список учебного года пуст" readonly>
+            }
+            <button type="submit" class="btn btn_add">Добавить</button>
+            <a href="@Url.Action("Index")" class="btn btn_back">Вернуться</a>
+        </form>
+    </div>
+</div>
+<div class="modal @(Model.IsEdit ? "show" : "")" id="modalOpenEdit">
+    <div class="modal-content">
+        <h4>Редоктирование учебного года</h4>
+        @if (TempData["Error"] != null)
+        {
+            <p style="color: red; font-size: 18px;">@TempData["Error"]</p>
+        }
+        <form method="post" asp-action="EditTerm">
+            <input type="hidden" asp-for="Form.Id">
+            <input type="text" asp-for="Form.Name" required>
+            <input type="date" asp-for="Form.DateStartTerm" required>
+            <input type="date" asp-for="Form.DateEndTerm" required>
+            @if (listAcademic != null && listAcademic.Any())
+            {
+                <select asp-for="Form.AcademicYearId" required>
+                    <option>Выберите учебный год</option>
+                    @foreach (var a in listAcademic)
+                    {
+                        <option value="@a.Value">@a.Text</option>
+                    }
+                </select>
+            }
+            else
+            {
+                <input value="Список учебного года пуст" readonly>
+            }
+            <button type="submit" class="btn btn_add">Обновить</button>
+            <a href="@Url.Action("Index")" class="btn btn_back">Вернуться</a>
+        </form>
+    </div>
+</div>
+
+<link rel="stylesheet" href="~/css/index.css" />
+<link rel="stylesheet" href="~/css/modalWindow.css" />
+<script>
+    const btnOpen = document.getElementById("btnOpenModal");
+    const openModal = document.getElementById("modalOpenAdd");
+    const openEditModal = document.getElementById("modalOpenEdit");
+
+    document.querySelectorAll(".js-edit").forEach(btn => {
+         btn.addEventListener("click", () => {
+             const id = btn.dataset.id;
+             const name = btn.dataset.name;
+             const startDate = btn.dataset.startDate;
+             const endDate = btn.dataset.endDate;
+             const academicId = btn.dataset.academicId;
+
+             const form = openEditModal.querySelector("form");
+
+             form.querySelector("[name='Form.Id']").value = id;
+             form.querySelector("[name='Form.Name']").value = name;
+             form.querySelector("[name='Form.DateStartTerm']").value = startDate;
+             form.querySelector("[name='Form.DateEndTerm']").value = endDate;
+             form.querySelector("[name='Form.AcademicYearId']").value = academicId;
+
+             openEditModal.classList.add("show");
+         });
+     });
+
+    btnOpen.onclick = function(){
+        openModal.classList.add("show");
+    }
+    window.onclick = function(event){
+        if(event.target == openModal){
+            openModal.classList.remove("show");
+        }
+        if(event.target == openEditModal){
+            openEditModal.classList.remove("show");
+        }
+    }
+</script>
