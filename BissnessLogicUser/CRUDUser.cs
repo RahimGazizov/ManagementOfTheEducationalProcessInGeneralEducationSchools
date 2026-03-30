@@ -24,6 +24,8 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
         {
             try
             {
+                if (createUser == null)
+                    return OperationResult.Fail("Ошибка создания пользователя");
                 var user = new Users
                 {
                     FullName = createUser.FullName,
@@ -52,7 +54,27 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     }
                     _context.Students.Add(student);
                     await _context.SaveChangesAsync();
-                        
+                    var dayToday = DateTime.Now;
+                    var currentYear = await _context.AcademicYear
+                        .Where(d => d.StartDateYear <= dayToday && dayToday <= d.EndDateYear)
+                        .FirstOrDefaultAsync();
+                    var currentTerm = await _context.Term
+                       .Where(d => d.DateStartTerm <= dayToday && dayToday <= d.DateEndTerm)
+                       .FirstOrDefaultAsync();
+                    if (currentYear == null)
+                        return OperationResult.Fail("Не найден текущий учебный год");
+                    if (currentTerm == null)
+                        return OperationResult.Fail("Не найдена текущая четверть");
+
+                    var studentHistory = new StudentsHistory
+                    {
+                        StudentId = student.Id,
+                        ClassId = createUser.ClassId,
+                        AcademicYearId = currentYear.Id,
+                        TermId = currentTerm.Id
+                    };
+                    _context.StudentsHistory.Add(studentHistory);
+                    await _context.SaveChangesAsync();
                 }
                 if (createUser.Role == "Учитель")
                 {

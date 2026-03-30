@@ -1,22 +1,18 @@
-﻿@model Students
-@{
-    var subjectList = ViewBag.ListSubject as List<Subjects>;
-    var schedule = ViewBag.Schedule as List<ScheduleLesson>;
-}
+﻿@model StudentDashboardViewModel
 @if (TempData["Error"] != null)
 {
     <div>@TempData["Error"]</div>
 }
 <div class="personalAcc">
-    <p class="hello">Привет, @Model.User.FullName.OnlyName()!</p>
+    <p class="hello">Привет, @Model.Student.User.FullName.OnlyName()!</p>
     <div class="conteiner">
         <div class="schedule">
             <p style="font-weight: 500; font-size: 16px;">
                 Твоё расписание<br>
                 на сегодня
-                @if (schedule != null && schedule.Any())
+                @if (Model.Schedule != null && Model.Schedule.Any())
                 {
-                    @foreach (var sch in schedule)
+                    @foreach (var sch in Model.Schedule)
                     {
                         <div class="schedule-content">
                             <div class="schedule-info">
@@ -36,26 +32,25 @@
             </p>
         </div>
         <div class="studentInfo">
-            <p style="font-weight: 700;font-size:19px;color:rgba(255, 255, 255, 1);">@Model.User.FullName.ToShortName()</p>
-            <p style="font-weight: 700;font-size:19px;color:rgba(255, 255, 255, 0.8);">@Model.Class.NumClass"@Model.Class.LetterClass"</p>
+            <p style="font-weight: 700;font-size:19px;color:rgba(255, 255, 255, 1);">@Model.Student.User.FullName.ToShortName()</p>
+            <p style="font-weight: 700;font-size:19px;color:rgba(255, 255, 255, 0.8);">@Model.Student.Class.NumClass"@Model.Student.Class.LetterClass"</p>
             <p style="font-weight: 400; font-style: italic; font-size:10px; color:rgba(255, 255, 255, 0.8);">Средний балл</p>
-            <p style="font-weight: 700; font-size:26px; color:rgba(255, 255, 255, 1);">@ViewBag.AverageGrade</p>
+            <p style="font-weight: 700; font-size:26px; color:rgba(255, 255, 255, 1);">@Model.AverageGrade</p>
             <a class="btnModalOpen" id="openModalBtn">Посмотреть успеваймость</a>
+            <a class="btnModalOpen" id="openAveragePoints">Посмотреть средний балл по предмету</a>
         </div>
     </div>
 </div>
 <div id="openModalForm" class="modal">
     <div class="modal-content">
         <form method="post" asp-action="JournalSet">
-            <input type="hidden" name="studentId" id="studentID" value="@Model.Id" />
+            <input type="hidden" name="studentId" id="studentID" value="@Model.Student.Id" />
             <label>Предмет</label>
-            @if (subjectList != null && subjectList.Any())
+            @if (Model.Subjects != null && Model.Subjects.Any())
             {
-
-
-                <select name="subjectId" id="subjectSelectHistory">
+                <select id="subjectSelectHistory">
                     <option>Выберите предмет</option>
-                    @foreach (var s in subjectList)
+                    @foreach (var s in Model.Subjects)
                     {
                         <option value="@s.Id">@s.Name</option>
                     }
@@ -65,11 +60,52 @@
             {
                 <input value="Вам пока не назначены предметы" readonly />
             }
-            <input type="hidden" name="classId" id="classID" value="@Model.ClassId" />
-            <label>Дата начало:</label>
-            <input type="date" id="dateFrom" />
-            <label>Дата конца:</label>
-            <input type="date" id="dateTo" />
+            <input type="hidden" name="classId" id="classID" value="@Model.Student.ClassId" />
+            <label>Учебный год</label>
+            @if (Model.AcademicYears != null && Model.AcademicYears.Any())
+            {
+                <select id="academicYearStudent">
+
+                    @foreach (var a in Model.AcademicYears)
+                    {
+                        if (a.Value == Model.CurrentYear.Id)
+                        {
+                            <option value="@a.Value" selected>@a.Text</option>
+                        }
+                        else
+                        {
+                            <option value="@a.Value">@a.Text</option>
+                        }
+                    }
+
+                </select>
+            }
+            else
+            {
+                <input type="text" value="Учебного года пока нет" readonly>
+            }
+            <label>Четверть</label>
+            @if (Model.Terms != null && Model.Terms.Any())
+            {
+                <select id="termStudent">
+
+                    @foreach (var a in Model.Terms)
+                    {
+                        if (a.Value == Model.CurrentTerm?.Id)
+                        {
+                            <option value="@a.Value" selected>@a.Text</option>
+                        }
+                        else
+                        {
+                            <option value="@a.Value">@a.Text</option>
+                        }
+                    }
+                </select>
+            }
+            else
+            {
+                <input type="text" value="Четверти еще не добавлены" readonly>
+            }
             <div id="journalsList" class="journalsList">
                 Выберите предмет чтобы увидеть список журналов
             </div>
@@ -79,205 +115,91 @@
         </form>
     </div>
 </div>
-<style>
-    body {
-        padding: 0;
-        margin: 0;
-        font-family: Inter;
-    }
-
-    .personalAcc {
-        width: 552px;
-        height: 987px;
-        top: 46px;
-        left: 680px;
-        opacity: 1;
-        border-radius: 41px;
-        background-color: rgba(217, 217, 217, 1);
-        padding: 20px;
-    }
-
-    .hello {
-        font-weight: 700;
-        font-size: 30px;
-        color: rgba(0, 0, 0, 1);
-    }
-
-    .conteiner {
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .schedule {
-        width: 249px;
-        height: 306px;
-        top: 137px;
-        left: 706px;
-        padding: 16px;
-        background-color: rgba(173, 173, 173, 1);
-        border-radius: 15px;
-        overflow-y: auto;
-    }
-
-    .studentInfo {
-        width: 249px;
-        height: 306px;
-        top: 137px;
-        left: 706px;
-        padding: 16px;
-        background-color: rgba(103, 103, 103, 1);
-        border-radius: 15px;
-    }
-
-        .studentInfo p {
-            margin: 0;
+<div class="modal" id="openAverageInfo">
+    <div class="modal-content">
+        <h3 style="text-align:center">Просмотр среднего балла</h3>
+        <input type="hidden" value="@Model.Student.Id" id="studentId">
+        <label>Класс</label>
+        @if (Model.Classes != null && Model.Classes.Any())
+        {
+            <select id="classStudent" style="margin-bottom:15px;">
+                <option>Выберите класс</option>
+                @foreach (var c in Model.Classes)
+                {
+                    @*  if (c.Value == Model.CurrentClass.Id)
+                    {
+                        <option value="@c.Value" selected>@c.Text</option>
+                    }
+                    else
+                    {
+                        <option value="@c.Value">@c.Text</option>
+                    } *@
+                    <option value="@c.Value">@c.Text</option>
+                }
+            </select>
         }
-
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        background-color: rgba(0,0,0,0.5);
-        justify-content: center;
-        align-items: center;
-    }
-
-    .modal-content {
-        width: 400px;
-        padding: 20px;
-        background-color: #fff;
-        border-radius: 8px;
-    }
-
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-        form select, input {
-            width: 100%;
-            border: 1px solid #ccc;
-            padding: 8px 12px;
-            border-radius: 5px;
+        else
+        {
+            <p>Список классов пуст</p>
         }
+        <label>Предмет</label>
+        <select id="listSubject" style="margin-bottom:15px;" disabled>
+            <option>Сначала выберите класс</option>
+        </select>
+        <label>Учебный год</label>
+        <input type="hidden" id="academicYearId">
+        <input type="text" id="academicYear" style="margin-bottom:15px;" readonly>
+        <label>Четверть</label>
+        <select id="listTerms" style="margin-bottom:15px;" disabled>
+            <option>Выберите сначала класс</option>
+        </select>
+        <button type="button" id="btnResult" class="btn_result">Вывести результат</button>
+        <div id="resultBlock" class="result-card">
+            <h4 class="result-title">Результат</h4>
 
+            <div class="result-item">
+                <span class="label">📘 Предмет:</span>
+                <span id="resSubject" class="value"></span>
+            </div>
 
-    .btn_back {
-        padding: 8px 12px;
-        background-color: #dc3545;
-        border-radius: 5px;
-        text-decoration: none;
-        color: white;
-    }
+            <div class="result-item">
+                <span class="label">📊 Средний балл:</span>
+                <span id="resAverage" class="value highlight"></span>
+            </div>
 
-    .journalsList {
-        padding: 10px;
-        border-radius: 5px;
-        max-height: 220px;
-        border: 1px solid #e5e5e5;
-        background-color: #fafafa;
-        overflow-y: auto;
-        font-size: 14px;
-    }
+            <div class="result-item">
+                <span class="label">📅 Посещаемость:</span>
+                <span id="resAttendance" class="value"></span>
+            </div>
 
-    .journal_item {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        border-radius: 5px;
-        padding: 8px;
-        border: 1px solid #eee;
-        background-color: #fff;
-        align-items: center;
-    }
-
-    .journal_open {
-        padding: 8px 12px;
-        background-color: #007bff;
-        border-radius: 5px;
-        text-decoration: none;
-        color: white;
-    }
-
-        .journal_open:hover {
-            color: white;
-            text-decoration: none;
-        }
-
-    .schedule-content {
-        width: 100%;
-        height: 75px;
-        background-color: rgba(124, 124, 124, 1);
-        border-radius: 15px;
-        padding: 10px 5px;
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .div-time {
-        width: 100%;
-        max-width: 86px;
-        height: 100%;
-        max-height: 25px;
-        background-color: rgba(217, 217, 217, 1);
-        border-radius: 9px;
-        box-sizing: border-box;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .time {
-        color: rgba(0, 0, 0, 1);
-        font-size: 12px;
-        margin: 0;
-        font-weight: 500;
-    }
-
-    .room {
-        color: rgba(221, 221, 221, 1);
-        font-size: 12px;
-        font-weight: 500;
-        margin: 0;
-    }
-
-    .schedule-info {
-        display: flex;
-        justify-content: left;
-        gap: 8px;
-    }
-
-    .sub-name {
-        font-size: 16px;
-        color: rgba(221, 221, 221, 1);
-        font-weight: 500;
-        margin: 0;
-    }
-
-    .btnModalOpen {
-        color: rgba(255, 255, 255, 1);
-        font-size: 14px;
-        text-decoration: none;
-        font-weight: 700;
-        font-style: italic;
-        cursor: pointer;
-    }
-</style>
+            <div class="progress-bar">
+                <div id="attendanceBar" class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     const modal = document.getElementById("openModalForm");
     const btnOpen = document.getElementById("openModalBtn");
-
+    const btnAverage = document.getElementById("openAveragePoints");
+    const modalAverage = document.getElementById("openAverageInfo");
     btnOpen.onclick = ()=>{
         modal.style.display = "flex";
+    }
+
+    btnAverage.onclick = ()=>{
+        modalAverage.style.display = "flex";
     }
     window.onclick = function(event){
         if(event.target === modal){
             modal.style.display = "none";
         }
+        if(event.target === modalAverage){
+            modalAverage.style.display = "none";
+        }
     }
 </script>
-<script src="/js/getJournalsForStudent.js"></script>
+<link rel="stylesheet" href="~/css/studentPerAcc.css" />
+<script src="/js/journalsForStudent.js"></script>
+<script src="/js/getInfoAboutClass.js"></script>

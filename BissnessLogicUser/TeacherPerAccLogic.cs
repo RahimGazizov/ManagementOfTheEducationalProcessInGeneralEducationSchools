@@ -39,22 +39,13 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 .Select(t => t.Class)
                 .ToListAsync();
         }
-        public async Task<List<Journal>> GetListJournals(string userId, string subjectId, string classId, DateTime? dateFrom, DateTime? dateTo)
+        public async Task<List<Journal>> GetListJournals(string userId, string subjectId, string classId, string academicId, string termId)
         {
             var teacherId = await GetTeacherId(userId);
             var journals = await _context.Journal
-               .Where(j => j.TeacherId == teacherId && j.SubjectId == subjectId && j.ClassId == classId)
+               .Where(j => j.TeacherId == teacherId && j.SubjectId == subjectId && j.ClassId == classId
+               && j.AcademicYearId == academicId && j.TermId == termId)
                .ToListAsync();
-            if (dateFrom.HasValue || dateTo.HasValue)
-            {
-                var fromDate = dateFrom?.Date;
-                var toDate = dateTo?.Date.AddDays(1);
-
-                journals = journals.Where(j => _context.JournalEntry.Any(it => it.JournalId == j.Id &&
-                (!fromDate.HasValue || it.Date >= fromDate) &&
-                (!toDate.HasValue || it.Date < toDate))).ToList();
-            }
-         
             return journals;
         }
     }

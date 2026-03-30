@@ -3,6 +3,7 @@ using System;
 using InformationSystemOfASchoolIducationalPortal.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InformationSystemOfASchoolIducationalPortal.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260329041958_RemoveColumnDateInJournalEntryAndAddDateInJournal")]
+    partial class RemoveColumnDateInJournalEntryAndAddDateInJournal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.23");
@@ -76,10 +79,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("AcademicYearId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("ClassId")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -104,21 +103,13 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("TermId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("AcademicYearId");
 
                     b.HasIndex("ClassId");
 
                     b.HasIndex("SubjectId");
 
                     b.HasIndex("TeacherId");
-
-                    b.HasIndex("TermId");
 
                     b.ToTable("Journal");
                 });
@@ -572,12 +563,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
 
             modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.Journal", b =>
                 {
-                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.AcademicYear", "AcademicYear")
-                        .WithMany()
-                        .HasForeignKey("AcademicYearId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Class", "Class")
                         .WithMany()
                         .HasForeignKey("ClassId")
@@ -596,21 +581,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Term", "Term")
-                        .WithMany()
-                        .HasForeignKey("TermId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AcademicYear");
-
                     b.Navigation("Class");
 
                     b.Navigation("Subject");
 
                     b.Navigation("Teacher");
-
-                    b.Navigation("Term");
                 });
 
             modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.JournalEntry", b =>

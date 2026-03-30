@@ -1,14 +1,12 @@
-﻿
-
-document.addEventListener("DOMContentLoaded", () => {
+﻿document.addEventListener("DOMContentLoaded", () => {
     const subjectSelect = document.getElementById("subjectSelectHistory");
-    const dateFrom = document.getElementById("dateFrom");
-    const dateTo = document.getElementById("dateTo");
+    const academicYear = document.getElementById("academicYearStudent");
+    const term = document.getElementById("termStudent");
     const classID = document.getElementById("classID");
     const studentId = document.getElementById("studentID");
     const journalList = document.getElementById("journalsList");
 
-    if (!subjectSelect || !classID || !studentId) return;
+    if (!subjectSelect || !classID || !studentId || !term || !academicYear) return;
 
     function selectListText(text) {
         journalList.innerHTML = text;
@@ -30,8 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
         params.append("studentId", studentId.value);
         params.append("subjectId", subject);
         params.append("classId", classID.value);
-        if (dateFrom.value) params.append("dateFrom", dateFrom.value);
-        if (dateTo.value) params.append("dateTo", dateTo.value);
+        params.append("academicId", academicYear.value);
+        params.append("termId", term.value);
 
         selectListText("Загрузка...");
 
@@ -55,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 title.textContent = `Журнал: ${j.subjectName}`;
 
                 const info = document.createElement("div");
-                info.textContent = `Дата создания: ${formatDate(j.lastDate)}`;
+                info.textContent = `Дата создания: ${formatDate(j.date)}`;
 
                 item.appendChild(title);
                 item.appendChild(info);
@@ -75,6 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     subjectSelect.addEventListener("change", loadJournals);
-    dateFrom.addEventListener("change", loadJournals);
-    dateTo.addEventListener("change", loadJournals);
+    academicYear.addEventListener("change", loadJournals);
+    term.addEventListener("change", loadJournals);
 });

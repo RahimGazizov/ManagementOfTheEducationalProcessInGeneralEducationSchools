@@ -8,7 +8,7 @@ else
     <div class="conteiner">
         <h3>Предмет: @Model.Subject.Name</h3>
         <p>Учитель: @Model.Teacher.User.FullName</p>
-        <p>Дата: @Model.Entries.Select(d => d.Date.ToString("dd-MM-yyyy")).FirstOrDefault()</p>
+        <p>Дата: @Model.Date.ToString("dd-MM-yyyy").FirstOrDefault()</p>
         <p>Домашнее задание: @Model.HomeWork</p>
         <p>Тема урока: @Model.LessonTopic</p>
         <div class="action">

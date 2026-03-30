@@ -19,14 +19,31 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(string teacherId, string subjectId, string classId)
         {
+            var dayToday = DateTime.Now;
+            var currentYear = await GetAcademicYear(dayToday);
+            var currentTerm = await GetTerm(dayToday);
+            if (currentYear == null)
+            {
+                TempData["Error"] = "Не найден текущий учебный год";
+                return RedirectToAction("Index", "TeacherPerAcc");
+            }
+
+            if (currentTerm == null)
+            {
+                TempData["Error"] = ("Не найдена текущая четверть");
+                return RedirectToAction("Index", "TeacherPerAcc");
+            }
             var journal = new Journal
             {
+                Date = dayToday,
                 TeacherId = teacherId,
                 SubjectId = subjectId,
                 ClassId = classId,
+                AcademicYearId = currentYear.Id,
+                TermId = currentTerm.Id,
                 HomeWork = null,
                 LessonTopic = null,
-                CanIEdit = true
+                IsLocked = true
             };
 
             var students = await _context.Students.Where(s => s.ClassId == classId).ToListAsync();
@@ -35,7 +52,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 var journalEntri = new JournalEntry
                 {
                     StudentId = student.Id,
-                    Date = DateTime.Now,
                     Grade = null
                 };
                 journal.Entries.Add(journalEntri);
@@ -56,16 +72,17 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 .Include(j => j.Entries)
                 .ThenInclude(j => j.Student)
                 .ThenInclude(j => j.User)
+                .Include(j => j.AcademicYear)
+                .Include(j => j.Term)
                 .FirstOrDefaultAsync(j => j.Id == id);
-            var dateJour = journal.Entries.Select(j => j.Date).FirstOrDefault();
             DateTime now = DateTime.Now;
-            if (dateJour != default)
+            if (journal.Date != default)
             {
-                journal.CanIEdit = (DateTime.Now - dateJour).TotalDays <= 7;
+                journal.IsLocked = (DateTime.Now - journal.Date).TotalDays <= 7;
             }
             else
             {
-                journal.CanIEdit = true; // ещё нет записей, редактировать можно
+                journal.IsLocked = true; // ещё нет записей, редактировать можно
             }
             return View(journal);
         }
@@ -82,14 +99,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             exists.HomeWork = journal.HomeWork;
             foreach (var entryModal in journal.Entries)
             {
-                Console.WriteLine($"Оценки:{entryModal.Grade}");
-                Console.WriteLine($"Присутсвие :{entryModal.IsPresent}");
                 var entry = await _context.JournalEntry.FirstOrDefaultAsync(e => e.Id == entryModal.Id);
                 if (entry != null)
                 {
                     entry.Grade = entryModal.Grade;
                     entry.IsPresent = entryModal.IsPresent;
-
                 }
 
             }
@@ -105,5 +119,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction("Index", "TeacherPerAcc");
         }
+        private async Task<AcademicYear> GetAcademicYear(DateTime dayToday) =>  await _context.AcademicYear
+                .Where(d => d.StartDateYear <= dayToday && dayToday <= d.EndDateYear)
+                .FirstOrDefaultAsync();
+        private async Task<Term> GetTerm(DateTime dayToday) => await _context.Term
+           .Where(d => d.DateStartTerm <= dayToday && dayToday <= d.DateEndTerm)
+           .FirstOrDefaultAsync();
     }
 }

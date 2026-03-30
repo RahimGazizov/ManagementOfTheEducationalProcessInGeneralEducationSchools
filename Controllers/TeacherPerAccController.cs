@@ -5,6 +5,7 @@ using InformationSystemOfASchoolIducationalPortal.Models;
 using InformationSystemOfASchoolIducationalPortal.Data;
 using Microsoft.EntityFrameworkCore;
 using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
@@ -25,14 +26,19 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         public async Task<IActionResult> Index()
         {
-        //    var entri = await _context.JournalEntri.ToListAsync();
-        //    _context.RemoveRange(entri);
-        //    var journal = await _context.Journal.ToListAsync();
-        //    _context.RemoveRange(journal);
-        //    await _context.SaveChangesAsync();
             var userId = _userMan.GetUserId(User);
             var teacher = await _context.Teachers.Include(u => u.User)
                 .FirstOrDefaultAsync(id => id.UserId == userId);
+            var currentYear = await _context.AcademicYear
+                .Where(d => d.StartDateYear <= DateTime.Now && d.EndDateYear >= DateTime.Now)
+                .FirstOrDefaultAsync();
+            var currentTerm = await _context.Term.
+                Where(t => t.DateStartTerm <= DateTime.Now && t.DateEndTerm >= DateTime.Now)
+                .FirstOrDefaultAsync();
+            ViewBag.CurrentTerm = currentTerm;
+            ViewBag.CurrentYear = currentYear;  
+            ViewBag.ListAcademicYear = GetListAcademicYear();
+            ViewBag.ListTerms = GetListTerms();
             ViewBag.ListSubjects = await _perAccLogic.GetListSubjects(userId);
             return View(teacher);
         }
@@ -56,23 +62,18 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 .ToListAsync();
             return Json(classses);
         }
-        public async Task<IActionResult> JournalHistory(string subjectId, string classId, DateTime? dateFrom, DateTime? dateTo)
+        public async Task<IActionResult> JournalHistory(string subjectId, string classId, string academicId, string termId)
         {
             var userId = _userMan.GetUserId(User);
-            var journals = await _perAccLogic.GetListJournals(userId, subjectId, classId, dateFrom, dateTo);
+            var journals = await _perAccLogic.GetListJournals(userId, subjectId, classId, academicId, termId);
             var journalList = journals
-                .Select(j => new
-                {
-                    id = j.Id,
-                    firstDate = _context.JournalEntry
-                    .Where(it => it.JournalId == j.Id)
-                    .Min(it => (DateTime?)it.Date),
-                    lastDate = _context.JournalEntry
-                    .Where(it => it.JournalId == j.Id)
-                    .Max(j => (DateTime?)j.Date),
-                    markCount = _context.JournalEntry.Count(j => j.Id == j.Id)
-                }).OrderByDescending(j => j.lastDate)
-                .ToList();
+    .Select(j => new
+    {
+        id = j.Id,
+        date = j.Date, 
+    })
+    .OrderByDescending(x => x.date)
+    .ToList();
             return Json(journalList);
         }
         public IActionResult ListJournal()
@@ -89,6 +90,22 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         {
             await _signIn.SignOutAsync();
             return RedirectToAction("Index", "Authoriz");
+        }
+        private List<SelectListItem> GetListAcademicYear()
+        {
+            return _context.AcademicYear.Select(a => new SelectListItem
+            {
+                Value = a.Id,
+                Text = a.Name
+            }).ToList();
+        }
+        private List<SelectListItem> GetListTerms()
+        {
+            return _context.Term.Select(a => new SelectListItem
+            {
+                Value = a.Id,
+                Text = a.Name
+            }).ToList();
         }
     }
 }

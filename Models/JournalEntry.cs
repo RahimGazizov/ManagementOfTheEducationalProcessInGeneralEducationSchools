@@ -8,7 +8,6 @@
         public Students Student { get; set; }
         public string JournalId { get; set; }
         public Journal Journal { get; set; }
-        public DateTime Date { get; set; }
 
         public int? Grade { get; set; } // оценка
         public bool IsPresent { get; set; } = false; // посещаемость

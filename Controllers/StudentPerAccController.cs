@@ -4,6 +4,7 @@ using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
@@ -34,11 +35,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 var student = await _context.Students.Include(u => u.User)
                     .Include(c => c.Class)
                     .FirstOrDefaultAsync(s => s.UserId == userId);
-               
-                ViewBag.AverageGrade = Math.Round(await _studentPer.AverageGrade(student), 1);
-                ViewBag.ListSubject = await _studentPer.ListSubjects(studentClassId);
-                ViewBag.Schedule = await _studentPer.ScheduleLessons(studentClassId);
-                return View(student);
+                var studentDash = await ViewBagList(studentClassId, student);
+                return View(studentDash);
             }
             catch (Exception ex)
             {
@@ -51,34 +49,70 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             }
         }
         [HttpGet]
-        public async Task<IActionResult> JournalSet(string studentId, string subjectId, string classId, DateTime? dateFrom, DateTime? dateTo)
+        public async Task<IActionResult> JournalSet(string studentId, string subjectId, string classId, string academicId, string termId)
         {
             var journals = await _context.Journal
-                 .Where(j => j.SubjectId == subjectId && j.ClassId == classId)
+                 .Where(j => j.SubjectId == subjectId && j.ClassId == classId &&
+                 j.AcademicYearId == academicId && j.TermId == termId)
                  .Include(s => s.Subject)
+                 .Include(s => s.AcademicYear)
+                 .Include(s => s.Term)
                  .ToListAsync();
-            if (dateFrom.HasValue || dateTo.HasValue)
-            {
-                var fromD = dateFrom?.Date;
-                var toD = dateTo?.Date.AddDays(1);
 
-                journals = journals
-                    .Where(j => _context.JournalEntry.Any(it => it.JournalId == j.Id && it.StudentId == studentId &&
-                    (!fromD.HasValue || it.Date >= fromD) &&
-                    (!toD.HasValue || it.Date < toD))).ToList();
-            }
             var journalList = journals.Select(j => new
             {
                 id = j.Id,
                 subjectName = j.Subject.Name,
-                firstDate = _context.JournalEntry
-                    .Where(it => it.JournalId == j.Id)
-                    .Min(it => (DateTime?)it.Date),
-                lastDate = _context.JournalEntry
-                    .Where(it => it.JournalId == j.Id)
-                    .Max(j => (DateTime?)j.Date),
-            }).OrderByDescending(d => d.lastDate).ToList();
+                date = j.Date
+            }).OrderByDescending(x => x.date).ToList();
+
             return Json(journalList);
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetClassData(string classId)
+        {
+            var subjects = await _studentPer.ListSubjects(classId);
+
+            var academicYearId = await _context.StudentsHistory
+                .Where(c => c.ClassId == classId)
+                .Select(c => c.AcademicYearId)
+                .FirstOrDefaultAsync();
+
+            var academicYear = await _context.AcademicYear
+                .FirstOrDefaultAsync(a => a.Id == academicYearId);
+
+            var terms = await _context.Term
+                .Where(t => t.AcademicYearId == academicYearId)
+                .ToListAsync();
+
+            return Json(new
+            {
+                academicYear = academicYear != null ? new { academicYear.Id, academicYear.Name } : null,
+                subjects = subjects.Select(s => new { s.Id, s.Name }),
+                terms = terms.Select(t => new { t.Id, t.Name })
+            });
+        }
+        public async Task<IActionResult> GetResultInfo(string classId, string subjectId, string academicId, string termId, string studentId)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"{classId}\n{subjectId}\n{academicId}\n{termId}\n{studentId}");
+            Console.ForegroundColor = ConsoleColor.White;
+            var entries = await _context.Journal
+                .Where(j => j.ClassId == classId && j.SubjectId == subjectId
+                && j.AcademicYearId == academicId && j.TermId == termId)
+                .SelectMany(j => j.Entries)
+                .Where(j => j.StudentId ==  studentId)
+                .ToListAsync();
+            var averageScore = entries.Any() ? entries.Average(j => j.Grade) : 0;
+            var subjectName = await _context.Subjects.Where(s => s.Id == subjectId).Select(s => s.Name).FirstOrDefaultAsync();
+            var count = entries.Count(s => s.IsPresent);
+            var percentageOfAttendance = entries.Any() ? (double)count / entries.Count * 100 : 0;
+            return Json(new
+            {
+                average = averageScore,
+                name = subjectName,
+                percent = percentageOfAttendance
+            });
         }
         public async Task<IActionResult> JournalInfo(string id)
         {
@@ -98,6 +132,22 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         {
             await _signIn.SignOutAsync();
             return RedirectToAction("Index", "Authoriz");
+        }
+        private async Task<StudentDashboardViewModel> ViewBagList(string studentClassId, Students student)
+        {
+            var studentDash = new StudentDashboardViewModel
+            {
+                Student = student,
+                CurrentTerm = await _studentPer.GetCurrentTerm(),
+                CurrentYear = await _studentPer.GetCurrentAcademicYear(),
+                AverageGrade = Math.Round(await _studentPer.AverageGrade(student), 1),
+                Subjects = await _studentPer.ListSubjects(studentClassId),
+                Schedule = await _studentPer.ScheduleLessons(studentClassId),
+                AcademicYears = _studentPer.GetAcademicList(),
+                Terms = _studentPer.GetTermList(),
+                Classes = await _studentPer.GetClasses(student.Id)
+            };
+            return studentDash;
         }
     }
 }

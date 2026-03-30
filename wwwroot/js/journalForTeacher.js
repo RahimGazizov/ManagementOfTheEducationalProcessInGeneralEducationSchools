@@ -2,12 +2,12 @@
 
     const subjectHistory = document.getElementById("subjectSelectHistory");
     const classHistory = document.getElementById("classSelectHistory");
-    const dateFrom = document.getElementById("dateFrom");
-    const dateTo = document.getElementById("dateTo");
+    const academicYear = document.getElementById("academicYear");
+    const terms = document.getElementById("term");
     const journalsList = document.getElementById("journalsList");
 
     // если модалка/элементы не на этой странице — просто выходим
-    if (!subjectHistory || !classHistory || !dateFrom || !dateTo || !journalsList) {
+    if (!subjectHistory || !classHistory || !academicYear || !terms || !journalsList) {
         return;
     }
 
@@ -32,9 +32,8 @@
         const params = new URLSearchParams();
         params.append("subjectId", subjectId);
         params.append("classId", classId);
-
-        if (dateFrom.value) params.append("dateFrom", dateFrom.value);
-        if (dateTo.value) params.append("dateTo", dateTo.value);
+        params.append("academicId", academicYear.value);
+        params.append("termId", terms.value);
 
         setListText("Загрузка...");
 
@@ -62,7 +61,7 @@
                 title.textContent = `Журнал #${j.id}`;
 
                 const info = document.createElement("div");
-                info.textContent = `Период: ${formatDate(j.firstDate)} — ${formatDate(j.lastDate)} | записей: ${j.marksCount ?? 0}`;
+                info.textContent = `Дата создания: ${formatDate(j.date)}`;
 
                 meta.appendChild(title);
                 meta.appendChild(info);
@@ -84,6 +83,6 @@
     }
 
     classHistory.addEventListener("change", loadJournals);
-    dateFrom.addEventListener("change", loadJournals);
-    dateTo.addEventListener("change", loadJournals);
+    academicYear.addEventListener("change", loadJournals);
+    terms.addEventListener("change", loadJournals);
 });

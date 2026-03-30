@@ -17,8 +17,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             _signInManager = signInManager;
             _context = context;
         }
-        public IActionResult Index() => View();
-        
+        public IActionResult Index()
+        {
+            return View();
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Index(string login, string password)

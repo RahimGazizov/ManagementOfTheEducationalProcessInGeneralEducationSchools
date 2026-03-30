@@ -6,7 +6,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Models
     public class Journal
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
-
+        public DateTime Date { get; set; }
         public string TeacherId { get; set; }
         public Teachers Teacher { get; set; }
 
@@ -17,7 +17,12 @@ namespace InformationSystemOfASchoolIducationalPortal.Models
         public Class Class { get; set; }
         public string? HomeWork { get; set; }
         public string? LessonTopic { get; set; }
-        public bool CanIEdit { get; set; } = true;
+        public bool IsLocked { get; set; } = true;
+
+        public string AcademicYearId { get; set; }
+        public AcademicYear AcademicYear { get; set; }
+        public string TermId { get; set; }
+        public Term Term { get; set; }
         public List<JournalEntry> Entries { get; set; } = new(); // записи по ученикам
     }
 }
