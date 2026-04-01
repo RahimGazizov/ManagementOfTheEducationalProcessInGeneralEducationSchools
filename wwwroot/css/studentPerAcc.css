@@ -87,6 +87,7 @@ select {
     padding: 8px 12px;
     border-radius: 5px;
 }
+
 input {
     width: 100%;
     border: 1px solid #ccc;
@@ -196,6 +197,7 @@ input {
     font-style: italic;
     cursor: pointer;
 }
+
 .result-card {
     margin-top: 20px;
     padding: 20px;
@@ -248,12 +250,31 @@ input {
     background: linear-gradient(90deg, #4caf50, #2ecc71);
     transition: width 0.5s ease;
 }
+
 .btn_result {
     padding: 8px 12px;
     width: 100%;
     border-radius: 5px;
     border: none;
     box-sizing: border-box;
-    background-color:greenyellow;
+    background-color: greenyellow;
     color: white;
+}
+
+.graphResult {
+    width: 800px;
+    margin-top: 30px;
+    display: none;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+    .graphResult h3 {
+        margin-bottom: 10px;
+    }
+
+.chartRes {
+    width: 100%;
+    height: 300px;
 }

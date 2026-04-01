@@ -1,0 +1,84 @@
+﻿@{
+    ViewData["Title"] = "График успеваймости";
+}
+
+<div id="graphContainer" class="graphResult">
+    <h3>График успеваемости</h3>
+
+    <div class="custom-legend">
+        <div class="legend-item">
+            <span class="legend-color bad"></span>
+            <span>Плохо</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color medium"></span>
+            <span>Средне</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color good"></span>
+            <span>Хорошо</span>
+        </div>
+    </div>
+
+    <canvas id="chart" class="chartRes" height="300"></canvas> @*создает место для рисования*@
+</div>
+
+<style>
+    .graphResult {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+        .graphResult h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+    .custom-legend {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+    }
+
+    .legend-color {
+        display: inline-block;
+        width: 22px;
+        height: 14px;
+        border-radius: 4px;
+    }
+
+    .bad {
+        background-color: rgba(255, 99, 132, 0.8);
+    }
+
+    .medium {
+        background-color: rgba(255, 205, 86, 0.8);
+    }
+
+    .good {
+        background-color: rgba(75, 192, 92, 0.8);
+    }
+
+    .chartRes {
+        width: 100% !important;
+        height: 400px !important;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/js/graphShow.js"></script>

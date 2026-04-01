@@ -48,6 +48,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 return View(student);
             }
         }
+        public IActionResult GraphShow(string studentId, string classId, string acdemicId, string termId) => View();
         [HttpGet]
         public async Task<IActionResult> JournalSet(string studentId, string subjectId, string classId, string academicId, string termId)
         {
@@ -94,9 +95,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         public async Task<IActionResult> GetResultInfo(string classId, string subjectId, string academicId, string termId, string studentId)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"{classId}\n{subjectId}\n{academicId}\n{termId}\n{studentId}");
-            Console.ForegroundColor = ConsoleColor.White;
             var entries = await _context.Journal
                 .Where(j => j.ClassId == classId && j.SubjectId == subjectId
                 && j.AcademicYearId == academicId && j.TermId == termId)
@@ -127,6 +125,22 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 .Include(j => j.Subject)
                 .FirstOrDefaultAsync();
             return View(journal);
+        }
+        public async Task<IActionResult> GetQuarterStats(string studentId, string classId, string academicId, string termId)
+        {
+            var data = await _context.JournalEntry
+                .Where(d => d.StudentId == studentId 
+                && d.Journal.ClassId == classId && d.Journal.AcademicYearId == academicId 
+                && d.Journal.TermId == termId
+                && d.Grade != null)
+                .GroupBy(d => d.Journal.Subject.Name)
+                .ToListAsync();
+            var result = data.Select(s => new
+            {
+                subject = s.Key,
+                average = s.Average(s => s.Grade)
+            });
+            return Json(result);
         }
         public async Task<IActionResult> LogOut()
         {

@@ -37,7 +37,8 @@
             <p style="font-weight: 400; font-style: italic; font-size:10px; color:rgba(255, 255, 255, 0.8);">Средний балл</p>
             <p style="font-weight: 700; font-size:26px; color:rgba(255, 255, 255, 1);">@Model.AverageGrade</p>
             <a class="btnModalOpen" id="openModalBtn">Посмотреть успеваймость</a>
-            <a class="btnModalOpen" id="openAveragePoints">Посмотреть средний балл по предмету</a>
+            <a class="btnModalOpen" id="openAveragePoints">Посмотреть средний балл по предмету</a> <br/>
+            <a class="btnModalOpen" id="openGraph">Просмотр графика по предмету</a>
         </div>
     </div>
 </div>
@@ -178,18 +179,51 @@
         </div>
     </div>
 </div>
-
+<div class="modal" id="graphModal">
+    <div class="modal-content">
+        <input type="hidden" value="@Model.Student.Id" id="studentID">
+        <label>Класс</label>
+        @if (Model.Classes != null && Model.Classes.Any())
+        {
+            <select id="studentClassId">
+                <option>Выберите класс</option>
+                @foreach (var cl in Model.Classes)
+                {
+                    <option value="@cl.Value">@cl.Text</option>
+                }
+            </select>
+        }
+        else
+        {
+            <input type="text" value="Вам не названили еще класс">
+        }
+        <label>Учебный год</label>
+        <input id="academicValue" readonly>
+        <input type="hidden" id="academicValueId">
+        <label>Четверть</label>
+        <select id="termList" disabled>
+            <option>Сначала выберите класс</option>
+        </select>
+        <button type="button" id="showGraphBtn" class="btn_result" style="margin-top:15px;">Показать график</button>
+    </div>
+</div>
 <script>
     const modal = document.getElementById("openModalForm");
     const btnOpen = document.getElementById("openModalBtn");
     const btnAverage = document.getElementById("openAveragePoints");
     const modalAverage = document.getElementById("openAverageInfo");
+    const graphModal = document.getElementById("graphModal")
+    const graphBtn = document.getElementById("openGraph");
     btnOpen.onclick = ()=>{
         modal.style.display = "flex";
     }
 
     btnAverage.onclick = ()=>{
         modalAverage.style.display = "flex";
+    }
+
+    graphBtn.onclick = ()=>{
+        graphModal.style.display = "flex";
     }
     window.onclick = function(event){
         if(event.target === modal){
@@ -198,8 +232,13 @@
         if(event.target === modalAverage){
             modalAverage.style.display = "none";
         }
+        if(event.target === graphModal){
+            graphModal.style.display = "none";
+        }
     }
 </script>
-<link rel="stylesheet" href="~/css/studentPerAcc.css" />
+<link rel="stylesheet" href="/css/studentPerAcc.css" />
 <script src="/js/journalsForStudent.js"></script>
 <script src="/js/getInfoAboutClass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/js/dataForGraph.js"></script>

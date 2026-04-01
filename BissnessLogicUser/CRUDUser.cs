@@ -65,7 +65,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                         return OperationResult.Fail("Не найден текущий учебный год");
                     if (currentTerm == null)
                         return OperationResult.Fail("Не найдена текущая четверть");
-
+                   
                     var studentHistory = new StudentsHistory
                     {
                         StudentId = student.Id,
@@ -94,7 +94,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     _context.Admins.Add(admin);
                     await _context.SaveChangesAsync();
                 }
-                if(createUser.Role == "АдмнистрацияШколы")
+                if (createUser.Role == "АдмнистрацияШколы")
                 {
                     var schoolAdmin = new SchoolAdministrations
                     {
@@ -134,6 +134,12 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 var findUser = await _users.FindByIdAsync(dto.UserId);
                 if (findUser == null)
                     return OperationResult.Fail("Пользователь не найден");
+                string academicId = await GetAcademic();
+                if (academicId == null)
+                    return OperationResult.Fail("Невозможно редоктировать ученика не найден учебный год проверьте даты");
+                string termId = await GetTerm();
+                if (termId == null)
+                    return OperationResult.Fail("Невозможно редоктировать ученика не найдена четверть проверьте даты");
                 var roles = await _users.GetRolesAsync(findUser);
                 var removeRoles = await _users.RemoveFromRolesAsync(findUser, roles);
                 if (!removeRoles.Succeeded)
@@ -156,6 +162,20 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     }
                     else
                         return OperationResult.Fail("Пользователь не найден");
+                    var exists =  _context.StudentsHistory
+                       .Any(d => d.ClassId == dto.StudentClassId);
+                    if (!exists)
+                    {
+                        var studentHistory = new StudentsHistory
+                        {
+                            StudentId = student.Id,
+                            ClassId = dto.StudentClassId,
+                            AcademicYearId = academicId,
+                            TermId = termId,
+                        };
+                        _context.StudentsHistory.Add(studentHistory);
+                        await _context.SaveChangesAsync();
+                    }
                 }
                 var result = await _users.UpdateAsync(findUser);
                 if (!result.Succeeded)
@@ -187,7 +207,19 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
         }
         private OperationResult Errors(IdentityResult result) =>
                  OperationResult.Fail(string.Join(", ", result.Errors.Select(r => r.Description)));
-
-
+        private async Task<string?> GetAcademic()
+        {
+            return await _context.AcademicYear
+                        .Where(d => d.StartDateYear <= DateTime.Now
+                        && d.EndDateYear >= DateTime.Now)
+                        .Select(s => s.Id).FirstOrDefaultAsync() ?? null;
+        }
+        private async Task<string?> GetTerm()
+        {
+            return await _context.Term
+                        .Where(d => d.DateStartTerm <= DateTime.Now
+                        && d.DateEndTerm >= DateTime.Now)
+                        .Select(s => s.Id).FirstOrDefaultAsync() ?? null;
+        }
     }
 }

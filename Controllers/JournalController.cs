@@ -19,110 +19,149 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(string teacherId, string subjectId, string classId)
         {
-            var dayToday = DateTime.Now;
-            var currentYear = await GetAcademicYear(dayToday);
-            var currentTerm = await GetTerm(dayToday);
-            if (currentYear == null)
+            try
             {
-                TempData["Error"] = "Не найден текущий учебный год";
-                return RedirectToAction("Index", "TeacherPerAcc");
-            }
-
-            if (currentTerm == null)
-            {
-                TempData["Error"] = ("Не найдена текущая четверть");
-                return RedirectToAction("Index", "TeacherPerAcc");
-            }
-            var journal = new Journal
-            {
-                Date = dayToday,
-                TeacherId = teacherId,
-                SubjectId = subjectId,
-                ClassId = classId,
-                AcademicYearId = currentYear.Id,
-                TermId = currentTerm.Id,
-                HomeWork = null,
-                LessonTopic = null,
-                IsLocked = true
-            };
-
-            var students = await _context.Students.Where(s => s.ClassId == classId).ToListAsync();
-            foreach (var student in students)
-            {
-                var journalEntri = new JournalEntry
+                var dayToday = DateTime.Now;
+                var currentYear = await GetAcademicYear(dayToday);
+                var currentTerm = await GetTerm(dayToday);
+                if (currentYear == null)
                 {
-                    StudentId = student.Id,
-                    Grade = null
+                    TempData["Error"] = "Не найден текущий учебный год";
+                    return RedirectToAction("Index", "TeacherPerAcc");
+                }
+
+                if (currentTerm == null)
+                {
+                    TempData["Error"] = ("Не найдена текущая четверть");
+                    return RedirectToAction("Index", "TeacherPerAcc");
+                }
+                var journal = new Journal
+                {
+                    Date = dayToday,
+                    TeacherId = teacherId,
+                    SubjectId = subjectId,
+                    ClassId = classId,
+                    AcademicYearId = currentYear.Id,
+                    TermId = currentTerm.Id,
+                    HomeWork = null,
+                    LessonTopic = null,
+                    IsLocked = true
                 };
-                journal.Entries.Add(journalEntri);
+
+                var students = await _context.Students.Where(s => s.ClassId == classId).ToListAsync();
+                foreach (var student in students)
+                {
+                    var journalEntri = new JournalEntry
+                    {
+                        StudentId = student.Id,
+                        Grade = null
+                    };
+                    journal.Entries.Add(journalEntri);
+                }
+                _context.Journal.Add(journal);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Edit", new { id = journal.Id });
             }
-            _context.Journal.Add(journal);
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Edit", new { id = journal.Id });
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Index", "TeacherPerAcc");
+            }
         }
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
-            Console.WriteLine($"ID-{id}");
-            var journal = await _context.Journal
-                .Include(c => c.Class)
-                .Include(t => t.Teacher)
-                .ThenInclude(t => t.User)
-                .Include(s => s.Subject)
-                .Include(j => j.Entries)
-                .ThenInclude(j => j.Student)
-                .ThenInclude(j => j.User)
-                .Include(j => j.AcademicYear)
-                .Include(j => j.Term)
-                .FirstOrDefaultAsync(j => j.Id == id);
-            DateTime now = DateTime.Now;
-            if (journal.Date != default)
+            try
             {
-                journal.IsLocked = (DateTime.Now - journal.Date).TotalDays <= 7;
+                Console.WriteLine($"ID-{id}");
+                var journal = await _context.Journal
+                    .Include(c => c.Class)
+                    .Include(t => t.Teacher)
+                    .ThenInclude(t => t.User)
+                    .Include(s => s.Subject)
+                    .Include(j => j.Entries)
+                    .ThenInclude(j => j.Student)
+                    .ThenInclude(j => j.User)
+                    .Include(j => j.AcademicYear)
+                    .Include(j => j.Term)
+                    .FirstOrDefaultAsync(j => j.Id == id);
+                DateTime now = DateTime.Now;
+                if (journal.Date != default)
+                {
+                    journal.IsLocked = (DateTime.Now - journal.Date).TotalDays <= 7;
+                }
+                else
+                {
+                    journal.IsLocked = true; // ещё нет записей, редактировать можно
+                }
+                return View(journal);
             }
-            else
+            catch (Exception ex)
             {
-                journal.IsLocked = true; // ещё нет записей, редактировать можно
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Index", "TeacherPerAcc");
             }
-            return View(journal);
         }
         [HttpPost]
         public async Task<IActionResult> SaveJournal(Journal journal)
         {
-            var exists = await _context.Journal.FirstOrDefaultAsync(j => j.Id == journal.Id);
-            if (exists == null)
+            try
             {
-                TempData["Error"] = "Журнал не найден";
-                return View("Edit");
-            }
-            exists.LessonTopic = journal.LessonTopic;
-            exists.HomeWork = journal.HomeWork;
-            foreach (var entryModal in journal.Entries)
-            {
-                var entry = await _context.JournalEntry.FirstOrDefaultAsync(e => e.Id == entryModal.Id);
-                if (entry != null)
+                var exists = await _context.Journal.FirstOrDefaultAsync(j => j.Id == journal.Id);
+                if (exists == null)
                 {
-                    entry.Grade = entryModal.Grade;
-                    entry.IsPresent = entryModal.IsPresent;
+                    TempData["Error"] = "Журнал не найден";
+                    return View("Edit");
                 }
+                exists.LessonTopic = journal.LessonTopic;
+                exists.HomeWork = journal.HomeWork;
+                foreach (var entryModal in journal.Entries)
+                {
+                    var entry = await _context.JournalEntry.FirstOrDefaultAsync(e => e.Id == entryModal.Id);
+                    if (entry != null)
+                    {
+                        if(entryModal.Grade != null && !entryModal.IsPresent)
+                            entry.IsPresent = true;
+                        
+                        else
+                            entry.IsPresent = entryModal.IsPresent;
+                        
+                        entry.Grade = entryModal.Grade;
 
+                    }
+
+                }
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Edit", new { id = journal.Id });
             }
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Edit", new { id = journal.Id });
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Index", "TeacherPerAcc");
+            }
         }
         public async Task<IActionResult> Delete(string id)
         {
-            var journal = await _context.Journal.Include(j => j.Entries)
-                .Where(j => j.Id == id)
-                .FirstOrDefaultAsync();
-            if (journal != null) _context.Remove(journal);
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index", "TeacherPerAcc");
+            try
+            {
+
+                var journal = await _context.Journal.Include(j => j.Entries)
+                    .Where(j => j.Id == id)
+                    .FirstOrDefaultAsync();
+                if (journal != null) _context.Remove(journal);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index", "TeacherPerAcc");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Index", "TeacherPerAcc");
+            }
         }
-        private async Task<AcademicYear> GetAcademicYear(DateTime dayToday) =>  await _context.AcademicYear
+        private async Task<AcademicYear?> GetAcademicYear(DateTime dayToday) => await _context.AcademicYear
                 .Where(d => d.StartDateYear <= dayToday && dayToday <= d.EndDateYear)
                 .FirstOrDefaultAsync();
-        private async Task<Term> GetTerm(DateTime dayToday) => await _context.Term
+        private async Task<Term?> GetTerm(DateTime dayToday) => await _context.Term
            .Where(d => d.DateStartTerm <= dayToday && dayToday <= d.DateEndTerm)
            .FirstOrDefaultAsync();
     }

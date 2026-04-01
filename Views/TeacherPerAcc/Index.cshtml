@@ -5,6 +5,10 @@
     var termList = ViewBag.ListTerms as List<SelectListItem>;
 }
 <h1>Добро пожаловать!@Model.User.FullName Это ваш личный кабинет</h1>
+@if (TempData["Error"] != null)
+{
+    <p style="color:red;font-size: 19px;">@TempData["Error"]</p>
+}
 <button type="button" id="openForm" class="btn_open">Создать электронный журнал</button>
 <button type="button" id="openFormJournal" class="btn_open">История журналов</button>
 @* <a href="/TeacherPerAcc/ListJournal">журналы</a> *@
@@ -230,10 +234,10 @@
         }
 
     /* .journal_meta {
-                                display: flex;
-                                flex-direction: column;
-                                gap: 2px;
-                            } */
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 2px;
+                                } */
 
     .journal_open {
         padding: 6px 10px;
