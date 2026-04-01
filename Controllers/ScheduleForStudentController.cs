@@ -25,9 +25,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         public async Task<IActionResult> ScheduleLesson(string dayOfWeek, string studentId)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"DayOfWeek-{dayOfWeek}\nStudentId{studentId}");
-            Console.ForegroundColor = ConsoleColor.White;
             var classId = await _context.Students
                 .Include(u => u.User)
                 .Include(u => u.Class)
