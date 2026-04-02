@@ -25,17 +25,16 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             _context = context;
             _studentPer = studentPerAcc;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? error)
         {
             try
             {
+                TempData["Error"] = error;
                 var userId = _userMan.GetUserId(User);
-                var studentClassId = await _context.Students.Where(u => u.UserId == userId).Select(c => c.ClassId)
-                    .FirstOrDefaultAsync();
                 var student = await _context.Students.Include(u => u.User)
                     .Include(c => c.Class)
                     .FirstOrDefaultAsync(s => s.UserId == userId);
-                var studentDash = await ViewBagList(studentClassId, student);
+                var studentDash = await ViewBagList(student);
                 return View(studentDash);
             }
             catch (Exception ex)
@@ -99,7 +98,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 .Where(j => j.ClassId == classId && j.SubjectId == subjectId
                 && j.AcademicYearId == academicId && j.TermId == termId)
                 .SelectMany(j => j.Entries)
-                .Where(j => j.StudentId ==  studentId)
+                .Where(j => j.StudentId == studentId)
                 .ToListAsync();
             var averageScore = entries.Any() ? entries.Average(j => j.Grade) : 0;
             var subjectName = await _context.Subjects.Where(s => s.Id == subjectId).Select(s => s.Name).FirstOrDefaultAsync();
@@ -129,8 +128,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         public async Task<IActionResult> GetQuarterStats(string studentId, string classId, string academicId, string termId)
         {
             var data = await _context.JournalEntry
-                .Where(d => d.StudentId == studentId 
-                && d.Journal.ClassId == classId && d.Journal.AcademicYearId == academicId 
+                .Where(d => d.StudentId == studentId
+                && d.Journal.ClassId == classId && d.Journal.AcademicYearId == academicId
                 && d.Journal.TermId == termId
                 && d.Grade != null)
                 .GroupBy(d => d.Journal.Subject.Name)
@@ -142,12 +141,77 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             });
             return Json(result);
         }
+        public async Task<IActionResult> GetClassRating(string studentid, string classId, string academicId, string termId)
+        {
+            var data = await _context.JournalEntry
+                .Where(s => s.Journal.ClassId == classId
+                    && s.Journal.AcademicYearId == academicId
+                    && s.Journal.TermId == termId)
+                .GroupBy(s => new
+                {
+                    s.StudentId,
+                    s.Student.User.FullName
+                })
+                .Select(g => new
+                {
+                    StudentsId = g.Key.StudentId,
+                    StudentName = g.Key.FullName,
+                    AvgGrade = g.Where(s => s.Grade != null)
+                                .Average(s => (double?)s.Grade) ?? 0,
+                    LessonCount = g.Count(),
+                    PresentLesson = g.Count(s => s.IsPresent)
+                })
+                .ToListAsync();
+
+            var rating = data
+                .Select(s =>
+                {
+                    double attendancePercent = s.LessonCount == 0
+                        ? 0
+                        : (double)s.PresentLesson / s.LessonCount * 100;
+
+                    double score = 0.8 * s.AvgGrade + 0.2 * (attendancePercent / 20.0);
+
+                    return new
+                    {
+                        s.StudentsId,
+                        s.StudentName,
+                        s.AvgGrade,
+                        AttendancePercent = Math.Round(attendancePercent, 2),
+                        Score = Math.Round(score, 2)
+                    };
+                })
+                .OrderByDescending(s => s.Score)
+                .ThenByDescending(s => s.AvgGrade)
+                .ToList();
+            var result = rating
+                .Select((x, index) => new
+                {
+                    place = index + 1,
+                    x.StudentsId,
+                    x.StudentName,
+                    x.AvgGrade,
+                    x.AttendancePercent,
+                    x.Score
+                }).ToList();
+
+            var top3 = result.Take(3).ToList();
+            var currentUserRating = result.FirstOrDefault(x => x.StudentsId == studentid);
+
+            return Json(new
+            {
+                top3,
+                currentUserRating,
+                totalStudent = result.Count
+            });
+
+        }
         public async Task<IActionResult> LogOut()
         {
             await _signIn.SignOutAsync();
             return RedirectToAction("Index", "Authoriz");
         }
-        private async Task<StudentDashboardViewModel> ViewBagList(string studentClassId, Students student)
+        private async Task<StudentDashboardViewModel> ViewBagList(Students student)
         {
             var studentDash = new StudentDashboardViewModel
             {
@@ -155,13 +219,14 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 CurrentTerm = await _studentPer.GetCurrentTerm(),
                 CurrentYear = await _studentPer.GetCurrentAcademicYear(),
                 AverageGrade = Math.Round(await _studentPer.AverageGrade(student), 1),
-                Subjects = await _studentPer.ListSubjects(studentClassId),
-                Schedule = await _studentPer.ScheduleLessons(studentClassId),
+                Subjects = await _studentPer.ListSubjects(student.ClassId),
+                Schedule = await _studentPer.ScheduleLessons(student),
                 AcademicYears = _studentPer.GetAcademicList(),
                 Terms = _studentPer.GetTermList(),
                 Classes = await _studentPer.GetClasses(student.Id)
             };
             return studentDash;
+
         }
     }
 }

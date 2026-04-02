@@ -47,9 +47,9 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                    .AverageAsync(e => e.Grade);
             return avr != null ? Convert.ToDouble(avr) : 0;
         }
-        public async Task<List<ScheduleLesson>> ScheduleLessons(string studentClassId)
+        public async Task<List<ScheduleLesson>> ScheduleLessons(Students student)
         {
-            var dayToday = DateTime.Today.ToString("dddd", new CultureInfo("ru-RU")).ToLower();
+            var dayToday = DateTime.Today.ToString("dddd", new CultureInfo("ru-RU")).ToLower().Trim();
             var schedule = await _context.Schedules
                 .Include(t => t.Assigment)
                 .ThenInclude(t => t.Subject)
@@ -59,9 +59,9 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 .Include(t => t.Assigment)
                 .ThenInclude(t => t.Teacher)
                 .ThenInclude(t => t.User)
-                .Where(t => t.Assigment != null && t.Assigment.ClassId == studentClassId && t.DayOfWeek.ToLower() == dayToday)
+                .Where(t => t.Assigment != null && t.Assigment.ClassId == student.ClassId && t.DayOfWeek.ToLower().Trim() == dayToday)
                 .ToListAsync();
-            return schedule != null ? schedule : new();
+            return schedule;
         }
         public List<SelectListItem> GetAcademicList()
         {

@@ -79,6 +79,7 @@ form {
         border: 1px solid #ccc;
         padding: 8px 12px;
         border-radius: 5px;
+        margin-bottom: 15px;
     }
 
 select {
@@ -86,6 +87,7 @@ select {
     border: 1px solid #ccc;
     padding: 8px 12px;
     border-radius: 5px;
+    margin-bottom: 15px;
 }
 
 input {
@@ -93,6 +95,7 @@ input {
     border: 1px solid #ccc;
     padding: 8px 12px;
     border-radius: 5px;
+    margin-bottom: 15px;
 }
 
 .btn_back {
