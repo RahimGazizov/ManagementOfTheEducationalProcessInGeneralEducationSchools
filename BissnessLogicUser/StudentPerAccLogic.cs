@@ -89,5 +89,40 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     Text = s.Class.NumClass + s.Class.LetterClass
                 }).ToListAsync();
         }
+        public async Task<double> AvgScoreDimamics(Students student)
+        {
+            var today = DateTime.Today;
+
+            var dayOfWeek = (int)today.DayOfWeek;
+            var offest = dayOfWeek == 0 ? 6 : dayOfWeek - 1;
+            var startOfWeek = today.AddDays(-offest).Date;
+            var currentTerm = await GetCurrentTerm();
+            var currentYear = await GetCurrentAcademicYear();
+
+            var grades = await _context.JournalEntry
+                 .Where(s => s.StudentId == student.Id && s.Journal.ClassId == student.ClassId
+                 && s.Journal.AcademicYearId == currentYear.Id && s.Journal.TermId == currentTerm.Id
+                 && s.Grade != null)
+                 .Select(s => new
+                 {
+                     Grade = (double)s.Grade,
+                     LessonDate = s.Journal.Date,
+                 }).ToListAsync();
+            if (grades == null)
+                return 0;
+            var currentAvg = grades.Average(s => s.Grade);
+
+            var oldAvgGrade = grades
+                .Where(s => s.LessonDate < startOfWeek)
+                .ToList();
+            if (!oldAvgGrade.Any())
+                return 0;
+
+            var previousAverage = oldAvgGrade.Average(s => s.Grade);
+            var delta = Math.Round(currentAvg - previousAverage, 1);
+
+            return delta;
+
+        }
     }
 }

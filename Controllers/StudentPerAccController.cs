@@ -35,6 +35,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                     .Include(c => c.Class)
                     .FirstOrDefaultAsync(s => s.UserId == userId);
                 var studentDash = await ViewBagList(student);
+                ViewBag.DynamicsAvgGrade = await _studentPer.AvgScoreDimamics(student);
                 return View(studentDash);
             }
             catch (Exception ex)
@@ -287,6 +288,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             await _signIn.SignOutAsync();
             return RedirectToAction("Index", "Authoriz");
         }
+       
         private async Task<StudentDashboardViewModel> ViewBagList(Students student)
         {
             var studentDash = new StudentDashboardViewModel

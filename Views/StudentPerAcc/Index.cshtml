@@ -1,4 +1,7 @@
 ﻿@model StudentDashboardViewModel
+@{
+    double delta = (double)ViewBag.DynamicsAvgGrade;
+}
 @if (TempData["Error"] != null)
 {
     <div>@TempData["Error"]</div>
@@ -57,7 +60,10 @@
                 <p style="font-weight: 700;font-size:19px;color:rgba(255, 255, 255, 1);">@Model.Student.User.FullName.ToShortName()</p>
                 <p style="font-weight: 700;font-size:19px;color:rgba(255, 255, 255, 0.8);">@Model.Student.Class.NumClass"@Model.Student.Class.LetterClass"</p>
                 <p style="font-weight: 400; font-style: italic; font-size:10px; color:rgba(255, 255, 255, 0.8);">Средний балл</p>
-                <p style="font-weight: 700; font-size:26px; color:rgba(255, 255, 255, 1);">@Model.AverageGrade</p>
+                <p style="font-weight: 700; font-size:26px; color:rgba(255, 255, 255, 1);">
+                    @Model.AverageGrade
+                    @(delta > 0 ? $" ↑ +{Math.Abs(delta):0.0}" : delta < 0 ? $" ↓ -{Math.Abs(delta):0.0}" : "")
+                </p>
             </div>
         </div>
     </div>
