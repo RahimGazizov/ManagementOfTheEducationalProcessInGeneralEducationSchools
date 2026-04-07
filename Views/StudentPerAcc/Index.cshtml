@@ -36,7 +36,7 @@
                     {
                         @foreach (var sch in Model.Schedule)
                         {
-                            <div class="schedule-content">
+                            <div class="schedule-content" style="margin-bottom:15px;">
                                 <div class="schedule-info">
                                     <div class="div-time">
                                         <p class="time">@($"{sch.LessonSlot.StartTime.ToString(@"hh\:mm")}-{sch.LessonSlot.EndTime.ToString(@"hh\:mm")}")</p>
@@ -58,8 +58,6 @@
                 <p style="font-weight: 700;font-size:19px;color:rgba(255, 255, 255, 0.8);">@Model.Student.Class.NumClass"@Model.Student.Class.LetterClass"</p>
                 <p style="font-weight: 400; font-style: italic; font-size:10px; color:rgba(255, 255, 255, 0.8);">Средний балл</p>
                 <p style="font-weight: 700; font-size:26px; color:rgba(255, 255, 255, 1);">@Model.AverageGrade</p>
-                <p>Рейтинг среди класса: </p>
-                <p>Рейтинг среди параллели: </p>
             </div>
         </div>
     </div>
@@ -147,7 +145,7 @@
         <label>Класс</label>
         @if (Model.Classes != null && Model.Classes.Any())
         {
-            <select id="classStudent" >
+            <select id="classStudent">
                 <option>Выберите класс</option>
                 @foreach (var c in Model.Classes)
                 {
@@ -173,9 +171,9 @@
         </select>
         <label>Учебный год</label>
         <input type="hidden" id="academicYearId">
-        <input type="text" id="academicYear"  readonly>
+        <input type="text" id="academicYear" readonly>
         <label>Четверть</label>
-        <select id="listTerms"  disabled>
+        <select id="listTerms" disabled>
             <option>Выберите сначала класс</option>
         </select>
         <button type="button" id="btnResult" class="btn_result">Вывести результат</button>
@@ -237,7 +235,7 @@
 @*Модальное окно для рейтинга*@
 <div class="modal" id="ratingModal">
     <div class="modal-content">
-        <input type="hidden" id="studentIdForRating">
+        <input type="hidden" value="@Model.Student.Id" id="studentIdForRating">
         <label>Список классов</label>
         @if (Model.Classes != null && Model.Classes.Any())
         {
@@ -261,6 +259,8 @@
             <option>Сначала выберите класс</option>
         </select>
         <button type="button" id="showRatingBtn" class="btn_result" style="margin-top:15px;">Показать рейтинг</button>
+        <div class="resultReting" id="resultRatingForStudent">
+        </div>
     </div>
 </div>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -276,6 +276,18 @@
         align-items: center;
         padding: 18px 10px;
         gap: 16px;
+    }
+
+    .schedule-content {
+        width: 100%;
+        height: 75px;
+        background-color: rgba(124, 124, 124, 1);
+        border-radius: 15px;
+        padding: 10px 5px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
     }
 
     .side-btn {
@@ -303,6 +315,40 @@
         .side-btn i {
             font-size: 18px;
         }
+
+    .resultReting {
+        display: none;
+        overflow-y: auto;
+        margin-top: 15px;
+    }
+
+        .resultReting h4, .resultReting h5 {
+            text-align: center;
+            font-size: 17px;
+        }
+
+    .showRating {
+        width: 100%;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        background-color: #fff;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .rating-list {
+        margin-top: 10px;
+    }
+
+    .rating-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+    }
 </style>
 <script>
     const modal = document.getElementById("openModalForm");
@@ -348,4 +394,4 @@
 <script src="/js/getInfoAboutClass.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/js/dataForGraph.js"></script>
-<script src="/js/rating.js"></script>
+<script src="/js/ratingStudents.js"></script>

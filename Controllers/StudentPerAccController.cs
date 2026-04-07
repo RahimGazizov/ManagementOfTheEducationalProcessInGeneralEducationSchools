@@ -156,8 +156,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 {
                     StudentsId = g.Key.StudentId,
                     StudentName = g.Key.FullName,
-                    AvgGrade = g.Where(s => s.Grade != null)
-                                .Average(s => (double?)s.Grade) ?? 0,
+                    AvgGrade = Math.Round(g.Where(s => s.Grade != null)
+                                .Average(s => (double?)s.Grade) ?? 0, 1),
                     LessonCount = g.Count(),
                     PresentLesson = g.Count(s => s.IsPresent)
                 })
@@ -177,8 +177,9 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                         s.StudentsId,
                         s.StudentName,
                         s.AvgGrade,
-                        AttendancePercent = Math.Round(attendancePercent, 2),
-                        Score = Math.Round(score, 2)
+
+                        AttendancePercent = Math.Round(attendancePercent, 1),
+                        Score = Math.Round(score, 1)
                     };
                 })
                 .OrderByDescending(s => s.Score)
@@ -197,13 +198,88 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
 
             var top3 = result.Take(3).ToList();
             var currentUserRating = result.FirstOrDefault(x => x.StudentsId == studentid);
-
+            var ratingParallel = await GetParallelRating(studentid, classId, academicId, termId);
             return Json(new
             {
                 top3,
                 currentUserRating,
-                totalStudent = result.Count
+                totalStudent = result.Count,
+                ratingParallel
             });
+
+        }
+        public async Task<object> GetParallelRating(string studentid, string classId, string academicId, string termId)
+        {
+            try
+            {
+
+                var numClass = await _context.Classes
+                    .Where(s => s.Id == classId).Select(s => s.NumClass).FirstOrDefaultAsync();
+
+                var data = await _context.JournalEntry
+                    .Where(s => s.Journal.Class.NumClass == numClass
+                    && s.Journal.AcademicYearId == academicId
+                    && s.Journal.TermId == termId)
+                    .GroupBy(s => new
+                    {
+                        s.StudentId,
+                        s.Student.User.FullName,
+                    })
+                    .Select(s => new
+                    {
+                        StudentsId = s.Key.StudentId,
+                        StudentFullName = s.Key.FullName,
+                        ClassNum = s.Select(g => g.Journal.Class.NumClass).FirstOrDefault(),
+                        ClassLetter = s.Select(g => g.Journal.Class.LetterClass).FirstOrDefault(),
+                        AvgGrade = Math.Round(s.Where(g => g.Grade != null)
+                        .Average(g => g.Grade) ?? 0, 1),
+                        LessonCount = s.Count(),
+                        PresentLesson = s.Count(g => g.IsPresent)
+                    }).ToListAsync();
+                var rating = data
+                   .Select(s =>
+                   {
+                       double attendancePercent = s.PresentLesson == 0 ? 0 : (double)s.PresentLesson / s.LessonCount * 100;
+                       double score = 0.8 * s.AvgGrade + 0.2 * (attendancePercent / 20.0);
+                       return new
+                       {
+                           s.StudentsId,
+                           s.StudentFullName,
+                           s.AvgGrade,
+                           s.ClassNum,
+                           s.ClassLetter,
+                           AttendancePercent = Math.Round(attendancePercent, 1),
+                           Score = Math.Round(score, 1)
+                       };
+                   })
+                   .OrderByDescending(s => s.Score)
+                   .ThenByDescending(s => s.AvgGrade)
+                   .ToList();
+                var result = rating
+                    .Select((s, index) => new
+                    {
+                        place = index + 1,
+                        s.StudentsId,
+                        s.StudentFullName,
+                        s.AvgGrade,
+                        s.AttendancePercent,
+                        s.Score,
+                        s.ClassNum,
+                        s.ClassLetter
+                    });
+                var top3Parallel = result.Take(3).ToList();
+                var currentUser = result.FirstOrDefault(s => s.StudentsId == studentid);
+                return new
+                {
+                    top3Parallel,
+                    currentUser,
+                    totalStudentParallel = result.Count(),
+                };
+            }
+            catch (Exception ex)
+            {
+                return View("Index", new { error = ex });
+            }
 
         }
         public async Task<IActionResult> LogOut()
