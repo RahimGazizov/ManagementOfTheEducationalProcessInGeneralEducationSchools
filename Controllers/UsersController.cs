@@ -8,7 +8,7 @@ using InformationSystemOfASchoolIducationalPortal.Data;
 using Microsoft.AspNetCore.Authorization;
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
-    //[Authorize(Roles = "Админ")]
+    [Authorize(Roles = "Админ")]
     public class UsersController : Controller
     {
         private readonly UserManager<Users> _users;
