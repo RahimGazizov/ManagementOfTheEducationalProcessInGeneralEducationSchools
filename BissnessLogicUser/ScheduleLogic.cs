@@ -71,6 +71,9 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 .CountAsync();
             if (count == 2)
                 return OperationResult.Fail("Нельзя добавлять один предмет для класса больше 2 в неделю");
+            var acedemic = await _context.AcademicYear.Where(s => DateTime.Now >= s.StartDateYear && DateTime.Now <= s.EndDateYear)
+                .FirstOrDefaultAsync();
+            fm.AcademicYearId = acedemic.Id;
             _context.Schedules.Add(fm);
             await _context.SaveChangesAsync();
             return OperationResult.Ok();
@@ -154,7 +157,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     Value = l.Id,
                     Text = $"{l.LessonNumber} - {l.StartTime.ToString(@"hh\:mm")}-{l.EndTime.ToString(@"hh\:mm")}"
                 })
-                
+
                 .ToListAsync();
             return lessonSlot;
         }
@@ -169,6 +172,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     .Include(t => t.Assigment)
                     .ThenInclude(t => t.Class)
                     .Include(t => t.LessonSlot)
+                    .Include(s => s.AcademicYear)
                     .ToListAsync();
             return sch;
         }

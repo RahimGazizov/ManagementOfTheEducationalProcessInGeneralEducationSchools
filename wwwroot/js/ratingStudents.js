@@ -101,7 +101,7 @@
         </div>
         <h4>Рейтинг среди параллельных классов</р4>
         <div class="result-item">
-        <span>Ваше место в классе:</span>
+        <span>Ваше место в среди параллельных классов:</span>
         <span>${data.ratingParallel.currentUser.place}/${data.ratingParallel.totalStudentParallel}</span>
         </div>
         <div class="result-item">

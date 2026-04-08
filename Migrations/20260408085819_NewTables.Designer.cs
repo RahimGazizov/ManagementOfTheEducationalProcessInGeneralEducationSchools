@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InformationSystemOfASchoolIducationalPortal.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260327044546_AddNewColumnInTerm")]
-    partial class AddNewColumnInTerm
+    [Migration("20260408085819_NewTables")]
+    partial class NewTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -79,15 +79,22 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("CanIEdit")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("AcademicYearId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ClassId")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("HomeWork")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsLocked")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("LessonTopic")
                         .HasColumnType("TEXT");
@@ -100,7 +107,13 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("TermId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AcademicYearId");
 
                     b.HasIndex("ClassId");
 
@@ -108,15 +121,14 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
 
                     b.HasIndex("TeacherId");
 
+                    b.HasIndex("TermId");
+
                     b.ToTable("Journal");
                 });
 
             modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.JournalEntry", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("Grade")
@@ -161,9 +173,29 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.ToTable("LessonSlots");
                 });
 
+            modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.Parents", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Parent");
+                });
+
             modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.ScheduleLesson", b =>
                 {
                     b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AcademicYearId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("DayOfWeek")
@@ -183,6 +215,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AcademicYearId");
 
                     b.HasIndex("LessonSlotId");
 
@@ -550,6 +584,21 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ParentsStudents", b =>
+                {
+                    b.Property<string>("ParentsId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StudentsId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ParentsId", "StudentsId");
+
+                    b.HasIndex("StudentsId");
+
+                    b.ToTable("ParentsStudents");
+                });
+
             modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.Admins", b =>
                 {
                     b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Users", "User")
@@ -563,6 +612,12 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
 
             modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.Journal", b =>
                 {
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.AcademicYear", "AcademicYear")
+                        .WithMany()
+                        .HasForeignKey("AcademicYearId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Class", "Class")
                         .WithMany()
                         .HasForeignKey("ClassId")
@@ -581,11 +636,21 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Term", "Term")
+                        .WithMany()
+                        .HasForeignKey("TermId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AcademicYear");
+
                     b.Navigation("Class");
 
                     b.Navigation("Subject");
 
                     b.Navigation("Teacher");
+
+                    b.Navigation("Term");
                 });
 
             modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.JournalEntry", b =>
@@ -607,8 +672,25 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.Parents", b =>
+                {
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.ScheduleLesson", b =>
                 {
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.AcademicYear", "AcademicYear")
+                        .WithMany()
+                        .HasForeignKey("AcademicYearId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.LessonSlot", "LessonSlot")
                         .WithMany()
                         .HasForeignKey("LessonSlotId")
@@ -620,6 +702,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .HasForeignKey("TeachinsAssignmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("AcademicYear");
 
                     b.Navigation("Assigment");
 
@@ -786,6 +870,21 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Users", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ParentsStudents", b =>
+                {
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Parents", null)
+                        .WithMany()
+                        .HasForeignKey("ParentsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Students", null)
+                        .WithMany()
+                        .HasForeignKey("StudentsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

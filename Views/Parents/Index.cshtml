@@ -1,0 +1,117 @@
+﻿@model ParentsViewModel
+<h3>Родители</h3>
+<div class="conteiner">
+    <a asp-controller="Users" asp-action="AddUsers" class="btn_add">Добавить пользователя</a>
+    <table>
+        <thead>
+            <tr>
+                <th>ФИО</th>
+                <th>Дата рождения</th>
+                <th>Номер телефона</th>
+                <th>Логин</th>
+                <th>Список детей</th>
+                <th>Действие</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Parent != null && Model.Parent.Any())
+            {
+                @foreach (var par in Model.Parent)
+                {
+                    <tr>
+                        <td>@par.User.FullName</td>
+                        <td>@par.User.BirthDate.ToString("dd-MM-yyyy")</td>
+                        <td>@par.User.PhoneNumber</td>
+                        <td>@par.User.UserName</td>
+                        @if (par.Students != null && par.Students.Any())
+                        {
+                            foreach (var ch in par.Students)
+                            {
+                                <td>@($"{ch.User.FullName}({ch.Class.NumClass}{ch.Class.LetterClass})")</td>
+                            }
+                        }
+                        else
+                        {
+                            <td>Список детей пуст</td>
+                        }
+                        <td>
+                            <div class="action">
+                                <a id="btnAddChild" class="btn_add btnAdChild" data-parent-id="@par.Id" style="cursor: pointer;">Добавить ребенка</a>
+                                <a asp-controller="Users" asp-action="Delete" asp-route-id="@par.UserId"
+                                   asp-route-returnUrl="@Url.Action("Index", "Parents")" onsubmit="return confirm('Вы уверены что хотите удалить?')" class="btn_del" style="cursor: pointer;">
+                                    Удалить
+                                </a>
+                                <a asp-action="EditParent" class="btn_edit" style="cursor: pointer;">Редактировать</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="6" style="font-style:italic; text-align:center;">Данных о родителях пусты</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+@*Модальное окно добавления ребенка*@
+<div class="modal" id="modalAddChild">
+    <div class="modal-content">
+        <label>Номер класса</label>
+        <select id="listNumClass">
+            <option>Выберите номер класса</option>
+            @for (int i = 1; i < 12; i++)
+            {
+                <option value="@i">@i</option>
+            }
+        </select>
+        <label>Выберите букву</label>
+        <select id="listLetterClass" disabled>
+            <option>Сначала выберите номер класса</option>
+        </select>
+        <label>ФИО ученика</label>
+        <select id="listStudentsClass" disabled>
+            <option>Сначала выберите номер и букву класса</option>
+        </select>
+        <button type="submit" id="btnSendData" class="btn_add" style="margin-top:15px;">Добавить</button>
+    </div>
+</div>
+
+@*Модальное окно редоктирования*@
+@* <div class="modal">
+    <div class="modal-content">
+        <input type="hidden" value="@Model.Form.UserId" id="userId"/>
+        <label>ФИО</label>
+        <input type="text" id="fullName" />
+        <label>Дата рождения</label>
+        <input type="date" id="birthDate" />
+        <label>Номер телефона</label>
+        <input type="text" id="phone" />
+        <label></label>
+    </div>
+</div> *@
+<link rel="stylesheet" href="~/css/index.css" />
+<link rel="stylesheet" href="~/css/modalWindow.css" />
+<script src="~/js/addChild.js"></script>
+<style>
+    .show {
+        display: flex;
+        position: fixed;
+        z-index: 1000;
+        width: 100%;
+        background: rgba(0,0,0,.5);
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+
+<script>
+    const modalForAddChild = document.getElementById("modalAddChild");
+    window.onclick = (event)=>{
+        if(event.target === modalForAddChild){
+            modalForAddChild.classList.remove("show");
+        }
+    }
+</script>

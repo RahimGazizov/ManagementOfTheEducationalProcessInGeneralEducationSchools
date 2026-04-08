@@ -41,7 +41,7 @@ builder.Services.AddIdentity<Users, IdentityRole>(options =>
 async Task EnsureRoles(IServiceProvider serviceProvider)
 {
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    string[] roles = { "Админ", "Учитель", "Ученик", "АдмнистрацияШколы" };
+    string[] roles = { "Админ", "Учитель", "Ученик", "Родитель", "АдмнистрацияШколы" };
 
     foreach(var role in roles)
     {

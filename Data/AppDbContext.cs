@@ -15,11 +15,12 @@ namespace InformationSystemOfASchoolIducationalPortal.Data
         public DbSet<JournalEntry> JournalEntry { get; set; }
         public DbSet<TeacherAssigment> TeacherAssigments { get; set; }
         public DbSet<SchoolAdministrations> Administrations { get; set; }
-        public DbSet<ScheduleLesson> Schedules {  get; set; }
+        public DbSet<ScheduleLesson> Schedules { get; set; }
         public DbSet<LessonSlot> LessonSlots { get; set; }
         public DbSet<AcademicYear> AcademicYear { get; set; }
         public DbSet<Term> Term { get; set; }
         public DbSet<StudentsHistory> StudentsHistory { get; set; }
+        public DbSet<Parents> Parent { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -45,6 +46,9 @@ namespace InformationSystemOfASchoolIducationalPortal.Data
                 .WithOne()
                 .HasForeignKey<Admins>(s => s.UserId)
                 .IsRequired();
+            modelBuilder.Entity<Parents>()
+    .HasMany(p => p.Students)
+    .WithMany(s => s.Parents);
         }
     }
 

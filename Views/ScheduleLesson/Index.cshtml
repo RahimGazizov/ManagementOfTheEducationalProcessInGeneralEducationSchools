@@ -17,6 +17,7 @@
                 <th>Урок</th>
                 <th>Занятие</th>
                 <th>Кабинет</th>
+                <th>Учебный год</th>
                 <th>Действие</th>
             </tr>
         </thead>
@@ -30,6 +31,7 @@
                         <td>@(s.LessonSlot.LessonNumber + " - " + s.LessonSlot.StartTime.ToString(@"hh\:mm") + "-" + s.LessonSlot.EndTime.ToString(@"hh\:mm"))</td>
                         <td>@(s.Assigment.Subject.Name + " - " + s.Assigment.Class.NumClass + s.Assigment.Class.LetterClass + $"({s.Assigment.Teacher.User.FullName})")</td>
                         <td>@s.Room</td>
+                        <td>@s.AcademicYear.Name</td>
                         <td>
                             <div class="action">
                                 <a asp-action="Delete" asp-route-id="@s.Id"

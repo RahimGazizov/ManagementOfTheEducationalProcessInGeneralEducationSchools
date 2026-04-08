@@ -7,5 +7,6 @@
         public Users User { get; set; } = null!;
         public string? ClassId { get; set; } = null!;
         public Class? Class { get; set; } = null!;
+        public List<Parents> Parents { get; set; } = new();
     }
 }

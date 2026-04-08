@@ -6,11 +6,25 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace InformationSystemOfASchoolIducationalPortal.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateNewMigrations : Migration
+    public partial class NewTables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "AcademicYear",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    StartDateYear = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    EndDateYear = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AcademicYear", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -89,6 +103,28 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Subjects", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Term",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    QuarterNumber = table.Column<int>(type: "INTEGER", nullable: false),
+                    DateStartTerm = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    DateEndTerm = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    AcademicYearId = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Term", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Term_AcademicYear_AcademicYearId",
+                        column: x => x.AcademicYearId,
+                        principalTable: "AcademicYear",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -234,6 +270,24 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Parent",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    UserId = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Parent", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Parent_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Teachers",
                 columns: table => new
                 {
@@ -281,16 +335,25 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Date = table.Column<DateTime>(type: "TEXT", nullable: false),
                     TeacherId = table.Column<string>(type: "TEXT", nullable: false),
                     SubjectId = table.Column<string>(type: "TEXT", nullable: false),
                     ClassId = table.Column<string>(type: "TEXT", nullable: false),
-                    HomeWork = table.Column<string>(type: "TEXT", nullable: false),
-                    LessonTopic = table.Column<string>(type: "TEXT", nullable: false),
-                    CanIEdit = table.Column<bool>(type: "INTEGER", nullable: false)
+                    HomeWork = table.Column<string>(type: "TEXT", nullable: true),
+                    LessonTopic = table.Column<string>(type: "TEXT", nullable: true),
+                    IsLocked = table.Column<bool>(type: "INTEGER", nullable: false),
+                    AcademicYearId = table.Column<string>(type: "TEXT", nullable: false),
+                    TermId = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Journal", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Journal_AcademicYear_AcademicYearId",
+                        column: x => x.AcademicYearId,
+                        principalTable: "AcademicYear",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Journal_Classes_ClassId",
                         column: x => x.ClassId,
@@ -307,6 +370,12 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         name: "FK_Journal_Teachers_TeacherId",
                         column: x => x.TeacherId,
                         principalTable: "Teachers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Journal_Term_TermId",
+                        column: x => x.TermId,
+                        principalTable: "Term",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -344,13 +413,75 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ParentsStudents",
+                columns: table => new
+                {
+                    ParentsId = table.Column<string>(type: "TEXT", nullable: false),
+                    StudentsId = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ParentsStudents", x => new { x.ParentsId, x.StudentsId });
+                    table.ForeignKey(
+                        name: "FK_ParentsStudents_Parent_ParentsId",
+                        column: x => x.ParentsId,
+                        principalTable: "Parent",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ParentsStudents_Students_StudentsId",
+                        column: x => x.StudentsId,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StudentsHistory",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    StudentId = table.Column<string>(type: "TEXT", nullable: false),
+                    ClassId = table.Column<string>(type: "TEXT", nullable: false),
+                    AcademicYearId = table.Column<string>(type: "TEXT", nullable: false),
+                    TermId = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudentsHistory", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StudentsHistory_AcademicYear_AcademicYearId",
+                        column: x => x.AcademicYearId,
+                        principalTable: "AcademicYear",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StudentsHistory_Classes_ClassId",
+                        column: x => x.ClassId,
+                        principalTable: "Classes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StudentsHistory_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StudentsHistory_Term_TermId",
+                        column: x => x.TermId,
+                        principalTable: "Term",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "JournalEntry",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
                     StudentId = table.Column<string>(type: "TEXT", nullable: false),
                     JournalId = table.Column<string>(type: "TEXT", nullable: false),
-                    Date = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Grade = table.Column<int>(type: "INTEGER", nullable: true),
                     IsPresent = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
@@ -377,7 +508,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
                     TeachinsAssignmentId = table.Column<string>(type: "TEXT", nullable: false),
-                    AssigmentId = table.Column<string>(type: "TEXT", nullable: true),
+                    AcademicYearId = table.Column<string>(type: "TEXT", nullable: false),
                     DayOfWeek = table.Column<string>(type: "TEXT", nullable: false),
                     LessonSlotId = table.Column<string>(type: "TEXT", nullable: false),
                     Room = table.Column<string>(type: "TEXT", nullable: false)
@@ -386,16 +517,23 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 {
                     table.PrimaryKey("PK_Schedules", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Schedules_AcademicYear_AcademicYearId",
+                        column: x => x.AcademicYearId,
+                        principalTable: "AcademicYear",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_Schedules_LessonSlots_LessonSlotId",
                         column: x => x.LessonSlotId,
                         principalTable: "LessonSlots",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Schedules_TeacherAssigments_AssigmentId",
-                        column: x => x.AssigmentId,
+                        name: "FK_Schedules_TeacherAssigments_TeachinsAssignmentId",
+                        column: x => x.TeachinsAssignmentId,
                         principalTable: "TeacherAssigments",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -447,6 +585,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Journal_AcademicYearId",
+                table: "Journal",
+                column: "AcademicYearId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Journal_ClassId",
                 table: "Journal",
                 column: "ClassId");
@@ -462,6 +605,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 column: "TeacherId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Journal_TermId",
+                table: "Journal",
+                column: "TermId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_JournalEntry_JournalId",
                 table: "JournalEntry",
                 column: "JournalId");
@@ -472,14 +620,29 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 column: "StudentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Schedules_AssigmentId",
+                name: "IX_Parent_UserId",
+                table: "Parent",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ParentsStudents_StudentsId",
+                table: "ParentsStudents",
+                column: "StudentsId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Schedules_AcademicYearId",
                 table: "Schedules",
-                column: "AssigmentId");
+                column: "AcademicYearId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Schedules_LessonSlotId",
                 table: "Schedules",
                 column: "LessonSlotId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Schedules_TeachinsAssignmentId",
+                table: "Schedules",
+                column: "TeachinsAssignmentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Students_ClassId",
@@ -491,6 +654,26 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 table: "Students",
                 column: "UserId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentsHistory_AcademicYearId",
+                table: "StudentsHistory",
+                column: "AcademicYearId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentsHistory_ClassId",
+                table: "StudentsHistory",
+                column: "ClassId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentsHistory_StudentId",
+                table: "StudentsHistory",
+                column: "StudentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentsHistory_TermId",
+                table: "StudentsHistory",
+                column: "TermId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TeacherAssigments_ClassId",
@@ -512,6 +695,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 table: "Teachers",
                 column: "UserId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Term_AcademicYearId",
+                table: "Term",
+                column: "AcademicYearId");
         }
 
         /// <inheritdoc />
@@ -542,7 +730,13 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 name: "JournalEntry");
 
             migrationBuilder.DropTable(
+                name: "ParentsStudents");
+
+            migrationBuilder.DropTable(
                 name: "Schedules");
+
+            migrationBuilder.DropTable(
+                name: "StudentsHistory");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -551,7 +745,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 name: "Journal");
 
             migrationBuilder.DropTable(
-                name: "Students");
+                name: "Parent");
 
             migrationBuilder.DropTable(
                 name: "LessonSlots");
@@ -560,13 +754,22 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 name: "TeacherAssigments");
 
             migrationBuilder.DropTable(
-                name: "Classes");
+                name: "Students");
+
+            migrationBuilder.DropTable(
+                name: "Term");
 
             migrationBuilder.DropTable(
                 name: "Subjects");
 
             migrationBuilder.DropTable(
                 name: "Teachers");
+
+            migrationBuilder.DropTable(
+                name: "Classes");
+
+            migrationBuilder.DropTable(
+                name: "AcademicYear");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

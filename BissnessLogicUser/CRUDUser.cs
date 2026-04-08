@@ -94,6 +94,15 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     _context.Admins.Add(admin);
                     await _context.SaveChangesAsync();
                 }
+                if(createUser.Role == "Родитель")
+                {
+                    var parent = new Parents
+                    {
+                        UserId = user.Id,
+                    };
+                    _context.Parent.Add(parent);
+                    await _context.SaveChangesAsync();
+                }
                 if (createUser.Role == "АдмнистрацияШколы")
                 {
                     var schoolAdmin = new SchoolAdministrations
