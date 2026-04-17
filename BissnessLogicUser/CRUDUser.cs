@@ -143,12 +143,6 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 var findUser = await _users.FindByIdAsync(dto.UserId);
                 if (findUser == null)
                     return OperationResult.Fail("Пользователь не найден");
-                string academicId = await GetAcademic();
-                if (academicId == null)
-                    return OperationResult.Fail("Невозможно редоктировать ученика не найден учебный год проверьте даты");
-                string termId = await GetTerm();
-                if (termId == null)
-                    return OperationResult.Fail("Невозможно редоктировать ученика не найдена четверть проверьте даты");
                 var roles = await _users.GetRolesAsync(findUser);
                 var removeRoles = await _users.RemoveFromRolesAsync(findUser, roles);
                 if (!removeRoles.Succeeded)
@@ -162,6 +156,12 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 findUser.PhoneNumber = dto.PhoneNumber;
                 if (dto.Role.Contains("Ученик"))
                 {
+                    string academicId = await GetAcademic();
+                    if (academicId == null)
+                        return OperationResult.Fail("Невозможно редоктировать ученика не найден учебный год проверьте даты");
+                    string termId = await GetTerm();
+                    if (termId == null)
+                        return OperationResult.Fail("Невозможно редоктировать ученика не найдена четверть проверьте даты");
                     var student = await _context.Students.FirstOrDefaultAsync(u => u.UserId == findUser.Id);
                     if (student != null)
                     {

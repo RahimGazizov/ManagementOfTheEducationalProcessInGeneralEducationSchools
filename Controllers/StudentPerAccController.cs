@@ -10,7 +10,7 @@ using System.Globalization;
 
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
-    [Authorize(Roles = "Ученик")]
+    [Authorize(Roles = "Ученик, Родитель")]
     public class StudentPerAccController : Controller
     {
         private readonly UserManager<Users> _userMan;
@@ -35,7 +35,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                     .Include(c => c.Class)
                     .FirstOrDefaultAsync(s => s.UserId == userId);
                 var studentDash = await ViewBagList(student);
-                ViewBag.DynamicsAvgGrade = await _studentPer.AvgScoreDimamics(student);
                 return View(studentDash);
             }
             catch (Exception ex)
@@ -45,21 +44,53 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 var student = await _context.Students.Include(u => u.User)
                      .Include(c => c.Class)
                      .FirstOrDefaultAsync(s => s.UserId == userId);
-                return View(student);
+                var studentDashBoard = new StudentDashboardViewModel
+                {
+                    Student = student
+                };
+                return View(studentDashBoard);
             }
         }
         public IActionResult GraphShow(string studentId, string classId, string acdemicId, string termId) => View();
-        [HttpGet]
-        public async Task<IActionResult> JournalSet(string studentId, string subjectId, string classId, string academicId, string termId)
+        public async Task<IActionResult> SubjectList(string studentId)
         {
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.Id == studentId);
+            var subjects = await _context.TeacherAssigments
+                .Include(s => s.Subject)
+                .Where(s => s.ClassId == student.ClassId && DateTime.Now >= s.AcademicYear.StartDateYear
+                && DateTime.Now <= s.AcademicYear.EndDateYear)
+                .Select(s => s.Subject)
+                .ToListAsync();
+            var list = subjects.Select(s => new
+            {
+                id = s.Id,
+                name = s.Name
+            });
+            return Json(list);
+        }
+        [HttpGet]
+        public async Task<IActionResult> JournalSet(string studentId, string subjectId)
+        {
+            var currentAcademic = await _context.AcademicYear
+                .Where(d => DateTime.Now >= d.StartDateYear && DateTime.Now <= d.EndDateYear)
+                .FirstOrDefaultAsync();
+            if (currentAcademic == null)
+                return View("Index", new { error = "Учебный год не был добавлен" });
+            var currentTerm = await _context.Term
+              .Where(d => DateTime.Now >= d.DateStartTerm && DateTime.Now <= d.DateEndTerm)
+              .FirstOrDefaultAsync();
+            if(currentTerm == null)
+                return View("Index", new { error = "Четверть не была добавлена" });
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.Id == studentId);
+            if (student.ClassId == null)
+                return View("Index", new { error = "Вам не назначили класс" });
             var journals = await _context.Journal
-                 .Where(j => j.SubjectId == subjectId && j.ClassId == classId &&
-                 j.AcademicYearId == academicId && j.TermId == termId)
+                 .Where(j => j.SubjectId == subjectId && j.ClassId == student.ClassId &&
+                 j.AcademicYearId == currentAcademic.Id && j.TermId == currentTerm.Id)
                  .Include(s => s.Subject)
                  .Include(s => s.AcademicYear)
                  .Include(s => s.Term)
                  .ToListAsync();
-
             var journalList = journals.Select(j => new
             {
                 id = j.Id,
@@ -288,7 +319,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             await _signIn.SignOutAsync();
             return RedirectToAction("Index", "Authoriz");
         }
-       
+
         private async Task<StudentDashboardViewModel> ViewBagList(Students student)
         {
             var studentDash = new StudentDashboardViewModel
@@ -301,7 +332,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 Schedule = await _studentPer.ScheduleLessons(student),
                 AcademicYears = _studentPer.GetAcademicList(),
                 Terms = _studentPer.GetTermList(),
-                Classes = await _studentPer.GetClasses(student.Id)
+                Classes = await _studentPer.GetClasses(student.Id),
+                Delta = await _studentPer.AvgScoreDimamics(student)
             };
             return studentDash;
 

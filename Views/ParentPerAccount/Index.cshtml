@@ -1,3 +1,589 @@
-﻿@model Parents
-<h3>Добро пожаловать @Model.User.FullName!</h3>
-<p>Ваш личный кабинет</p>
+﻿@model ModelViewForParents
+
+@{
+    var children = Model.Students?.ToList() ?? new List<StudentAvgScore>();
+}
+
+<div class="content parent-page">
+    <div class="left-content">
+        <a class="side-btn" id="btnOpenModalJournal" title="Посмотреть успеваемость">
+            <i class="bi bi-journal-check"></i>
+        </a>
+
+        <a class="side-btn" id="btnOpenModalAvgScore" title="Посмотреть средний балл по предмету">
+            <i class="bi bi-calculator"></i>
+        </a>
+
+        <a class="side-btn" id="btnOpenModalGraph" title="Просмотр графика по предмету">
+            <i class="bi bi-bar-chart-line"></i>
+        </a>
+
+        <a class="side-btn" href="/ScheduleForStudent/Index" title="Расписание">
+            <i class="bi bi-calendar3"></i>
+        </a>
+
+        <a class="side-btn" id="btnOpenModalRating" title="Рейтинг">
+            <i class="bi bi-trophy"></i>
+        </a>
+
+        <a class="side-btn" asp-action="LogOut" title="Закрыть">
+            <i class="bi bi-x-lg"></i>
+        </a>
+    </div>
+
+    <div class="personalAcc parent-dashboard">
+        <p class="hello">Привет, @Model.Parent.User.FullName.OnlyName()!</p>
+
+        <div class="parent-summary">
+            <div class="summary-pill">
+                <span class="summary-label">Детей привязано</span>
+                <span class="summary-value">@children.Count</span>
+            </div>
+        </div>
+
+        <div class="parent-main-card">
+            <div class="parent-card-header">
+                <div>
+                    <p class="parent-card-title">Мои дети</p>
+                    <p class="parent-card-subtitle">Общая информация по ученикам</p>
+                </div>
+            </div>
+
+            @if (children.Any())
+            {
+                <div class="children-list">
+                    @foreach (var child in children)
+                    {
+                        <div class="child-card">
+                            <div class="child-main-info">
+                                <p class="child-name">@child.Student.User.FullName.ToShortName()</p>
+                                <p class="child-class">
+                                    @(child.Student.Class != null
+                                                                ? $"{child.Student.Class.NumClass}\"{child.Student.Class.LetterClass}"
+                                                                : "Класс не указан")
+                        </p>
+                    </div>
+
+                            <div class="child-metric">
+                                <p class="metric-label">Средний балл</p>
+                                <p class="metric-value">@child.AvgScore</p>
+                            </div>
+                        </div>
+                                }
+                </div>
+            }
+            else
+            {
+                <div class="empty-children">
+                    <p>У родителя пока нет привязанных детей</p>
+                </div>
+            }
+
+            <div class="parent-footer-note">
+                Здесь позже можно добавить рейтинг, уведомления или общую сводку по успеваемости.
+            </div>
+        </div>
+    </div>
+</div>
+
+@*МОдальное окно просмотра журнала*@
+<div class="modal" id="modelJournalView">
+    <div class="modal-content">
+        <h4>Просмотр журнала</h4>
+        <label>Ученик:</label>
+        @if (Model.Childrens != null && Model.Childrens.Any())
+        {
+            <select id="parentStudentId">
+                <option>Выберите ребенка</option>
+                @foreach (var child in Model.Childrens)
+                {
+                    <option value="@child.Value">@child.Text</option>
+                }
+            </select>
+        }
+        else
+        {
+            <input type="text" value="Вам пока неназначали ребенка" readonly />
+        }
+        <label>Предмет</label>
+        <select id="parentStudentSubjectId" disabled>
+            <option value="">Сначала выберите ученика</option>
+        </select>
+        <div id="journalListForParent" class="journalsList">
+            Выберите предмет чтобы увидеть список журналов
+        </div>
+    </div>
+</div>
+
+@*Модальное окно просмотра среднего балла*@
+<div class="modal" id="modelAvgGradeForParent">
+    <div class="modal-content">
+        <h5>Средний балл по предмету</h5>
+        <label>Ученик:</label>
+        @if (Model.Childrens != null && Model.Childrens.Any())
+        {
+            <select id="parentStudentIdForAvgScore">
+                <option>Выберите ребенка</option>
+                @foreach (var child in Model.Childrens)
+                {
+                    <option value="@child.Value">@child.Text</option>
+                }
+            </select>
+        }
+        else
+        {
+            <input type="text" value="Вам пока неназначали ребенка" readonly />
+        }
+        <label>Класс:</label>
+        <select id="classIdForAvgScoreParent" disabled>
+            <option>Сначала выберите ученика</option>
+        </select>
+        <label>Предмет:</label>
+        <select id="parentStudentSubjectIdForAngScore" disabled>
+            <option value="">Сначала выберите ученика</option>
+        </select>
+        <label>Учебный год</label>
+        <input type="hidden" id="academicIdForAvgScoreParent">
+        <input type="text" id="academicForAvgScoreParent" readonly>
+        <label>Четверть</label>
+        <select id="termIdForAvgScoreParent" disabled>
+            <option>Выберите сначала ученика и предмет</option>
+        </select>
+        <button type="button" id="resultBtn" class="btn_result">Вывести результат</button>
+        <div id="resultBlockForParent" class="result-card">
+            <h6 class="result-title">Результат</h6>
+
+            <div class="result-item">
+                <span class="label">📘 Предмет:</span>
+                <span id="resSubjectStudent" class="value"></span>
+            </div>
+
+            <div class="result-item">
+                <span class="label">📊 Средний балл:</span>
+                <span id="resAverageStudent" class="value highlight"></span>
+            </div>
+
+            <div class="result-item">
+                <span class="label">📅 Посещаемость:</span>
+                <span id="resAttendanceStudent" class="value"></span>
+            </div>
+
+            <div class="progress-bar">
+                <div id="attendanceBarStudentForParent" class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Модальное окно просмотра графика*@
+<div class="modal" id="graphModalForParent">
+    <div class="modal-content">
+        <h5>Средний балл по предмету</h5>
+        <label>Ученик:</label>
+        @if (Model.Childrens != null && Model.Childrens.Any())
+        {
+            <select id="parentStudentIdForGraph">
+                <option>Выберите ребенка</option>
+                @foreach (var child in Model.Childrens)
+                {
+                    <option value="@child.Value">@child.Text</option>
+                }
+            </select>
+        }
+        else
+        {
+            <input type="text" value="Вам пока неназначали ребенка" readonly />
+        }
+        <label>Класс:</label>
+        <select id="classIdForGraphParent" disabled>
+            <option>Сначала выберите ученика</option>
+        </select>
+        <label>Учебный год</label>
+        <input type="hidden" id="academicIdForGraphParent">
+        <input type="text" id="academicForGraphParent" readonly>
+        <label>Четверть</label>
+        <select id="termIdForGraphParent" disabled>
+            <option>Выберите сначала ученика и предмет</option>
+        </select>
+        <button type="button" class="btn_result" id="resultBtnGraph">Показать график</button>
+    </div>
+</div>
+
+@*Модальное окно для просмотра рейтинга*@
+<div class="modal" id="ratingModalForParent">
+    <div class="modal-content">
+        <h5>Рейтинг</h5>
+        <label>Ученик:</label>
+        @if (Model.Childrens != null && Model.Childrens.Any())
+        {
+            <select id="parentStudentIdForRating">
+                <option>Выберите ребенка</option>
+                @foreach (var child in Model.Childrens)
+                {
+                    <option value="@child.Value">@child.Text</option>
+                }
+            </select>
+        }
+        else
+        {
+            <input type="text" value="Вам пока неназначали ребенка" readonly />
+        }
+        <label>Класс:</label>
+        <select id="classIdForRatingParent" disabled>
+            <option>Сначала выберите ученика</option>
+        </select>
+        <label>Учебный год</label>
+        <input type="hidden" id="academicIdForRatingParent">
+        <input type="text" id="academicForRatingParent" readonly>
+        <label>Четверть</label>
+        <select id="termIdForRatingParent" disabled>
+            <option>Выберите сначала ученика и предмет</option>
+        </select>
+        <button type="button" class="btn_result" id="resultBtnRating">Показать рейтинг</button>
+        <div class="resultRetingForParent" id="resultRatingForParent">
+        </div>
+    </div>
+</div>
+
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    .journalsList {
+        padding: 10px;
+        border-radius: 5px;
+        max-height: 220px;
+        border: 1px solid #e5e5e5;
+        background-color: #fafafa;
+        overflow-y: auto;
+        font-size: 14px;
+    }
+
+    .journal_item {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        border-radius: 5px;
+        padding: 8px;
+        border: 1px solid #eee;
+        background-color: #fff;
+        align-items: center;
+    }
+
+    .journal_open {
+        padding: 8px 12px;
+        background-color: #007bff;
+        border-radius: 5px;
+        text-decoration: none;
+        color: white;
+    }
+
+        .journal_open:hover {
+            color: white;
+            text-decoration: none;
+        }
+
+    .result-card {
+        margin-top: 20px;
+        box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+        padding: 20px;
+        max-width: 400px;
+        border-radius: 12px;
+        font-family: Arial, sans-serif;
+    }
+
+    .result-title {
+        text-align: center;
+        color: slategray;
+        font-weight: 600;
+    }
+
+    .result-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .label {
+        color: #666;
+    }
+
+    .value {
+        font-weight: bold;
+        color: #222;
+    }
+
+    .highlight {
+        color: #2e86de;
+        font-size: 18px;
+    }
+
+    .progress-bar {
+        margin-top: 10px;
+        height: 10px;
+        border-radius: 10px;
+        background-color: #eee;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        width: 0;
+        height: 100%;
+        background: linear-gradient(90deg, #4caf50, #2ecc71);
+        transition: width 0.5s ease;
+    }
+
+    .btn_result {
+        width: 100%;
+        border: none;
+        border-radius: 10px;
+        background-color: greenyellow;
+        color: white;
+        margin-top: 10px;
+        padding: 12px;
+    }
+
+    .showRating {
+        width: 100%;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        background-color: #fff;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .rating-list {
+        margin-top: 10px;
+    }
+
+    .rating-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .parent-page {
+        display: flex;
+        justify-content: space-between;
+        padding: 0;
+        margin: 0;
+        gap: 24px;
+    }
+
+    .left-content {
+        width: 72px;
+        min-height: 470px;
+        background: rgba(217, 217, 217, 1);
+        border-radius: 36px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 18px 10px;
+        gap: 16px;
+    }
+
+    .side-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba(150, 150, 150, 1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-decoration: none;
+        color: rgba(40, 40, 40, 1);
+        cursor: pointer;
+        transition: 0.2s ease;
+        font-size: 18px;
+    }
+
+        .side-btn:hover {
+            background: rgba(120, 120, 120, 1);
+            color: white;
+            transform: scale(1.05);
+            text-decoration: none;
+        }
+
+        .side-btn i {
+            font-size: 18px;
+        }
+
+    .personalAcc {
+        width: 552px;
+        min-height: 650px;
+        border-radius: 41px;
+        background-color: rgba(217, 217, 217, 1);
+        padding: 20px 24px 24px;
+    }
+
+    .hello {
+        font-size: 34px;
+        font-weight: 700;
+        color: #000;
+        margin-bottom: 22px;
+    }
+
+    .parent-summary {
+        margin-bottom: 18px;
+    }
+
+    .summary-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 16px;
+        border-radius: 18px;
+        background: rgba(185, 185, 185, 1);
+        min-width: 170px;
+    }
+
+    .summary-label {
+        font-size: 14px;
+        color: #222;
+    }
+
+    .summary-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #111;
+    }
+
+    .parent-main-card {
+        background: rgba(185, 185, 185, 1);
+        border-radius: 28px;
+        padding: 18px;
+    }
+
+    .parent-card-header {
+        margin-bottom: 16px;
+    }
+
+    .parent-card-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #111;
+        margin: 0;
+    }
+
+    .parent-card-subtitle {
+        font-size: 14px;
+        color: #4f4f4f;
+        margin: 4px 0 0 0;
+    }
+
+    .children-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .child-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 18px;
+        border-radius: 22px;
+        background: rgba(109, 109, 109, 1);
+    }
+
+    .child-main-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .child-name {
+        font-size: 22px;
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+    }
+
+    .child-class {
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+    }
+
+    .child-metric {
+        min-width: 120px;
+        text-align: right;
+    }
+
+    .metric-label {
+        font-size: 11px;
+        font-style: italic;
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0 0 2px 0;
+    }
+
+    .metric-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .metric-note {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.75);
+        margin: 4px 0 0 0;
+    }
+
+    .empty-children {
+        padding: 24px;
+        border-radius: 18px;
+        background: rgba(109, 109, 109, 1);
+        color: #fff;
+        font-size: 16px;
+    }
+
+    .parent-footer-note {
+        margin-top: 16px;
+        font-size: 13px;
+        color: #4f4f4f;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background-color: rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: flex-start;
+        overflow-y: auto;
+        padding: 30px 0;
+    }
+
+        .modal.show {
+            display: flex;
+        }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        width: 400px;
+        max-height: calc(100vh - 60px);
+        overflow-y: auto;
+    }
+</style>
+<link rel="stylesheet" href="/css/modalWindow.css" />
+<script src="/js/ParentJSCode/openModalWindow.js"></script>
+<script src="/js/ParentJSCode/subjectListForParent.js"></script>
+<script src="/js/StudentJSCode/journalsForParentsAndStudents.js"></script>
+<script src="/js/ParentJSCode/avgGradeForParent.js"></script>
+<script src="/js/ParentJSCode/dataForGraphParent.js"></script>
+<script src="/js/ParentJSCode/ratingStudentForParent.js"></script>
+<script src="/js/ParentJSCode/DataForAcademicPerformance.js"></script>

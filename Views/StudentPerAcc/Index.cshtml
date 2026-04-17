@@ -1,10 +1,7 @@
 ﻿@model StudentDashboardViewModel
-@{
-    double delta = (double)ViewBag.DynamicsAvgGrade;
-}
 @if (TempData["Error"] != null)
 {
-    <div>@TempData["Error"]</div>
+    <div style="color:red; font-size:19px;font-weight: bold;">@TempData["Error"]</div>
 }
 <div class="content" style="display: flex; justify-content: space-between; padding: 0; margin: 0;">
     <div class="left-content">
@@ -53,7 +50,7 @@
                     else
                     {
                     <p>Расписание пока нет</p>
-                    }
+                }
                 </p>
             </div>
             <div class="studentInfo">
@@ -62,84 +59,28 @@
                 <p style="font-weight: 400; font-style: italic; font-size:10px; color:rgba(255, 255, 255, 0.8);">Средний балл</p>
                 <p style="font-weight: 700; font-size:26px; color:rgba(255, 255, 255, 1);">
                     @Model.AverageGrade
-                    @(delta > 0 ? $" ↑ +{Math.Abs(delta):0.0}" : delta < 0 ? $" ↓ -{Math.Abs(delta):0.0}" : "")
+                    @(Model.Delta > 0 ? $" ↑ +{Math.Abs(Model.Delta):0.0}" : Model.Delta < 0 ? $" ↓ -{Math.Abs(Model.Delta):0.0}" : "")
                 </p>
             </div>
         </div>
     </div>
 </div>
+
+@*Модель просмотра журнала*@
 <div id="openModalForm" class="modal">
     <div class="modal-content">
-        <form method="post" asp-action="JournalSet">
-            <input type="hidden" name="studentId" id="studentID" value="@Model.Student.Id" />
-            <label>Предмет</label>
-            @if (Model.Subjects != null && Model.Subjects.Any())
-            {
-                <select id="subjectSelectHistory">
-                    <option>Выберите предмет</option>
-                    @foreach (var s in Model.Subjects)
-                    {
-                        <option value="@s.Id">@s.Name</option>
-                    }
-                </select>
-            }
-            else
-            {
-                <input value="Вам пока не назначены предметы" readonly />
-            }
-            <input type="hidden" name="classId" id="classID" value="@Model.Student.ClassId" />
-            <label>Учебный год</label>
-            @if (Model.AcademicYears != null && Model.AcademicYears.Any())
-            {
-                <select id="academicYearStudent">
+        <input type="hidden" name="studentId" id="studentID" value="@Model.Student.Id" />
+        <label>Предмет</label>
+        <select id="subjectSelectHistory">
+            <option>Выберите предмет</option>
+        </select>
 
-                    @foreach (var a in Model.AcademicYears)
-                    {
-                        if (a.Value == Model.CurrentYear.Id)
-                        {
-                            <option value="@a.Value" selected>@a.Text</option>
-                        }
-                        else
-                        {
-                            <option value="@a.Value">@a.Text</option>
-                        }
-                    }
-
-                </select>
-            }
-            else
-            {
-                <input type="text" value="Учебного года пока нет" readonly>
-            }
-            <label>Четверть</label>
-            @if (Model.Terms != null && Model.Terms.Any())
-            {
-                <select id="termStudent">
-
-                    @foreach (var a in Model.Terms)
-                    {
-                        if (a.Value == Model.CurrentTerm?.Id)
-                        {
-                            <option value="@a.Value" selected>@a.Text</option>
-                        }
-                        else
-                        {
-                            <option value="@a.Value">@a.Text</option>
-                        }
-                    }
-                </select>
-            }
-            else
-            {
-                <input type="text" value="Четверти еще не добавлены" readonly>
-            }
-            <div id="journalsList" class="journalsList">
-                Выберите предмет чтобы увидеть список журналов
-            </div>
-            <div style="display: flex; justify-content: center;gap: 10px">
-                <a asp-action="Index" class="btn_back">Назад</a>
-            </div>
-        </form>
+        <div id="journalListForStudent" class="journalsList">
+            Выберите предмет чтобы увидеть список журналов
+        </div>
+        <div style="display: flex; justify-content: center;gap: 10px">
+            <a asp-action="Index" class="btn_back">Назад</a>
+        </div>
     </div>
 </div>
 
@@ -396,8 +337,8 @@
     }
 </script>
 <link rel="stylesheet" href="/css/studentPerAcc.css" />
-<script src="/js/journalsForStudent.js"></script>
-<script src="/js/getInfoAboutClass.js"></script>
+<script src="/js/studentJSCode/journalsForParentsAndStudents.js"></script>
+<script src="/js/studentJSCode/getInfoAboutClass.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="/js/dataForGraph.js"></script>
-<script src="/js/ratingStudents.js"></script>
+<script src="/js/studentJSCode/dataForGraph.js"></script>
+<script src="/js/studentJSCode/ratingStudents.js"></script>

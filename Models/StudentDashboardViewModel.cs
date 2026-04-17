@@ -18,5 +18,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Models
         public List<SelectListItem> Terms { get; set; }
         public List<SelectListItem> Classes { get; set; }
         public Class CurrentClass { get; set; }
+        public double Delta { get; set; }
     }
 }

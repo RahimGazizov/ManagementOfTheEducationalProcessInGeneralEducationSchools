@@ -1,7 +1,10 @@
 ﻿@model ParentsViewModel
 <h3>Родители</h3>
 <div class="conteiner">
-    <a asp-controller="Users" asp-action="AddUsers" class="btn_add">Добавить пользователя</a>
+    <div class="action">
+        <a asp-controller="Users" asp-action="AddUsers" class="btn_add">Добавить пользователя</a>
+        <a href="/AdminPersonalAccount/Index" class="btn_back">Вернуться на главную</a>
+    </div>
     <table>
         <thead>
             <tr>
@@ -23,25 +26,40 @@
                         <td>@par.User.BirthDate.ToString("dd-MM-yyyy")</td>
                         <td>@par.User.PhoneNumber</td>
                         <td>@par.User.UserName</td>
-                        @if (par.Students != null && par.Students.Any())
-                        {
-                            foreach (var ch in par.Students)
+                        <td>
+                            @if (par.Students != null && par.Students.Any())
                             {
-                                <td>@($"{ch.User.FullName}({ch.Class.NumClass}{ch.Class.LetterClass})")</td>
+                                foreach (var ch in par.Students)
+                                {
+                                    <div class="child-conteiner">
+                                        <div class="child-content">
+                                            @($"{ch.User.FullName}({ch.Class.NumClass}{ch.Class.LetterClass})")
+                                            <form asp-controller="Parents" asp-action="DeleteChild" method="post" style="display:inline;">
+                                                <input type="hidden" name="parentId" value="@par.Id" />
+                                                <input type="hidden" name="studentId" value="@ch.Id" />
+                                                <button type="submit" onclick="return confirm('Вы уверены что хотите удалить?')"
+                                                        style="background-color:red;color:white;border:none;border-radius: 5px;">
+                                                    Удалить
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                }
                             }
-                        }
-                        else
-                        {
-                            <td>Список детей пуст</td>
-                        }
+                            else
+                            {
+                                <span>Список детей пуст</span>
+                            }
+                        </td>
+
                         <td>
                             <div class="action">
-                                <a id="btnAddChild" class="btn_add btnAdChild" data-parent-id="@par.Id" style="cursor: pointer;">Добавить ребенка</a>
-                                <a asp-controller="Users" asp-action="Delete" asp-route-id="@par.UserId"
-                                   asp-route-returnUrl="@Url.Action("Index", "Parents")" onsubmit="return confirm('Вы уверены что хотите удалить?')" class="btn_del" style="cursor: pointer;">
+                                <a id="btnAddChild" class="btn_add btnAdChild" data-parent-id="@par.Id" style="cursor: pointer;">Добавить ученика</a>
+                                <a asp-action="Delete" asp-route-id="@par.UserId"
+                                   onsubmit="return confirm('Вы уверены что хотите удалить?')" class="btn_del" style="cursor: pointer;">
                                     Удалить
                                 </a>
-                                <a asp-action="EditParent" class="btn_edit" style="cursor: pointer;">Редактировать</a>
+                                <a asp-controller="Users" asp-action="EditUser" asp-route-id="@par.UserId" asp-route-returnUrl="@Url.Action("Index", "Parents")" class="btn_edit" style="cursor: pointer;">Редактировать</a>
                             </div>
                         </td>
                     </tr>
@@ -92,7 +110,143 @@
         <label></label>
     </div>
 </div> *@
-<link rel="stylesheet" href="~/css/index.css" />
+<style>
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9fa;
+    }
+
+    h3 {
+        font-size: 28px;
+        font-weight: bold;
+        margin-top: 20px;
+        text-align: center;
+        color: #333;
+    }
+
+    .conteiner {
+        width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        background-color: #ffffff;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+
+        table th {
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            vertical-align: middle;
+        }
+
+    tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tbody tr:hover {
+        background-color: #e0f7fa;
+    }
+
+    .action {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn_add,
+    .btn_del,
+    .btn_edit,
+    .btn_back {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 140px;
+        height: 42px;
+        padding: 0 18px;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .btn_add {
+        background-color: #2563eb;
+    }
+
+        .btn_add:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+    .btn_del {
+        background-color: #dc2626;
+    }
+
+        .btn_del:hover {
+            background-color: #b91c1c;
+            transform: translateY(-1px);
+        }
+
+    .btn_edit {
+        background-color: #16a34a;
+    }
+
+        .btn_edit:hover {
+            background-color: #15803d;
+            transform: translateY(-1px);
+        }
+
+    .btn_back {
+        background-color: #6b7280;
+    }
+
+        .btn_back:hover {
+            background-color: #4b5563;
+            transform: translateY(-1px);
+        }
+
+    .text-danger {
+        color: red;
+        font-size: 20px;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    .child-conteiner {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .child-content {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
+</style>
 <link rel="stylesheet" href="~/css/modalWindow.css" />
 <script src="~/js/addChild.js"></script>
 <style>

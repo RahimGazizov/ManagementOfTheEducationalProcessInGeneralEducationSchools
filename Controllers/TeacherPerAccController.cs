@@ -24,8 +24,9 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             _signIn = signIn;
             _perAccLogic = perAccLogic;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? error)
         {
+            TempData["Error"] = error;
             var userId = _userMan.GetUserId(User);
             var teacher = await _context.Teachers.Include(u => u.User)
                 .FirstOrDefaultAsync(id => id.UserId == userId);
@@ -36,23 +37,29 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 Where(t => t.DateStartTerm <= DateTime.Now && t.DateEndTerm >= DateTime.Now)
                 .FirstOrDefaultAsync();
             ViewBag.CurrentTerm = currentTerm;
-            ViewBag.CurrentYear = currentYear;  
+            ViewBag.CurrentYear = currentYear;
             ViewBag.ListAcademicYear = GetListAcademicYear();
             ViewBag.ListTerms = GetListTerms();
             ViewBag.ListSubjects = await _perAccLogic.GetListSubjects(userId);
             return View(teacher);
         }
-        public async Task<IActionResult> GetClassesBySubject(string subjectId)
+        public async Task<IActionResult> GetClassesBySubject(string subjectId, string academicId)
         {
+            string currentAcademic = academicId;
+            if (currentAcademic == null)
+            {
+                currentAcademic = await _context.AcademicYear
+                    .Where(d => d.StartDateYear <= DateTime.Now && d.EndDateYear >= DateTime.Now)
+                    .Select(i => i.Id)
+                    .FirstOrDefaultAsync();
+                if (currentAcademic == null)
+                    return View("Index", new { error = "Учебный год не создан" });
+            }
             var userId = _userMan.GetUserId(User);
             var teacher = await _context.Teachers.Include(u => u.User)
                 .FirstOrDefaultAsync(id => id.UserId == userId);
-            var teacherId = await _context.Teachers
-                .Where(t => t.UserId == userId)
-                .Select(t => t.Id)
-                .FirstOrDefaultAsync();
             var classses = await _context.TeacherAssigments
-                .Where(r => r.TeacherId == teacherId && r.SubjectId == subjectId)
+                .Where(r => r.TeacherId == teacher.Id && r.SubjectId == subjectId && r.AcademicId == currentAcademic)
                 .Select(c => new
                 {
                     id = c.Class.Id,
@@ -70,7 +77,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
     .Select(j => new
     {
         id = j.Id,
-        date = j.Date, 
+        date = j.Date,
     })
     .OrderByDescending(x => x.date)
     .ToList();

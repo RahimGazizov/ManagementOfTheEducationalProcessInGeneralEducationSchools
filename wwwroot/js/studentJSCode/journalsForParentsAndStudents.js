@@ -1,13 +1,26 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
-    const subjectSelect = document.getElementById("subjectSelectHistory");
-    const academicYear = document.getElementById("academicYearStudent");
-    const term = document.getElementById("termStudent");
-    const classID = document.getElementById("classID");
-    const studentId = document.getElementById("studentID");
-    const journalList = document.getElementById("journalsList");
+﻿function JournalsInfo(student, subjectList, journalListForStudent) {
+    const studentId = document.getElementById(student);
+    const journalList = document.getElementById(journalListForStudent);
+    const subjectSelect = document.getElementById(subjectList);
+    if (!studentId || !subjectSelect) {
+        console.log("Айди студента пуст или предмета пуст"); return;
+    }
+    else {
+        LoadSub();
+    }
 
-    if (!subjectSelect || !classID || !studentId || !term || !academicYear) return;
-
+    async function LoadSub() {
+        subjectSelect.innerHTML = `<option value="">Выберите предмет</option>`;
+        const res = await fetch(`/StudentPerAcc/SubjectList?studentId=${studentId.value}`);
+        if (!res.ok) { console.log("Список предметов не загрузились"); return; }
+        const dataSub = await res.json();
+        dataSub.forEach(data => {
+            const option = document.createElement("option");
+            option.value = data.id;
+            option.text = data.name;
+            subjectSelect.appendChild(option);
+        });
+    }
     function selectListText(text) {
         journalList.innerHTML = text;
     }
@@ -27,9 +40,6 @@
         const params = new URLSearchParams();
         params.append("studentId", studentId.value);
         params.append("subjectId", subject);
-        params.append("classId", classID.value);
-        params.append("academicId", academicYear.value);
-        params.append("termId", term.value);
 
         selectListText("Загрузка...");
 
@@ -73,6 +83,8 @@
     }
 
     subjectSelect.addEventListener("change", loadJournals);
-    academicYear.addEventListener("change", loadJournals);
-    term.addEventListener("change", loadJournals);
+}
+document.addEventListener("DOMContentLoaded", () => {
+    JournalsInfo("studentID", "subjectSelectHistory","journalListForStudent");
+    JournalsInfo("parentStudentId", "parentStudentSubjectId","journalListForParent");
 });

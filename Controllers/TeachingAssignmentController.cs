@@ -24,6 +24,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 .ThenInclude(t => t.User)
                 .Include(c => c.Class)
                 .Include(s => s.Subject)
+                .Include(s => s.AcademicYear)
                 .ToListAsync();
             return View(techingsAssigment);
         }

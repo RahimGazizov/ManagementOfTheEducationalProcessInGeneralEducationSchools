@@ -1,7 +1,7 @@
 ﻿function bindSubjectToClasses(subjectId, classId) {
     const subjectSelect = document.getElementById(subjectId);
     const classSelect = document.getElementById(classId);
-
+    const academicId = document.getElementById("academicYear").value;
     if (!subjectSelect || !classSelect) return;
 
     subjectSelect.addEventListener("change", async () => {
@@ -18,7 +18,7 @@
         classSelect.innerHTML = '<option value="">Загрузка...</option>';
 
         try {
-            const res = await fetch(`/TeacherPerAcc/GetClassesBySubject?subjectId=${encodeURIComponent(subjectValue)}`);
+            const res = await fetch(`/TeacherPerAcc/GetClassesBySubject?subjectId=${encodeURIComponent(subjectValue)}&academicId=${academicId}`);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
             const classes = await res.json();
@@ -47,5 +47,5 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     bindSubjectToClasses("subjectSelectCreate", "classSelectCreate");
-    bindSubjectToClasses("subjectSelectHistory", "classSelectHistory");
+    bindSubjectToClasses("subjectSelectHistory", "parentStudentSubjectId");
 });

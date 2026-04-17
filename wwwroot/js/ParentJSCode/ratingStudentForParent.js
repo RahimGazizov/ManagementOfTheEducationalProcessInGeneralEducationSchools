@@ -1,45 +1,10 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
-    const classId = document.getElementById("classIdForRating");
-    if (!classId) { console.log("Элемент класса не найден"); return; }
-
-    classId.addEventListener("change", async function () {
-        const classData = this.value;
-
-        const res = await fetch(`/StudentPerAcc/GetClassData?classId=${classData}`);
-        if (!res.ok) {
-            console.log("Ошибка данные не загружены");
-            return;
-        }
-
-        const data = await res.json();
-        if (data.academicYear) {
-            document.getElementById("academicForRating").value = data.academicYear.name;
-            document.getElementById("academicIdForRating").value = data.academicYear.id;
-        }
-
-        const termsList = document.getElementById("termIdForRating");
-
-        termsList.innerHTML = "";
-
-        data.terms.forEach(t => {
-            const option = document.createElement("option");
-            option.value = t.id;
-            option.text = t.name;
-            termsList.appendChild(option);
-        });
-        termsList.disabled = false;
-    });
-    document.getElementById("showRatingBtn").addEventListener("click", async function () {
-        console.log("ButtonClick");
-        const studentId = document.getElementById("studentIdForRating").value;
-        const classId = document.getElementById("classIdForRating").value;
-        const academicId = document.getElementById("academicIdForRating").value;
-        const termId = document.getElementById("termIdForRating").value;
-        const resultBlock = document.getElementById("resultRatingForStudent");
-        //if (!studentId || !classId || !academicId || !termId) {
-        //    console.log("Не все данные заполнены");
-        //    return;
-        //}
+    document.getElementById("resultBtnRating").addEventListener("click", async function () {
+        const classId = document.getElementById("classIdForRatingParent").value;
+        const studentId = document.getElementById("parentStudentIdForRating").value;
+        const academicId = document.getElementById("academicIdForRatingParent").value;
+        const termId = document.getElementById("termIdForRatingParent").value;
+        const resultBlock = document.getElementById("resultRatingForParent");
         const params = new URLSearchParams({
             studentId,
             classId,
@@ -55,7 +20,6 @@
             console.log("Данные с сервера пусты", res);
             return;
         }
-        console.log("Data", res);
         const data = await res.json();
         let top3Html = "";
         let top3Parallel = "";
@@ -79,7 +43,7 @@
         });
         let html = `<h4>Рейтинг класса</р4>
         <div class="result-item">
-        <span>Ваше место в классе:</span>
+        <span>Место вашего ребенка в классе:</span>
         <span>${data.currentUserRating.place}/${data.totalStudent}</span>
         </div>
         <div class="result-item">
@@ -101,7 +65,7 @@
         </div>
         <h4>Рейтинг среди параллельных классов</р4>
         <div class="result-item">
-        <span>Ваше место в среди параллельных классов:</span>
+        <span>Место в среди параллельных классов вашего ребенка:</span>
         <span>${data.ratingParallel.currentUser.place}/${data.ratingParallel.totalStudentParallel}</span>
         </div>
         <div class="result-item">
@@ -125,5 +89,4 @@
         resultBlock.innerHTML = html;
         resultBlock.classList.add("showRating");
     });
-
 });

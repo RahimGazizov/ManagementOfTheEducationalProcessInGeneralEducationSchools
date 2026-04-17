@@ -24,10 +24,15 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
         {
             if (_context.Classes.FirstOrDefault(c => c.LetterClass == letterClass && c.NumClass == numClass) != null)
                 return OperationResultClass.Fail("Такой класс уже существует");
+            var currentAcademic = await _context.AcademicYear
+                .Where(s => s.StartDateYear <= DateTime.Now && DateTime.Now <= s.EndDateYear).FirstOrDefaultAsync();
+            if (currentAcademic == null)
+                return OperationResultClass.Fail("Добавьте учебный год");
             var classes = new Class
             {
                 NumClass = numClass,
-                LetterClass = letterClass
+                LetterClass = letterClass,
+                AcademicYearId = currentAcademic.Id
             };
             await _context.Classes.AddAsync(classes);
             await _context.SaveChangesAsync();

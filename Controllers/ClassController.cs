@@ -21,7 +21,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         public async Task<IActionResult> Index(string? error)
         {
             TempData["Error"] = error;
-            var classes = await _context.Classes.Include(c => c.Students).OrderBy(n => n.NumClass).ThenBy(c => c.LetterClass).ToListAsync();
+            var classes = await _context.Classes
+                .Include(c => c.Students)
+                .Include(s => s.AcademicYear)
+                .OrderBy(n => n.NumClass)
+                .ThenBy(c => c.LetterClass).ToListAsync();
             return View(classes);
         }
         [HttpPost]

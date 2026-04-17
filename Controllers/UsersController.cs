@@ -8,14 +8,14 @@ using InformationSystemOfASchoolIducationalPortal.Data;
 using Microsoft.AspNetCore.Authorization;
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
-    [Authorize(Roles = "Админ")]
+    //[Authorize(Roles = "Админ")]
     public class UsersController : Controller
     {
         private readonly UserManager<Users> _users;
         private readonly RoleManager<IdentityRole> _roles;
         private readonly CRUDUser _crudUser;
         private readonly AppDbContext _context;
-        
+
         public UsersController(UserManager<Users> users, RoleManager<IdentityRole> roles,
             CRUDUser crudUser, AppDbContext context)
         {
@@ -100,7 +100,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             return View(dto);
         }
         [HttpPost]
-        public async Task<IActionResult> EditUser(EditUserDTO dto,string returnUrl)
+        public async Task<IActionResult> EditUser(EditUserDTO dto, string returnUrl)
         {
             var result = await _crudUser.Edit(dto);
             if (!result.Succeeded)
@@ -118,7 +118,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             var user = await _users.FindByIdAsync(id);
             if (user == null)
                 return RedirectToAction(returnUrl, new { error = "Пользователь не найден" });
-            
+
             Random random = new Random();
             string temproryPassword = "Temp" + Convert.ToString(random.Next(1000, 9999)) + "!";
             ViewBag.TemproryPas = temproryPassword;
@@ -137,7 +137,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 return View();
             }
             return Redirect(returnUrl);
-        }   
+        }
         public async Task<JsonResult> GetLetterClass(int numClass)
         {
             var letters = await _context.Classes
@@ -159,6 +159,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         private async Task<List<IdentityRole>> GetRoles() => await _roles.Roles.ToListAsync();
         private async Task<List<Users>> GetUsersList() => await _users.Users.ToListAsync();
-       
+
     }
 }

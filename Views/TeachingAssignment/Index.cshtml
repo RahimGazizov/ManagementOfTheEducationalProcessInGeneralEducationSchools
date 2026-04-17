@@ -15,6 +15,7 @@
                 <th>ФИО учителя</th>
                 <th>Класс</th>
                 <th>Предмет</th>
+                <th>Учебный год</th>
                 <th>Действие</th>
             </tr>
         </thead>
@@ -27,6 +28,7 @@
                         <td>@assigment.Teacher.User.FullName</td>
                         <td>@assigment.Class.NumClass@assigment.Class.LetterClass</td>
                         <td>@assigment.Subject.Name</td>
+                        <td>@assigment.AcademicYear.Name</td>
                         <td>
                             <div class="action">
                                 <form method="post" asp-action="Delete" asp-route-id="@assigment.Id">

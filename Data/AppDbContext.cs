@@ -47,8 +47,18 @@ namespace InformationSystemOfASchoolIducationalPortal.Data
                 .HasForeignKey<Admins>(s => s.UserId)
                 .IsRequired();
             modelBuilder.Entity<Parents>()
-    .HasMany(p => p.Students)
-    .WithMany(s => s.Parents);
+     .HasMany(p => p.Students)
+     .WithMany(s => s.Parents)
+     .UsingEntity<Dictionary<string, object>>(
+         "ParentsStudents",
+         j => j
+             .HasOne<Students>()
+             .WithMany()
+             .HasForeignKey("StudentsId"),
+         j => j
+             .HasOne<Parents>()
+             .WithMany()
+             .HasForeignKey("ParentsId"));
         }
     }
 

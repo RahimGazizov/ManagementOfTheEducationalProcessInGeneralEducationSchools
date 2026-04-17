@@ -108,7 +108,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                      Grade = (double)s.Grade,
                      LessonDate = s.Journal.Date,
                  }).ToListAsync();
-            if (grades == null)
+            if (!grades.Any())
                 return 0;
             var currentAvg = grades.Average(s => s.Grade);
 

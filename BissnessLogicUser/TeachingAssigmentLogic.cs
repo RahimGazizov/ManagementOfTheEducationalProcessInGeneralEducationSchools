@@ -3,6 +3,7 @@ using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Emit;
+using static InformationSystemOfASchoolIducationalPortal.BissnessLogicUser.CRUDClass;
 namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
 {
     public class TeachingAssigmentLogic
@@ -44,11 +45,16 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                a.SubjectId == assigment.SubjectId && a.ClassId == assigment.ClassId);
             if (exists)
                 return OperationResult.Fail("Такая сущность уже есть");
+            var currentAcademic = await _context.AcademicYear
+                .Where(s => s.StartDateYear <= DateTime.Now && DateTime.Now <= s.EndDateYear).FirstOrDefaultAsync();
+            if (currentAcademic == null)
+                return OperationResult.Fail("Добавьте учебный год");
             var newAssigment = new TeacherAssigment
             {
                 TeacherId = assigment.TeacherId,
                 SubjectId = assigment.SubjectId,
                 ClassId = assigment.ClassId,
+                AcademicId = currentAcademic.Id,
             };
             _context.TeacherAssigments.Add(newAssigment);
             await _context.SaveChangesAsync();

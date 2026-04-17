@@ -61,12 +61,6 @@
                 </select>
             </div>
             <div class="form_row">
-                <label>Класс:</label>
-                <select id="classSelectHistory" disabled>
-                    <option>Сначала выберите предмет</option>
-                </select>
-            </div>
-            <div class="form_row">
                 <label>Учебный год</label>
                 <select id="academicYear">
                     @if (academicList != null && academicList.Any())
@@ -89,7 +83,12 @@
                     }
                 </select>
             </div>
-
+            <div class="form_row">
+                <label>Класс:</label>
+                <select id="classSelectHistory" disabled>
+                    <option>Сначала выберите предмет</option>
+                </select>
+            </div>
             <div class="form_row">
                 <label>Четверть</label>
                 <select id="term">

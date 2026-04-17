@@ -15,7 +15,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.23");
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.25");
 
             modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.AcademicYear", b =>
                 {
@@ -59,6 +59,10 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("AcademicYearId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("LetterClass")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -67,6 +71,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AcademicYearId");
 
                     b.ToTable("Classes");
                 });
@@ -313,6 +319,10 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("AcademicId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ClassId")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -326,6 +336,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AcademicId");
 
                     b.HasIndex("ClassId");
 
@@ -607,6 +619,17 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.Class", b =>
+                {
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.AcademicYear", "AcademicYear")
+                        .WithMany()
+                        .HasForeignKey("AcademicYearId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AcademicYear");
+                });
+
             modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.Journal", b =>
                 {
                     b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.AcademicYear", "AcademicYear")
@@ -773,6 +796,12 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
 
             modelBuilder.Entity("InformationSystemOfASchoolIducationalPortal.Models.TeacherAssigment", b =>
                 {
+                    b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.AcademicYear", "AcademicYear")
+                        .WithMany()
+                        .HasForeignKey("AcademicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.Class", "Class")
                         .WithMany()
                         .HasForeignKey("ClassId")
@@ -790,6 +819,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("AcademicYear");
 
                     b.Navigation("Class");
 

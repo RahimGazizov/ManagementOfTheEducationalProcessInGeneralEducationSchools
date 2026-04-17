@@ -1,4 +1,6 @@
-﻿namespace InformationSystemOfASchoolIducationalPortal.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace InformationSystemOfASchoolIducationalPortal.Models
 {
     public class TeacherAssigment
     {
@@ -11,5 +13,8 @@
 
         public string ClassId { get; set; }
         public Class Class { get; set; }
+        public string AcademicId { get; set; }
+        [ForeignKey("AcademicId")]
+        public AcademicYear AcademicYear { get; set; }
     }
 }

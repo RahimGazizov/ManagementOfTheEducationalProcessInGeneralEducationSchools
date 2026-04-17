@@ -1,10 +1,14 @@
-﻿using InformationSystemOfASchoolIducationalPortal.Data;
+﻿using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
+using InformationSystemOfASchoolIducationalPortal.Data;
 using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
 using Microsoft.EntityFrameworkCore;
 using SQLitePCL;
+using System.Threading.Tasks;
 
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
@@ -12,17 +16,25 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
     public class ParentsController : Controller
     {
         private readonly AppDbContext _context;
-        public ParentsController(AppDbContext context)
+        private readonly CRUDUser _crudUser;
+        private readonly UserManager<Users> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public ParentsController(AppDbContext context, CRUDUser crudUser, UserManager<Users> userManager,
+            RoleManager<IdentityRole> roleManager)
         {
             _context = context;
+            _crudUser = crudUser;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
         // GET: ParentsController
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? error)
         {
+            TempData["Error"] = error;
             var parents = await _context.Parent
     .Include(p => p.User)
-    .Include(p => p.Students) 
-        .ThenInclude(s => s.User) 
+    .Include(p => p.Students)
+        .ThenInclude(s => s.User)
         .Include(s => s.Students)
         .ThenInclude(s => s.Class)
     .ToListAsync();
@@ -61,7 +73,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         public async Task<IActionResult> AddChild(string parentId, string studentId)
         {
-            
+
             var parent = await _context.Parent.Include(s => s.Students).FirstOrDefaultAsync(s => s.Id == parentId);
             if (parent == null)
                 return BadRequest();
@@ -69,12 +81,18 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             if (student == null)
                 return BadRequest();
             parent.Students.Add(student);
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(parent.Students == null ? "null" : "notnull");
-            Console.ForegroundColor = ConsoleColor.White;
             await _context.SaveChangesAsync();
 
             return Ok();
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteChild(string parentId, string studentId)
+        {
+            var existParent = await _context.Parent.Include(s => s.Students).FirstOrDefaultAsync(s => s.Id == parentId);
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.Id == studentId);
+            existParent.Students.Remove(student);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
         }
     }
 }
