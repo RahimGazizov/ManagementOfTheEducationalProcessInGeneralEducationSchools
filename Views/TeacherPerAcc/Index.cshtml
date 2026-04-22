@@ -61,55 +61,9 @@
                 </select>
             </div>
             <div class="form_row">
-                <label>Учебный год</label>
-                <select id="academicYear">
-                    @if (academicList != null && academicList.Any())
-                    {
-                        @foreach (var a in academicList)
-                        {
-                            if (a.Value == ViewBag.CurrentYear?.Id)
-                            {
-                                <option value="@a.Value" selected>@a.Text</option>
-                            }
-                            else
-                            {
-                                <option value="@a.Value">@a.Text</option>
-                            }
-                        }
-                    }
-                    else
-                    {
-                        <input type="text" value="Учебного года пока нет" readonly>
-                    }
-                </select>
-            </div>
-            <div class="form_row">
                 <label>Класс:</label>
                 <select id="classSelectHistory" disabled>
                     <option>Сначала выберите предмет</option>
-                </select>
-            </div>
-            <div class="form_row">
-                <label>Четверть</label>
-                <select id="term">
-                    @if (termList != null && termList.Any())
-                    {
-                        @foreach (var a in termList)
-                        {
-                            if (a.Value == ViewBag.CurrentTerm?.Id)
-                            {
-                                <option value="@a.Value" selected>@a.Text</option>
-                            }
-                            else
-                            {
-                                <option value="@a.Value">@a.Text</option>
-                            }
-                        }
-                    }
-                    else
-                    {
-                        <input type="text" value="Четверти еще не добавлены" readonly>
-                    }
                 </select>
             </div>
             <div class="form_row">
@@ -283,5 +237,5 @@
         }
     }
 </script>
-<script src="/js/getClassesForTeachers.js"></script>
-<script src="~/js/journalForTeacher.js"></script>
+<script src="/js/classesForTeacherGet.js"></script>
+<script src="/js/journalsForTeachers.js"></script>

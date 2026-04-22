@@ -55,7 +55,7 @@
                         <td>
                             <div class="action">
                                 <a id="btnAddChild" class="btn_add btnAdChild" data-parent-id="@par.Id" style="cursor: pointer;">Добавить ученика</a>
-                                <a asp-action="Delete" asp-route-id="@par.UserId"
+                                <a asp-controller="Users" asp-action="Delete" asp-route-id="@par.UserId" asp-route-returnUrl="@Url.Action("Index","Parents")"
                                    onsubmit="return confirm('Вы уверены что хотите удалить?')" class="btn_del" style="cursor: pointer;">
                                     Удалить
                                 </a>

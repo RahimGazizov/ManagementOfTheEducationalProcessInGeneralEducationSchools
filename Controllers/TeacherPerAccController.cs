@@ -43,15 +43,14 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             ViewBag.ListSubjects = await _perAccLogic.GetListSubjects(userId);
             return View(teacher);
         }
-        public async Task<IActionResult> GetClassesBySubject(string subjectId, string academicId)
+        public async Task<IActionResult> GetClassesBySubject(string subjectId)
         {
-            string currentAcademic = academicId;
-            if (currentAcademic == null)
+            string currentAcademic = await _context.AcademicYear
+                .Where(d => DateTime.Now >= d.StartDateYear && DateTime.Now <= d.EndDateYear)
+                .Select(d => d.Id)
+                .FirstOrDefaultAsync() ?? "";
+            if (string.IsNullOrWhiteSpace(currentAcademic))
             {
-                currentAcademic = await _context.AcademicYear
-                    .Where(d => d.StartDateYear <= DateTime.Now && d.EndDateYear >= DateTime.Now)
-                    .Select(i => i.Id)
-                    .FirstOrDefaultAsync();
                 if (currentAcademic == null)
                     return View("Index", new { error = "Учебный год не создан" });
             }
@@ -69,10 +68,18 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 .ToListAsync();
             return Json(classses);
         }
-        public async Task<IActionResult> JournalHistory(string subjectId, string classId, string academicId, string termId)
+        public async Task<IActionResult> JournalHistory(string subjectId, string classId)
         {
             var userId = _userMan.GetUserId(User);
-            var journals = await _perAccLogic.GetListJournals(userId, subjectId, classId, academicId, termId);
+            string currentAcademic = await _context.AcademicYear
+                .Where(d => DateTime.Now >= d.StartDateYear && DateTime.Now <= d.EndDateYear)
+                .Select(d => d.Id)
+                .FirstOrDefaultAsync() ?? "";
+            string currentTerm = await _context.Term
+                .Where(d => d.AcademicYearId == currentAcademic && d.DateStartTerm <= DateTime.Now && DateTime.Now <= d.DateEndTerm)
+                .Select(d => d.Id)
+                .FirstOrDefaultAsync() ?? "";
+            var journals = await _perAccLogic.GetListJournals(userId, subjectId, classId, currentAcademic, currentTerm);
             var journalList = journals
     .Select(j => new
     {

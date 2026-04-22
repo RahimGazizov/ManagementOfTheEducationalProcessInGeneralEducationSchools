@@ -2,12 +2,11 @@
 
     const subjectHistory = document.getElementById("subjectSelectHistory");
     const classHistory = document.getElementById("classSelectHistory");
-    const academicYear = document.getElementById("academicYear");
-    const terms = document.getElementById("term");
+
     const journalsList = document.getElementById("journalsList");
 
     // если модалка/элементы не на этой странице — просто выходим
-    if (!subjectHistory || !classHistory || !academicYear || !terms || !journalsList) {
+    if (!subjectHistory || !classHistory || !journalsList) {
         return;
     }
 
@@ -32,8 +31,6 @@
         const params = new URLSearchParams();
         params.append("subjectId", subjectId);
         params.append("classId", classId);
-        params.append("academicId", academicYear.value);
-        params.append("termId", terms.value);
 
         setListText("Загрузка...");
 
@@ -83,6 +80,4 @@
     }
 
     classHistory.addEventListener("change", loadJournals);
-    academicYear.addEventListener("change", loadJournals);
-    terms.addEventListener("change", loadJournals);
 });

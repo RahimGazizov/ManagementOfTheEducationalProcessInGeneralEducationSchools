@@ -2,8 +2,9 @@
     const studentId = document.getElementById(student);
     const journalList = document.getElementById(journalListForStudent);
     const subjectSelect = document.getElementById(subjectList);
-    if (!studentId || !subjectSelect) {
-        console.log("Айди студента пуст или предмета пуст"); return;
+    if (!studentId || !subjectSelect || !journalList) {
+        console.log("studentId, subjectSelect или journalList не найден");
+        return;
     }
     else {
         LoadSub();
@@ -45,7 +46,11 @@
 
         try {
             const res = await fetch(`/StudentPerAcc/JournalSet?${params.toString()}`);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            if (!res.ok) {
+                const errorText = await res.text();
+                console.error("Ошибка сервера:", errorText);
+                throw new Error(`HTTP ${res.status}`);
+            }
 
             const journals = await res.json();
             if (!journals || journals.length === 0) {
@@ -85,6 +90,6 @@
     subjectSelect.addEventListener("change", loadJournals);
 }
 document.addEventListener("DOMContentLoaded", () => {
-    JournalsInfo("studentID", "subjectSelectHistory","journalListForStudent");
-    JournalsInfo("parentStudentId", "parentStudentSubjectId","journalListForParent");
+    JournalsInfo("studentID", "subjectSelectHistory", "journalListForStudent");
+    JournalsInfo("parentStudentId", "parentStudentSubjectId", "journalListForParent");
 });

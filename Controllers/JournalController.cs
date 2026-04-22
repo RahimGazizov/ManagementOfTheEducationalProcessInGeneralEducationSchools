@@ -132,6 +132,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
 
                 }
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Журнал успешно сохранен";
                 return RedirectToAction("Edit", new { id = journal.Id });
             }
             catch (Exception ex)

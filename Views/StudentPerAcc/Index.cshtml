@@ -69,7 +69,7 @@
 @*Модель просмотра журнала*@
 <div id="openModalForm" class="modal">
     <div class="modal-content">
-        <input type="hidden" name="studentId" id="studentID" value="@Model.Student.Id" />
+        <input type="hidden" id="studentID" value="@Model.Student.Id" />
         <label>Предмет</label>
         <select id="subjectSelectHistory">
             <option>Выберите предмет</option>
@@ -337,8 +337,8 @@
     }
 </script>
 <link rel="stylesheet" href="/css/studentPerAcc.css" />
-<script src="/js/studentJSCode/journalsForParentsAndStudents.js"></script>
 <script src="/js/studentJSCode/getInfoAboutClass.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/js/studentJSCode/dataForGraph.js"></script>
 <script src="/js/studentJSCode/ratingStudents.js"></script>
+<script src="/js/studentJSCode/journalListForStudentAndParent.js"></script>

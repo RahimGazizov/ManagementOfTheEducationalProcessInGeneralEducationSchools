@@ -11,6 +11,10 @@
         {
             <p>@TempData["Error"]</p>
         }
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div id="successMessage" class="success-message">@TempData["SuccessMessage"]</div>
+        }
         <form method="post" asp-controller="Journal" asp-action="SaveJournal">
             <input type="hidden" asp-for="Id" value="@Model.Id" />
             <div class="action">
@@ -228,4 +232,27 @@ else {
         font-weight: 600;
         margin-bottom: 10px;
     }
+
+    .success-message {
+        position: fixed;
+        top: 25px;
+        right: 25px;
+        background: #2ecc71;
+        color: white;
+        padding: 14px 22px;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 9999;
+    }
 </style>
+
+<script>
+    setTimeout(function(){
+        const message = document.getElementById("successMessage");
+        if(message){
+            message.style.display = "none";
+        }
+    }, 5000);
+</script>

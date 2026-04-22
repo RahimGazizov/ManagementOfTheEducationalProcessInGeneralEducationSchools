@@ -71,32 +71,44 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         [HttpGet]
         public async Task<IActionResult> JournalSet(string studentId, string subjectId)
         {
+            if (string.IsNullOrWhiteSpace(studentId) || string.IsNullOrWhiteSpace(subjectId))
+                return BadRequest(new { message = "studentId или subjectId пустой" });
+
             var currentAcademic = await _context.AcademicYear
-                .Where(d => DateTime.Now >= d.StartDateYear && DateTime.Now <= d.EndDateYear)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(d => DateTime.Now >= d.StartDateYear && DateTime.Now <= d.EndDateYear);
+
             if (currentAcademic == null)
-                return View("Index", new { error = "Учебный год не был добавлен" });
+                return BadRequest(new { message = "Учебный год не был добавлен" });
+
             var currentTerm = await _context.Term
-              .Where(d => DateTime.Now >= d.DateStartTerm && DateTime.Now <= d.DateEndTerm)
-              .FirstOrDefaultAsync();
-            if(currentTerm == null)
-                return View("Index", new { error = "Четверть не была добавлена" });
+                .FirstOrDefaultAsync(d => d.AcademicYearId == currentAcademic.Id &&
+                DateTime.Today >= d.DateStartTerm && DateTime.Today <= d.DateEndTerm);
+            Console.WriteLine($"TermName - {currentTerm.Name}");
+            if (currentTerm == null)
+                return BadRequest(new { message = "Четверть не была добавлена" });
+
             var student = await _context.Students.FirstOrDefaultAsync(s => s.Id == studentId);
+
+            if (student == null)
+                return NotFound(new { message = "Студент не найден" });
+
             if (student.ClassId == null)
-                return View("Index", new { error = "Вам не назначили класс" });
-            var journals = await _context.Journal
-                 .Where(j => j.SubjectId == subjectId && j.ClassId == student.ClassId &&
-                 j.AcademicYearId == currentAcademic.Id && j.TermId == currentTerm.Id)
-                 .Include(s => s.Subject)
-                 .Include(s => s.AcademicYear)
-                 .Include(s => s.Term)
-                 .ToListAsync();
-            var journalList = journals.Select(j => new
-            {
-                id = j.Id,
-                subjectName = j.Subject.Name,
-                date = j.Date
-            }).OrderByDescending(x => x.date).ToList();
+                return BadRequest(new { message = "Студенту не назначен класс" });
+
+            var journalList = await _context.Journal
+                .Where(j => j.SubjectId == subjectId
+                    && j.ClassId == student.ClassId
+                    && j.AcademicYearId == currentAcademic.Id
+                    && j.TermId == currentTerm.Id)
+                .Include(j => j.Subject)
+                .OrderByDescending(j => j.Date)
+                .Select(j => new
+                {
+                    id = j.Id,
+                    subjectName = j.Subject.Name,
+                    date = j.Date
+                })
+                .ToListAsync();
 
             return Json(journalList);
         }
