@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
-    [Authorize(Roles = "Ученик")]
+    [Authorize(Roles = "Ученик, Родитель")]
     public class ScheduleForStudentController : Controller
     {
         private readonly UserManager<Users> _userManager;
@@ -20,10 +20,16 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             _userManager = userManager;
             _scheduleLogic = scheduleForStudentLogic;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? studentId)
         {
-            var userId = _userManager.GetUserId(User);
-            var student = await _context.Students.Include(u => u.User).FirstOrDefaultAsync(u => u.UserId == userId);
+            Students student;
+            if (string.IsNullOrWhiteSpace(studentId))
+            {
+                var userId = _userManager.GetUserId(User);
+                student = await _context.Students.Include(u => u.User).FirstOrDefaultAsync(u => u.UserId == userId);
+            }
+            else
+                student = await _context.Students.Include(u => u.User).FirstOrDefaultAsync(u => u.Id == studentId);
             return View(student);
         }
         public async Task<IActionResult> ScheduleLesson(string dayOfWeek, string studentId)

@@ -18,6 +18,8 @@ builder.Services.AddScoped<TermLogic>();
 builder.Services.AddScoped<ScheduleLogic>();
 builder.Services.AddScoped<AcademicYearLogic>();
 builder.Services.AddScoped<ScheduleForStudentLogic>();
+builder.Services.AddScoped<ParentPerAccLogic>();
+builder.Services.AddScoped<ActionLogService>();
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {

@@ -21,6 +21,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Data
         public DbSet<Term> Term { get; set; }
         public DbSet<StudentsHistory> StudentsHistory { get; set; }
         public DbSet<Parents> Parent { get; set; }
+        public DbSet<ActionLog> ActionLog { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

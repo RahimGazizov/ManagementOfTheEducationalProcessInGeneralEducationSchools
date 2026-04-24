@@ -8,10 +8,12 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
     {
         private readonly UserManager<Users> _users;
         private readonly AppDbContext _context;
-        public CRUDUser(UserManager<Users> users, AppDbContext context)
+        private readonly ActionLogService _actionLogService;
+        public CRUDUser(UserManager<Users> users, AppDbContext context, ActionLogService actionLogService)
         {
             _users = users;
             _context = context;
+            _actionLogService = actionLogService;
         }
         public class OperationResult
         {
@@ -52,8 +54,6 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                         await _users.DeleteAsync(user);
                         return OperationResult.Fail($"Класс {studentCount.NumClass + studentCount.LetterClass} полный." + " Больше нельзя добавлять");
                     }
-                    _context.Students.Add(student);
-                    await _context.SaveChangesAsync();
                     var dayToday = DateTime.Now;
                     var currentYear = await _context.AcademicYear
                         .Where(d => d.StartDateYear <= dayToday && dayToday <= d.EndDateYear)
@@ -65,7 +65,9 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                         return OperationResult.Fail("Не найден текущий учебный год");
                     if (currentTerm == null)
                         return OperationResult.Fail("Не найдена текущая четверть");
-                   
+
+                    _context.Students.Add(student);
+                    await _context.SaveChangesAsync();
                     var studentHistory = new StudentsHistory
                     {
                         StudentId = student.Id,
@@ -75,6 +77,11 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     };
                     _context.StudentsHistory.Add(studentHistory);
                     await _context.SaveChangesAsync();
+                    await _actionLogService.LogAsync(
+                             action: "Создание ученика",
+                             entityName: "Student",
+                             entityId: student.Id,
+                             details: $"Создан ученик: {user.FullName}. Логин: {user.UserName}. UserId: {user.Id}. Назначена роль: Ученик");
                 }
                 if (createUser.Role == "Учитель")
                 {
@@ -84,6 +91,11 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     };
                     _context.Teachers.Add(teacher);
                     await _context.SaveChangesAsync();
+                    await _actionLogService.LogAsync(
+                             action: "Создание учителя",
+                             entityName: "Teachers",
+                             entityId: teacher.Id,
+                             details: $"Создан учитель: {user.FullName}. Логин: {user.UserName}. UserId: {user.Id}. Назначена роль: Учитель");
                 }
                 if (createUser.Role == "Админ")
                 {
@@ -93,8 +105,13 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     };
                     _context.Admins.Add(admin);
                     await _context.SaveChangesAsync();
+                    await _actionLogService.LogAsync(
+                             action: "Создание админа",
+                             entityName: "Admins",
+                             entityId: admin.Id.ToString(),
+                             details: $"Создан админ: {user.FullName}. Логин: {user.UserName}. UserId: {user.Id}. Назначена роль: Админ");
                 }
-                if(createUser.Role == "Родитель")
+                if (createUser.Role == "Родитель")
                 {
                     var parent = new Parents
                     {
@@ -102,6 +119,11 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     };
                     _context.Parent.Add(parent);
                     await _context.SaveChangesAsync();
+                    await _actionLogService.LogAsync(
+                             action: "Создание Родителя",
+                             entityName: "Parents",
+                             entityId: parent.Id,
+                             details: $"Создан родитель: {user.FullName}. Логин: {user.UserName}. UserId: {user.Id}. Назначена роль: Родитель");
                 }
                 if (createUser.Role == "АдмнистрацияШколы")
                 {
@@ -111,6 +133,11 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     };
                     _context.Administrations.Add(schoolAdmin);
                     await _context.SaveChangesAsync();
+                    await _actionLogService.LogAsync(
+                             action: "Создание администрации школы",
+                             entityName: "AdministrationOfSchool",
+                             entityId: schoolAdmin.Id,
+                             details: $"Создан администрация школы: {user.FullName}. Логин: {user.UserName}. UserId: {user.Id}. Назначена роль: Ученик");
                 }
                 return OperationResult.Ok();
             }
@@ -171,7 +198,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     }
                     else
                         return OperationResult.Fail("Пользователь не найден");
-                    var exists =  _context.StudentsHistory
+                    var exists = _context.StudentsHistory
                        .Any(d => d.ClassId == dto.StudentClassId);
                     if (!exists)
                     {

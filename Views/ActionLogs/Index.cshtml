@@ -1,0 +1,45 @@
+﻿@model List<ActionLog>
+
+@{
+    ViewData["Title"] = "Логи действий";
+}
+
+<div class="conteiner">
+    <h3>Логи действий пользователей</h3>
+@* 
+    <form method="get" class="filter-box">
+        <input type="text" name="search" placeholder="Поиск по пользователю или действию" />
+
+        <input type="date" name="dateFrom" />
+        <input type="date" name="dateTo" />
+
+        <button type="submit">Найти</button>
+    </form> *@
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Пользователь</th>
+                <th>Роль</th>
+                <th>Действие</th>
+                <th>Объект</th>
+                <th>Детали</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in Model)
+            {
+                <tr>
+                    <td>@log.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@log.UserName</td>
+                    <td>@log.Role</td>
+                    <td>@log.Action</td>
+                    <td>@log.EntityName</td>
+                    <td>@log.Details</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<link rel="stylesheet" href="/css/StyleForActionLogs.css">

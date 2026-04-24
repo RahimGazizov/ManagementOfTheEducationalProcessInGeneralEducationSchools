@@ -10,5 +10,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Models
         public bool IsJournalError { get; set; } = false;
         public bool IsRatingError { get; set; } = false;
         public bool IsAvgGrade { get; set; } = false;
+        public bool IsSchedule { get; set; } = false;
     }
 }

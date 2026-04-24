@@ -3,6 +3,7 @@
     initModal("btnOpenModalAvgScore", "modelAvgGradeForParent");
     initModal("btnOpenModalGraph", "graphModalForParent");
     initModal("btnOpenModalRating", "ratingModalForParent");
+    initModal("scheduleStudentForParent", "scheduleModal");
 });
 
 function initModal(btnId, modalId) {

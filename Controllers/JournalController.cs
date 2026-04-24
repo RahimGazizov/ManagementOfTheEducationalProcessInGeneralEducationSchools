@@ -21,9 +21,17 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         {
             try
             {
-                var dayToday = DateTime.Now;
+                var dayToday = DateTime.Today;
                 var currentYear = await GetAcademicYear(dayToday);
-                var currentTerm = await GetTerm(dayToday);
+                var currentTerm = await GetTerm(dayToday, currentYear.Id);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Teacher-id - {teacherId}");
+                Console.WriteLine($"Subject-id - {subjectId}");
+                Console.WriteLine($"CLass-id - {classId}");
+                Console.WriteLine($"CurrentYear-id - {currentYear.Id}");
+                Console.WriteLine($"Current-id - {currentTerm.Id}");
+                Console.ForegroundColor = ConsoleColor.White;
+                
                 if (currentYear == null)
                 {
                     TempData["Error"] = "Не найден текущий учебный год";
@@ -162,8 +170,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         private async Task<AcademicYear?> GetAcademicYear(DateTime dayToday) => await _context.AcademicYear
                 .Where(d => d.StartDateYear <= dayToday && dayToday <= d.EndDateYear)
                 .FirstOrDefaultAsync();
-        private async Task<Term?> GetTerm(DateTime dayToday) => await _context.Term
-           .Where(d => d.DateStartTerm <= dayToday && dayToday <= d.DateEndTerm)
+        private async Task<Term?> GetTerm(DateTime dayToday, string currentId) => await _context.Term
+           .Where(d => d.AcademicYearId == currentId && d.DateStartTerm <= dayToday && dayToday <= d.DateEndTerm)
            .FirstOrDefaultAsync();
     }
 }
