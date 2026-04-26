@@ -8,9 +8,11 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
     public class CRUDClass
     {
         private readonly AppDbContext _context;
-        public CRUDClass(AppDbContext context)
+        private readonly ActionLogService _actionLogService;
+        public CRUDClass(AppDbContext context, ActionLogService actionLogService)
         {
             _context = context;
+            _actionLogService = actionLogService;
         }
         public class OperationResultClass
         {
@@ -36,6 +38,11 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             };
             await _context.Classes.AddAsync(classes);
             await _context.SaveChangesAsync();
+            await _actionLogService.LogAsync(
+         action: "Создание класса",
+         entityName: "Class",
+         entityId: classes.Id,
+         details: $"Создан класс: {classes.NumClass}-{classes.LetterClass}.");
             return OperationResultClass.OK();
         }
         public async Task<OperationResultClass> Delete(string id)
@@ -43,9 +50,15 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             var _class = await _context.Classes.FirstOrDefaultAsync(i => i.Id == id);
             if (_class == null)
                 return OperationResultClass.Fail("Класс не найден");
-
+            var oldClassName = $"{_class.NumClass}-{_class.LetterClass}";
+            var classID = _class.Id;
             _context.Classes.Remove(_class);
             await _context.SaveChangesAsync();
+            await _actionLogService.LogAsync(
+      action: "Удаление класса",
+         entityName: "Class",
+         entityId: classID,
+         details: $"Удален класс: {oldClassName}.");
             return OperationResultClass.OK();
         }
         public async Task<OperationResultClass> Edit(string id, int numClass, string letterClass)
@@ -55,10 +68,16 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 return OperationResultClass.Fail("Класс не найден");
             if (_context.Classes.FirstOrDefault(c => c.LetterClass == letterClass && c.NumClass == numClass) != null)
                 return OperationResultClass.Fail("Такой класс уже существует");
+            var oldClassName = $"{cls.NumClass}-{cls.LetterClass}";
             cls.NumClass = numClass;
             cls.LetterClass = letterClass;
             _context.Classes.Update(cls);
             await _context.SaveChangesAsync();
+            await _actionLogService.LogAsync(
+      action: "Редактирование класса",
+         entityName: "Class",
+         entityId: cls.Id,
+         details: $"Изменен класс: {oldClassName} → {cls.NumClass}-{cls.LetterClass}.");
             return OperationResultClass.OK();
         }
     }

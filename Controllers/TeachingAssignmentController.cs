@@ -69,22 +69,18 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 ViewBag.ListTeachers = await _assigmentLogic.GetListTeachers();
                 ViewBag.ListSubjects = await _assigmentLogic.GetListSubjects();
                 var assig = await GetTeachingAssigment(assigment.Id);
+                if (assig == null)
+                    return RedirectToAction("Index", new {error = "Запись не найдена для редактирование" });
                 return View(assig);
             }
             return RedirectToAction("Index");
         }
         public async Task<IActionResult> Delete(string id)
         {
-            var assigment = await _context.TeacherAssigments.FindAsync(id);
-            if (assigment != null)
-            {
-                _context.TeacherAssigments.Remove(assigment);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                return RedirectToAction("Index", new {error = "Данные не найдены"});
-            }
+            var result = await _assigmentLogic.Delete(id);
+            if (result.Success)
+                return RedirectToAction("Index", new { error = result.Message });
+ 
             return RedirectToAction("Index");
         }
         private async Task<TeacherAssigment> GetTeachingAssigment(string id)

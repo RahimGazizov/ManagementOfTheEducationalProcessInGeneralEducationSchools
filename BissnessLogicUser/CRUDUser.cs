@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using InformationSystemOfASchoolIducationalPortal.Data;
 using InformationSystemOfASchoolIducationalPortal.Models;
-using InformationSystemOfASchoolIducationalPortal.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
 {
     public class CRUDUser
@@ -24,10 +25,48 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
         }
         public async Task<OperationResult> AddUser(CreateUser createUser)
         {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
                 if (createUser == null)
                     return OperationResult.Fail("Ошибка создания пользователя");
+
+                if (string.IsNullOrWhiteSpace(createUser.Role))
+                    return OperationResult.Fail("Роль пользователя не указана");
+
+                var dayToday = DateTime.Now;
+
+                Class? studentClass = null;
+                AcademicYear? currentYear = null;
+                Term? currentTerm = null;
+
+                // Если создаём ученика — заранее проверяем класс, учебный год и четверть
+                if (createUser.Role == "Ученик")
+                {
+                    studentClass = await _context.Classes
+                        .Include(c => c.Students)
+                        .FirstOrDefaultAsync(c => c.Id == createUser.ClassId);
+
+                    if (studentClass == null)
+                        return OperationResult.Fail("Класс не найден");
+
+                    if (studentClass.Students.Count >= 30)
+                        return OperationResult.Fail($"Класс {studentClass.NumClass}-{studentClass.LetterClass} полный. Больше нельзя добавлять");
+
+                    currentYear = await _context.AcademicYear
+                        .FirstOrDefaultAsync(d => d.StartDateYear <= dayToday && dayToday <= d.EndDateYear);
+
+                    if (currentYear == null)
+                        return OperationResult.Fail("Не найден текущий учебный год");
+
+                    currentTerm = await _context.Term
+                        .FirstOrDefaultAsync(d => d.DateStartTerm <= dayToday && dayToday <= d.DateEndTerm);
+
+                    if (currentTerm == null)
+                        return OperationResult.Fail("Не найдена текущая четверть");
+                }
+
                 var user = new Users
                 {
                     FullName = createUser.FullName,
@@ -35,12 +74,17 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     BirthDate = createUser.BirthDate,
                     PhoneNumber = createUser.PhoneNumber,
                 };
+
                 var result = await _users.CreateAsync(user, createUser.Password);
+
                 if (!result.Succeeded)
                     return Errors(result);
+
                 var addRole = await _users.AddToRoleAsync(user, createUser.Role);
+
                 if (!addRole.Succeeded)
                     return Errors(addRole);
+
                 if (createUser.Role == "Ученик")
                 {
                     var student = new Students
@@ -48,101 +92,80 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                         UserId = user.Id,
                         ClassId = createUser.ClassId
                     };
-                    var studentCount = await _context.Classes.Include(s => s.Students).FirstOrDefaultAsync(c => c.Id == createUser.ClassId);
-                    if (studentCount.Students.Count == 30)
-                    {
-                        await _users.DeleteAsync(user);
-                        return OperationResult.Fail($"Класс {studentCount.NumClass + studentCount.LetterClass} полный." + " Больше нельзя добавлять");
-                    }
-                    var dayToday = DateTime.Now;
-                    var currentYear = await _context.AcademicYear
-                        .Where(d => d.StartDateYear <= dayToday && dayToday <= d.EndDateYear)
-                        .FirstOrDefaultAsync();
-                    var currentTerm = await _context.Term
-                       .Where(d => d.DateStartTerm <= dayToday && dayToday <= d.DateEndTerm)
-                       .FirstOrDefaultAsync();
-                    if (currentYear == null)
-                        return OperationResult.Fail("Не найден текущий учебный год");
-                    if (currentTerm == null)
-                        return OperationResult.Fail("Не найдена текущая четверть");
 
                     _context.Students.Add(student);
                     await _context.SaveChangesAsync();
+
                     var studentHistory = new StudentsHistory
                     {
                         StudentId = student.Id,
                         ClassId = createUser.ClassId,
-                        AcademicYearId = currentYear.Id,
-                        TermId = currentTerm.Id
+                        AcademicYearId = currentYear!.Id,
+                        TermId = currentTerm!.Id
                     };
+
                     _context.StudentsHistory.Add(studentHistory);
                     await _context.SaveChangesAsync();
-                    await _actionLogService.LogAsync(
-                             action: "Создание ученика",
-                             entityName: "Student",
-                             entityId: student.Id,
-                             details: $"Создан ученик: {user.FullName}. Логин: {user.UserName}. UserId: {user.Id}. Назначена роль: Ученик");
                 }
-                if (createUser.Role == "Учитель")
+                else if (createUser.Role == "Учитель")
                 {
                     var teacher = new Teachers
                     {
-                        UserId = user.Id,
+                        UserId = user.Id
                     };
+
                     _context.Teachers.Add(teacher);
                     await _context.SaveChangesAsync();
-                    await _actionLogService.LogAsync(
-                             action: "Создание учителя",
-                             entityName: "Teachers",
-                             entityId: teacher.Id,
-                             details: $"Создан учитель: {user.FullName}. Логин: {user.UserName}. UserId: {user.Id}. Назначена роль: Учитель");
                 }
-                if (createUser.Role == "Админ")
+                else if (createUser.Role == "Админ")
                 {
                     var admin = new Admins
                     {
                         UserId = user.Id
                     };
+
                     _context.Admins.Add(admin);
                     await _context.SaveChangesAsync();
-                    await _actionLogService.LogAsync(
-                             action: "Создание админа",
-                             entityName: "Admins",
-                             entityId: admin.Id.ToString(),
-                             details: $"Создан админ: {user.FullName}. Логин: {user.UserName}. UserId: {user.Id}. Назначена роль: Админ");
                 }
-                if (createUser.Role == "Родитель")
+                else if (createUser.Role == "Родитель")
                 {
                     var parent = new Parents
                     {
-                        UserId = user.Id,
+                        UserId = user.Id
                     };
+
                     _context.Parent.Add(parent);
                     await _context.SaveChangesAsync();
-                    await _actionLogService.LogAsync(
-                             action: "Создание Родителя",
-                             entityName: "Parents",
-                             entityId: parent.Id,
-                             details: $"Создан родитель: {user.FullName}. Логин: {user.UserName}. UserId: {user.Id}. Назначена роль: Родитель");
                 }
-                if (createUser.Role == "АдмнистрацияШколы")
+                else if (createUser.Role == "АдмнистрацияШколы")
                 {
                     var schoolAdmin = new SchoolAdministrations
                     {
-                        UserId = user.Id,
+                        UserId = user.Id
                     };
+
                     _context.Administrations.Add(schoolAdmin);
                     await _context.SaveChangesAsync();
-                    await _actionLogService.LogAsync(
-                             action: "Создание администрации школы",
-                             entityName: "AdministrationOfSchool",
-                             entityId: schoolAdmin.Id,
-                             details: $"Создан администрация школы: {user.FullName}. Логин: {user.UserName}. UserId: {user.Id}. Назначена роль: Ученик");
                 }
+                else
+                {
+                    return OperationResult.Fail("Неизвестная роль пользователя");
+                }
+
+                await _actionLogService.LogAsync(
+                    action: "Создание пользователя",
+                    entityName: "User",
+                    entityId: user.Id,
+                    details: $"Создан пользователь: {user.FullName}. Логин: {user.UserName}. Назначена роль: {createUser.Role}."
+                );
+
+                await transaction.CommitAsync();
+
                 return OperationResult.Ok();
             }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync();
                 return OperationResult.Fail(ex.Message);
             }
         }
@@ -151,11 +174,32 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             try
             {
                 var user = await _users.FindByIdAsync(id);
+
                 if (user == null)
                     return OperationResult.Fail("Пользователь не найден");
+
+                // Сохраняем данные ДО удаления
+                var userId = user.Id;
+                var fullName = user.FullName;
+                var userName = user.UserName;
+
+                var roles = await _users.GetRolesAsync(user);
+                var roleText = roles.Any()
+                    ? string.Join(", ", roles)
+                    : "Роль не указана";
+
                 var result = await _users.DeleteAsync(user);
+
                 if (!result.Succeeded)
                     return Errors(result);
+
+                await _actionLogService.LogAsync(
+                    action: "Удаление пользователя",
+                    entityName: "User",
+                    entityId: userId,
+                    details: $"Удалён пользователь: {fullName}. Логин: {userName}. Роль: {roleText}."
+                );
+
                 return OperationResult.Ok();
             }
             catch (Exception ex)
@@ -165,41 +209,76 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
         }
         public async Task<OperationResult> Edit(EditUserDTO dto)
         {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
+                if (dto == null)
+                    return OperationResult.Fail("Данные пользователя не переданы");
+
                 var findUser = await _users.FindByIdAsync(dto.UserId);
+
                 if (findUser == null)
                     return OperationResult.Fail("Пользователь не найден");
-                var roles = await _users.GetRolesAsync(findUser);
-                var removeRoles = await _users.RemoveFromRolesAsync(findUser, roles);
-                if (!removeRoles.Succeeded)
-                    return Errors(removeRoles);
-                var aadRole = await _users.AddToRoleAsync(findUser, dto.Role);
-                if (!aadRole.Succeeded)
-                    return Errors(aadRole);
-                findUser.FullName = dto.FullName;
-                findUser.UserName = dto.Login;
-                findUser.BirthDate = dto.BirthDate;
-                findUser.PhoneNumber = dto.PhoneNumber;
-                if (dto.Role.Contains("Ученик"))
+
+                // Сохраняем старые данные ДО изменения
+                var oldFullName = findUser.FullName;
+                var oldUserName = findUser.UserName;
+                var oldBirthDate = findUser.BirthDate;
+                var oldPhoneNumber = findUser.PhoneNumber;
+
+                var oldRoles = await _users.GetRolesAsync(findUser);
+                var oldRoleText = oldRoles.Any()
+                    ? string.Join(", ", oldRoles)
+                    : "Роль не указана";
+
+                string? oldClassName = null;
+                string? newClassName = null;
+
+                Students? student = null;
+
+                // Если редактируем ученика — заранее проверяем учебный год, четверть и ученика
+                if (dto.Role == "Ученик")
                 {
                     string academicId = await GetAcademic();
+
                     if (academicId == null)
-                        return OperationResult.Fail("Невозможно редоктировать ученика не найден учебный год проверьте даты");
+                        return OperationResult.Fail("Невозможно редактировать ученика: не найден учебный год, проверьте даты");
+
                     string termId = await GetTerm();
+
                     if (termId == null)
-                        return OperationResult.Fail("Невозможно редоктировать ученика не найдена четверть проверьте даты");
-                    var student = await _context.Students.FirstOrDefaultAsync(u => u.UserId == findUser.Id);
-                    if (student != null)
-                    {
-                        student.ClassId = dto.StudentClassId;
-                        _context.Students.Update(student);
-                        await _context.SaveChangesAsync();
-                    }
-                    else
-                        return OperationResult.Fail("Пользователь не найден");
-                    var exists = _context.StudentsHistory
-                       .Any(d => d.ClassId == dto.StudentClassId);
+                        return OperationResult.Fail("Невозможно редактировать ученика: не найдена четверть, проверьте даты");
+
+                    student = await _context.Students
+                        .Include(s => s.User)
+                        .Include(s => s.Class)
+                        .FirstOrDefaultAsync(s => s.UserId == findUser.Id);
+
+                    if (student == null)
+                        return OperationResult.Fail("Ученик не найден");
+
+                    oldClassName = $"{student.Class.NumClass}-{student.Class.LetterClass}";
+
+                    var newClass = await _context.Classes
+                        .FirstOrDefaultAsync(c => c.Id == dto.StudentClassId);
+
+                    if (newClass == null)
+                        return OperationResult.Fail("Новый класс не найден");
+
+                    newClassName = $"{newClass.NumClass}-{newClass.LetterClass}";
+
+                    student.ClassId = dto.StudentClassId;
+
+                    _context.Students.Update(student);
+
+                    var exists = await _context.StudentsHistory
+                        .AnyAsync(h =>
+                            h.StudentId == student.Id &&
+                            h.ClassId == dto.StudentClassId &&
+                            h.AcademicYearId == academicId &&
+                            h.TermId == termId);
+
                     if (!exists)
                     {
                         var studentHistory = new StudentsHistory
@@ -207,19 +286,66 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                             StudentId = student.Id,
                             ClassId = dto.StudentClassId,
                             AcademicYearId = academicId,
-                            TermId = termId,
+                            TermId = termId
                         };
+
                         _context.StudentsHistory.Add(studentHistory);
-                        await _context.SaveChangesAsync();
                     }
                 }
+
+                // Меняем роль
+                if (oldRoles.Any())
+                {
+                    var removeRoles = await _users.RemoveFromRolesAsync(findUser, oldRoles);
+
+                    if (!removeRoles.Succeeded)
+                        return Errors(removeRoles);
+                }
+
+                var addRole = await _users.AddToRoleAsync(findUser, dto.Role);
+
+                if (!addRole.Succeeded)
+                    return Errors(addRole);
+
+                // Меняем данные пользователя
+                findUser.FullName = dto.FullName;
+                findUser.UserName = dto.Login;
+                findUser.BirthDate = dto.BirthDate;
+                findUser.PhoneNumber = dto.PhoneNumber;
+
                 var result = await _users.UpdateAsync(findUser);
+
                 if (!result.Succeeded)
                     return Errors(result);
+
+                await _context.SaveChangesAsync();
+
+                var details = $"Изменён пользователь. " +
+                              $"ФИО: {oldFullName} → {findUser.FullName}. " +
+                              $"\nЛогин: {oldUserName} → {findUser.UserName}. " +
+                              $"\nРоль: {oldRoleText} → {dto.Role}. " +
+                              $"\nДата рождения: {oldBirthDate:dd.MM.yyyy} → {findUser.BirthDate:dd.MM.yyyy}. " +
+                              $"\nТелефон: {oldPhoneNumber} → {findUser.PhoneNumber}.";
+
+                if (dto.Role == "Ученик" && oldClassName != null && newClassName != null)
+                {
+                    details += $" Класс: {oldClassName} → {newClassName}.";
+                }
+
+                await _actionLogService.LogAsync(
+                    action: "Редактирование пользователя",
+                    entityName: "User",
+                    entityId: findUser.Id,
+                    details: details
+                );
+
+                await transaction.CommitAsync();
+
                 return OperationResult.Ok();
             }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync();
                 return OperationResult.Fail(ex.Message);
             }
         }
@@ -230,10 +356,18 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 var user = await _users.FindByIdAsync(id);
                 if (user == null)
                     return OperationResult.Fail("Пользователь не найден");
+                var roles = await _users.GetRolesAsync(user);
+               
                 var token = await _users.GeneratePasswordResetTokenAsync(user);
                 var result = await _users.ResetPasswordAsync(user, token, newPassword);
                 if (!result.Succeeded)
                     return Errors(result);
+                await _actionLogService.LogAsync(
+    action: "Сброс пароля пользователя",
+    entityName: "User",
+    entityId: user.Id,
+    details: $"Администратор сбросил пароль пользователя: {user.FullName}. Логин: {user.UserName}. Роль: {roles.FirstOrDefault()}"
+);
                 return OperationResult.Ok();
             }
             catch (Exception ex)
