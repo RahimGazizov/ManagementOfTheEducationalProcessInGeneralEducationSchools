@@ -1,8 +1,9 @@
+using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
+using InformationSystemOfASchoolIducationalPortal.Data;
+using InformationSystemOfASchoolIducationalPortal.Middlewares;
+using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using InformationSystemOfASchoolIducationalPortal.Data;
-using InformationSystemOfASchoolIducationalPortal.Models;
-using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
 using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,9 +18,13 @@ builder.Services.AddScoped<StudentPerAccLogic>();
 builder.Services.AddScoped<TermLogic>();
 builder.Services.AddScoped<ScheduleLogic>();
 builder.Services.AddScoped<AcademicYearLogic>();
+builder.Services.AddScoped<BackupsService>();
 builder.Services.AddScoped<ScheduleForStudentLogic>();
 builder.Services.AddScoped<ParentPerAccLogic>();
+builder.Services.AddScoped<LessonSlotService>();
+builder.Services.AddScoped<JournalService>();
 builder.Services.AddScoped<ActionLogService>();
+builder.Services.AddSingleton<SystemStateService>();
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
@@ -62,7 +67,12 @@ builder.Services.ConfigureApplicationCookie(option =>
     option.Cookie.IsEssential = true;
     option.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
-
+//builder.Services.ConfigureApplicationCookie(options =>
+//{
+//    options.Cookie.SameSite = SameSiteMode.Lax;
+//    options.Cookie.SecurePolicy = CookieSecurePolicy.None; // для HTTP теста
+//});
+//builder.WebHost.UseUrls("http://0.0.0.0:5000");
 var app = builder.Build();
 //using (var scope = app.Services.CreateScope())
 //{
@@ -95,6 +105,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<MaintenanceMiddleware>();
 // MVC стартовая
 app.MapControllerRoute(
     name: "default",

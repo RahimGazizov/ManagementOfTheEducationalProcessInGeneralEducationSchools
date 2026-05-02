@@ -40,7 +40,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             await _context.SaveChangesAsync();
             await _actionLogService.LogAsync(
          action: "Создание класса",
-         entityName: "Class",
+         entityName: "Классы",
          entityId: classes.Id,
          details: $"Создан класс: {classes.NumClass}-{classes.LetterClass}.");
             return OperationResultClass.OK();
@@ -56,7 +56,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             await _context.SaveChangesAsync();
             await _actionLogService.LogAsync(
       action: "Удаление класса",
-         entityName: "Class",
+         entityName: "Классы",
          entityId: classID,
          details: $"Удален класс: {oldClassName}.");
             return OperationResultClass.OK();
@@ -75,7 +75,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             await _context.SaveChangesAsync();
             await _actionLogService.LogAsync(
       action: "Редактирование класса",
-         entityName: "Class",
+         entityName: "Классы",
          entityId: cls.Id,
          details: $"Изменен класс: {oldClassName} → {cls.NumClass}-{cls.LetterClass}.");
             return OperationResultClass.OK();

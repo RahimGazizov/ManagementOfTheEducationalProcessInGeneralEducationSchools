@@ -16,13 +16,15 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         private readonly SignInManager<Users> _signIn;
         private readonly AppDbContext _context;
         private readonly TeacherPerAccLogic _perAccLogic;
+        private readonly ActionLogService _actionLogService;
         public TeacherPerAccController(UserManager<Users> userMan, AppDbContext context
-            , SignInManager<Users> signIn, TeacherPerAccLogic perAccLogic)
+            , SignInManager<Users> signIn, TeacherPerAccLogic perAccLogic, ActionLogService actionLogService)
         {
             _userMan = userMan;
             _context = context;
             _signIn = signIn;
             _perAccLogic = perAccLogic;
+            _actionLogService = actionLogService;
         }
         public async Task<IActionResult> Index(string? error)
         {
@@ -103,6 +105,12 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         public async Task<IActionResult> LogOut()
         {
             await _signIn.SignOutAsync();
+            await _actionLogService.LogAsync(
+               "Выход пользователя",
+               "User",
+               null,
+               "Учитель вышел с системы"
+               );
             return RedirectToAction("Index", "Authoriz");
         }
         private List<SelectListItem> GetListAcademicYear()

@@ -1,4 +1,5 @@
-﻿using InformationSystemOfASchoolIducationalPortal.Data;
+﻿using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
+using InformationSystemOfASchoolIducationalPortal.Data;
 using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,63 +13,27 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
     public class JournalController : Controller
     {
         private readonly AppDbContext _context;
-        public JournalController(AppDbContext context)
+        private readonly JournalService _journalService;
+        private readonly SystemStateService _systemStateService;
+        public JournalController(AppDbContext context, JournalService journalService,
+            SystemStateService systemStateService)
         {
             _context = context;
+            _journalService = journalService;
+            _systemStateService = systemStateService;
         }
         [HttpPost]
         public async Task<IActionResult> Create(string teacherId, string subjectId, string classId)
         {
             try
             {
-                var dayToday = DateTime.Today;
-                var currentYear = await GetAcademicYear(dayToday);
-                var currentTerm = await GetTerm(dayToday, currentYear.Id);
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Teacher-id - {teacherId}");
-                Console.WriteLine($"Subject-id - {subjectId}");
-                Console.WriteLine($"CLass-id - {classId}");
-                Console.WriteLine($"CurrentYear-id - {currentYear.Id}");
-                Console.WriteLine($"Current-id - {currentTerm.Id}");
-                Console.ForegroundColor = ConsoleColor.White;
-                
-                if (currentYear == null)
+                var result = await _journalService.CreateJournal(teacherId, subjectId, classId);
+                if (!result.Success)
                 {
-                    TempData["Error"] = "Не найден текущий учебный год";
+                    TempData["Error"] = result.Message;
                     return RedirectToAction("Index", "TeacherPerAcc");
                 }
-
-                if (currentTerm == null)
-                {
-                    TempData["Error"] = ("Не найдена текущая четверть");
-                    return RedirectToAction("Index", "TeacherPerAcc");
-                }
-                var journal = new Journal
-                {
-                    Date = dayToday,
-                    TeacherId = teacherId,
-                    SubjectId = subjectId,
-                    ClassId = classId,
-                    AcademicYearId = currentYear.Id,
-                    TermId = currentTerm.Id,
-                    HomeWork = null,
-                    LessonTopic = null,
-                    IsLocked = true
-                };
-
-                var students = await _context.Students.Where(s => s.ClassId == classId).ToListAsync();
-                foreach (var student in students)
-                {
-                    var journalEntri = new JournalEntry
-                    {
-                        StudentId = student.Id,
-                        Grade = null
-                    };
-                    journal.Entries.Add(journalEntri);
-                }
-                _context.Journal.Add(journal);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Edit", new { id = journal.Id });
+                return RedirectToAction("Edit", new { id = result.Data });
             }
             catch (Exception ex)
             {
@@ -81,28 +46,10 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         {
             try
             {
-                Console.WriteLine($"ID-{id}");
-                var journal = await _context.Journal
-                    .Include(c => c.Class)
-                    .Include(t => t.Teacher)
-                    .ThenInclude(t => t.User)
-                    .Include(s => s.Subject)
-                    .Include(j => j.Entries)
-                    .ThenInclude(j => j.Student)
-                    .ThenInclude(j => j.User)
-                    .Include(j => j.AcademicYear)
-                    .Include(j => j.Term)
-                    .FirstOrDefaultAsync(j => j.Id == id);
-                DateTime now = DateTime.Now;
-                if (journal.Date != default)
-                {
-                    journal.IsLocked = (DateTime.Now - journal.Date).TotalDays <= 7;
-                }
-                else
-                {
-                    journal.IsLocked = true; // ещё нет записей, редактировать можно
-                }
-                return View(journal);
+                var journal = await _journalService.Edit(id);
+                if (!journal.Success)
+                    return RedirectToAction("Index", "TeacherPerAcc", new { error = journal.Message });
+                return View(journal.Data);
             }
             catch (Exception ex)
             {
@@ -115,33 +62,15 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         {
             try
             {
-                var exists = await _context.Journal.FirstOrDefaultAsync(j => j.Id == journal.Id);
-                if (exists == null)
+                var result = await _journalService.SaveJournal(journal);
+                if (!result.Success)
                 {
-                    TempData["Error"] = "Журнал не найден";
+                    TempData["Error"] = result.Message;
                     return View("Edit");
                 }
-                exists.LessonTopic = journal.LessonTopic;
-                exists.HomeWork = journal.HomeWork;
-                foreach (var entryModal in journal.Entries)
-                {
-                    var entry = await _context.JournalEntry.FirstOrDefaultAsync(e => e.Id == entryModal.Id);
-                    if (entry != null)
-                    {
-                        if(entryModal.Grade != null && !entryModal.IsPresent)
-                            entry.IsPresent = true;
-                        
-                        else
-                            entry.IsPresent = entryModal.IsPresent;
-                        
-                        entry.Grade = entryModal.Grade;
 
-                    }
-
-                }
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Журнал успешно сохранен";
-                return RedirectToAction("Edit", new { id = journal.Id });
+                TempData["SuccessMessage"] = result.Message;
+                return RedirectToAction("Edit", new { id = result.Data });
             }
             catch (Exception ex)
             {
@@ -149,16 +78,16 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 return RedirectToAction("Index", "TeacherPerAcc");
             }
         }
+        [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
             try
             {
-
-                var journal = await _context.Journal.Include(j => j.Entries)
-                    .Where(j => j.Id == id)
-                    .FirstOrDefaultAsync();
-                if (journal != null) _context.Remove(journal);
-                await _context.SaveChangesAsync();
+                var result = await _journalService.Delete(id);
+                if (!result.Success)
+                {
+                    TempData["Error"] = result.Message;
+                }
                 return RedirectToAction("Index", "TeacherPerAcc");
             }
             catch (Exception ex)
@@ -167,11 +96,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 return RedirectToAction("Index", "TeacherPerAcc");
             }
         }
-        private async Task<AcademicYear?> GetAcademicYear(DateTime dayToday) => await _context.AcademicYear
-                .Where(d => d.StartDateYear <= dayToday && dayToday <= d.EndDateYear)
-                .FirstOrDefaultAsync();
-        private async Task<Term?> GetTerm(DateTime dayToday, string currentId) => await _context.Term
-           .Where(d => d.AcademicYearId == currentId && d.DateStartTerm <= dayToday && dayToday <= d.DateEndTerm)
-           .FirstOrDefaultAsync();
+
     }
 }

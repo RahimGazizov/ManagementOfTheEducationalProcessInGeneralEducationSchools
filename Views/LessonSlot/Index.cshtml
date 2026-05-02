@@ -1,6 +1,10 @@
 ﻿@model LessonSlotViewModal
 <h3>Время уроков</h3>
 <div class="conteiner">
+    @if (TempData["ErrorIndex"] != null)
+    {
+        <div style="color:red; font-size: 18px;">@TempData["ErrorIndex"]</div>
+    }
     <div class="action">
         <button id="openModalBtn" class="btn btn_add">Добавить время урока</button>
         <a href="@Url.Action("Index", "AdminPersonalAccount")" class="btn_back">Вернуться</a>

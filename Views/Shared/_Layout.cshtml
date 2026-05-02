@@ -34,6 +34,12 @@
         </nav>
     </header>
     <div class="container-fluid px-0">
+        <div id="systemModal" class="sys-modal">
+            <div class="sys-modal-content">
+                <p id="systemText"></p>
+                <button onclick="closeModal()">OK</button>
+            </div>
+        </div>
         @RenderBody()
     </div>
 
@@ -43,3 +49,60 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+@if (User.IsInRole("Учитель") || User.IsInRole("Админ"))
+{
+    <script>
+        let lastState = null;
+
+        function show(text) {
+            document.getElementById("systemText").innerText = text;
+            document.getElementById("systemModal").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("systemModal").style.display = "none";
+        }
+
+        async function check() {
+            const res = await fetch('/system/status');
+            const data = await res.json();
+
+            if (lastState === true && data.isMaintenance === false) {
+                show("Система восстановлена");
+            }
+
+            lastState = data.isMaintenance;
+        }
+
+        setInterval(check, 1000);
+    </script>
+}
+<style>
+    .sys-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 9999;
+    }
+
+    .sys-modal-content {
+        background: #fff;
+        padding: 20px;
+        width: 320px;
+        margin: 15% auto;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .sys-modal button {
+        margin-top: 15px;
+        padding: 8px 16px;
+        border: none;
+        background: #007bff;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+</style>

@@ -1,4 +1,5 @@
-﻿using InformationSystemOfASchoolIducationalPortal.Data;
+﻿using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
+using InformationSystemOfASchoolIducationalPortal.Data;
 using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +11,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
     public class LessonSlotController : Controller
     {
         private readonly AppDbContext _context;
-        public LessonSlotController(AppDbContext context)
+        private readonly LessonSlotService _lessonService;
+        public LessonSlotController(AppDbContext context, LessonSlotService lessonSlotService)
         {
             _context = context;
+            _lessonService = lessonSlotService;
         }
 
         public async Task<IActionResult> Index()
@@ -25,83 +28,61 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         public async Task<IActionResult> AddLessonSlot(LessonSlotViewModal lessonSlotView)
         {
-            var fm = lessonSlotView.Form;
-            var exists = await _context.LessonSlots.AnyAsync(l => l.LessonNumber == fm.LessonNumber &&
-            l.StartTime == fm.StartTime && l.EndTime == fm.EndTime);
-            if (exists)
+            try
             {
-                TempData["Error"] = "Такая запись уже существует!";
-                lessonSlotView.LessonSlots = await _context.LessonSlots.ToListAsync();
-                lessonSlotView.IsOpenModalAdd = true;
-                return View("Index", lessonSlotView);
+                var result = await _lessonService.AddLessonSlot(lessonSlotView.Form);
+                if (!result.Success)
+                {
+                    TempData["Error"] = result.Message;
+                    lessonSlotView.LessonSlots = await _context.LessonSlots.ToListAsync();
+                    lessonSlotView.IsOpenModalAdd = true;
+                    return View("Index", lessonSlotView);
+                }
+                return RedirectToAction("Index");
             }
-            if (fm.StartTime > fm.EndTime)
+            catch (Exception ex)
             {
-                TempData["Error"] = "Не верный формат ввода времени";
-                lessonSlotView.LessonSlots = await _context.LessonSlots.ToListAsync();
-                lessonSlotView.IsOpenModalAdd = true;
-                return View("Index", lessonSlotView);
+                TempData["ErrorIndex"] = ex.Message;
+                return RedirectToAction("Index");
             }
-            if ((fm.EndTime - fm.StartTime).TotalMinutes != 45)
-            {
-                TempData["Error"] = "Урок должен длиться 45 минут";
-                lessonSlotView.LessonSlots = await _context.LessonSlots.ToListAsync();
-                lessonSlotView.IsOpenModalAdd = true;
-                return View("Index", lessonSlotView);
-            }
-            _context.LessonSlots.Add(fm);
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
         }
         public async Task<IActionResult> EditLessonSlot(LessonSlotViewModal lessonSlotView)
         {
-            var fm = lessonSlotView.Form;
-            var exists = await _context.LessonSlots.AnyAsync(l => l.LessonNumber == fm.LessonNumber &&
-            l.StartTime == fm.StartTime && l.EndTime == fm.EndTime && l.Id != fm.Id);
-            if (exists)
+            try
             {
-                TempData["Error"] = "Такая запись уже существует!";
-                lessonSlotView.LessonSlots = await _context.LessonSlots.ToListAsync();
-                lessonSlotView.IsOpenModalEdit = true;
-                return View("Index", lessonSlotView);
+                var result = await _lessonService.EditLessonSlot(lessonSlotView.Form);
+                if (!result.Success)
+                {
+                    TempData["Error"] = result.Message;
+                    lessonSlotView.LessonSlots = await _context.LessonSlots.ToListAsync();
+                    lessonSlotView.IsOpenModalEdit = true;
+                    return View("Index", lessonSlotView);
+                }
+                return RedirectToAction("Index");
             }
-            if (fm.StartTime > fm.EndTime)
+            catch (Exception ex)
             {
-                TempData["Error"] = "Время начало урока должна быть меньше конца урока";
-                lessonSlotView.LessonSlots = await _context.LessonSlots.ToListAsync();
-                lessonSlotView.IsOpenModalEdit = true;
-                return View("Index", lessonSlotView);
+                TempData["ErrorIndex"] = ex.Message;
+                return RedirectToAction("Index");
             }
-            if ((fm.EndTime - fm.StartTime).TotalMinutes != 45)
-            {
-                TempData["Error"] = "Урок должен длиться 45 минут";
-                lessonSlotView.LessonSlots = await _context.LessonSlots.ToListAsync();
-                lessonSlotView.IsOpenModalEdit = true;
-                return View("Index", lessonSlotView);
-            }
-            _context.LessonSlots.Add(fm);
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
         }
         public async Task<IActionResult> Delete(string id)
         {
             try
             {
-                var exists = await _context.LessonSlots.FirstOrDefaultAsync(x => x.Id == id);
-                if (exists != null)
+                var result = await _lessonService.Delete(id);
+                if (!result.Success)
                 {
-                    _context.LessonSlots.Remove(exists);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction("Index");
+                    TempData["ErrorIndex"] = result.Message;
                 }
-                TempData["Error"] = "Не удалось удалить";
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = ex.Message;
+                TempData["ErrorIndex"] = ex.Message;
                 return RedirectToAction("Index");
             }
         }
     }
 }
+

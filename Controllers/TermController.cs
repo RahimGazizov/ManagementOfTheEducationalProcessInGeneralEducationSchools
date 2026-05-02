@@ -61,11 +61,10 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         public async Task<IActionResult> Delete(string id)
         {
-            var term = await _context.Term.FindAsync(id);
-            if (term != null)
+            var result = await _term.Delete(id);
+            if (!result.Success)
             {
-                _context.Term.Remove(term);
-                await _context.SaveChangesAsync();
+                TempData["ErrorIndex"] = result.Message;
             }
             return RedirectToAction("Index");
         }

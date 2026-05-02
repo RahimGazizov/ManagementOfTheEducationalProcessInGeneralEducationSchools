@@ -53,7 +53,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             {
                 TempData["Error"] = result.Message;
                 schedule.ScheduleLessons = await _scheduleLogic.ScheduleLessons();
-                schedule.IsOpenModalAdd = true;
+                schedule.IsOpenModalEdit = true;
                 ViewBag.DaysOfWeek = _scheduleLogic.GetListDaysOfWeek();
                 ViewBag.Assignment = await _scheduleLogic.ListAssigment();
                 ViewBag.LessonSlot = await _scheduleLogic.LessonSlotList();
@@ -63,11 +63,14 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         public async Task<IActionResult> Delete(string id)
         {
-            var schedule = await _context.Schedules.FirstOrDefaultAsync(s => s.Id == id);
-            if (schedule != null)
+            var result = await _scheduleLogic.Delete(id);
+            if (!result.Success)
             {
-                _context.Schedules.Remove(schedule);
-                await _context.SaveChangesAsync();
+                TempData["Error"] = result.Message;
+                ViewBag.DaysOfWeek = _scheduleLogic.GetListDaysOfWeek();
+                ViewBag.Assignment = await _scheduleLogic.ListAssigment();
+                ViewBag.LessonSlot = await _scheduleLogic.LessonSlotList();
+                return View("Index");
             }
             return RedirectToAction("Index");
         }

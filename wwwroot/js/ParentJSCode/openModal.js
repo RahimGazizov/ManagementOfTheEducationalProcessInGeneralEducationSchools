@@ -4,6 +4,7 @@
     initModal("btnOpenModalGraph", "graphModalForParent");
     initModal("btnOpenModalRating", "ratingModalForParent");
     initModal("scheduleStudentForParent", "scheduleModal");
+    initModal("btnForRestoreBackup", "modalForRestoreBackup");
 });
 
 function initModal(btnId, modalId) {

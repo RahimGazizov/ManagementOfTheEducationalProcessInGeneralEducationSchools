@@ -1,4 +1,5 @@
-﻿using InformationSystemOfASchoolIducationalPortal.Data;
+﻿using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
+using InformationSystemOfASchoolIducationalPortal.Data;
 using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,11 +12,14 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         private readonly UserManager<Users> _users;
         private readonly SignInManager<Users> _signInManager;
         private readonly AppDbContext _context;
-        public AuthorizController(UserManager<Users> users, SignInManager<Users> signInManager, AppDbContext context)
+        private readonly ActionLogService _actionLogService;
+        public AuthorizController(UserManager<Users> users, SignInManager<Users> signInManager, AppDbContext context,
+            ActionLogService actionLogService)
         {
             _users = users;
             _signInManager = signInManager;
             _context = context;
+            _actionLogService = actionLogService;
         }
         public IActionResult Index()
         {
@@ -40,6 +44,12 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: false, false);
                 if (result.Succeeded)
                 {
+                    await _actionLogService.LogAsync(
+                        "Вход пользователя",
+                        "User",
+                        user.Id,
+                        $"Пользователь вошел в систему."
+                        );
                     if (await _users.IsInRoleAsync(user, "Админ"))
                         return RedirectToAction("Index", "AdminPersonalAccount");
                     if (await _users.IsInRoleAsync(user, "Учитель"))

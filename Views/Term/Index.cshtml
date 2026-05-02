@@ -4,6 +4,10 @@
 }
 <h3>Четверти</h3>
 <div class="conteiner">
+    @if (TempData["ErrorIndex"] != null)
+    {
+        <p style="color: red; font-size: 18px;">@TempData["ErrorIndex"]</p>
+    }
     <div class="action">
         <button type="button" id="btnOpenModal" class="btn btn_add">Добавить четверть</button>
         <a href="@Url.Action("Index","AdminPersonalAccount")" class="btn btn_back">Вернуться</a>

@@ -32,7 +32,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             await _context.SaveChangesAsync();
             await _actionLogService.LogAsync(
       action: "Создание предмета",
-         entityName: "Subject",
+         entityName: "Предметы",
          entityId: sub.Id,
          details: $"Создан предмет: {sub.Name}.");
             return OperationResultSubject.Ok();
@@ -48,7 +48,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             await _context.SaveChangesAsync();
             await _actionLogService.LogAsync(
               action: "Удаление предмета",
-              entityName: "Subject",
+              entityName: "Предметы",
               entityId: subId,
               details: $"Удален предмет: {sub.Name}.");
             return OperationResultSubject.Ok();
@@ -66,7 +66,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             await _context.SaveChangesAsync();
             await _actionLogService.LogAsync(
             action: "Редактирование предмета",
-            entityName: "Subject",
+            entityName: "Предметы",
             entityId: sub.Id,
             details: $"Изменен предмет: {oldSub} → {subjectName}.");
             return OperationResultSubject.Ok();

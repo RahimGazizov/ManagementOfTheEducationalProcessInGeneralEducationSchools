@@ -5,6 +5,10 @@
         <button type="button" id="btnOpenModal" class="btn btn_add">Добавить учебный год</button>
         <a href="@Url.Action("Index","AdminPersonalAccount")" class="btn btn_back">Вернуться</a>
     </div>
+    @if (TempData["ErrorIndex"] != null)
+{
+    <div style="color:red; font-size: 18px;">@TempData["ErrorIndex"]</div>
+}
     <table>
         <thead>
             <tr>

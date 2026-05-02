@@ -154,7 +154,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
 
                 await _actionLogService.LogAsync(
                     action: "Создание пользователя",
-                    entityName: "User",
+                    entityName: "Пользователи",
                     entityId: user.Id,
                     details: $"Создан пользователь: {user.FullName}. Логин: {user.UserName}. Назначена роль: {createUser.Role}."
                 );
@@ -195,7 +195,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
 
                 await _actionLogService.LogAsync(
                     action: "Удаление пользователя",
-                    entityName: "User",
+                    entityName: "Пользователи",
                     entityId: userId,
                     details: $"Удалён пользователь: {fullName}. Логин: {userName}. Роль: {roleText}."
                 );
@@ -334,7 +334,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
 
                 await _actionLogService.LogAsync(
                     action: "Редактирование пользователя",
-                    entityName: "User",
+                    entityName: "Пользователи",
                     entityId: findUser.Id,
                     details: details
                 );
@@ -364,7 +364,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     return Errors(result);
                 await _actionLogService.LogAsync(
     action: "Сброс пароля пользователя",
-    entityName: "User",
+    entityName: "Пользователи",
     entityId: user.Id,
     details: $"Администратор сбросил пароль пользователя: {user.FullName}. Логин: {user.UserName}. Роль: {roles.FirstOrDefault()}"
 );

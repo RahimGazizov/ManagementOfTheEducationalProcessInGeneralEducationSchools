@@ -28,43 +28,74 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         public async Task<IActionResult> AddAcademicYear(AcademicYearViewModel academicYear)
         {
-            var fm = academicYear.From;
-            var result = await _yearLogic.AddAcademicYear(fm);
-            if (!result.Success)
+            try
             {
-                TempData["Error"] = result.Message;
+                var fm = academicYear.From;
+                var result = await _yearLogic.AddAcademicYear(fm);
+                if (!result.Success)
+                {
+                    TempData["Error"] = result.Message;
+                    academicYear.AcademicYears = await _context.AcademicYear
+                    .Include(t => t.Terms)
+                    .ToListAsync();
+                    academicYear.IsAdd = true;
+                    return View("Index", academicYear);
+                }
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
                 academicYear.AcademicYears = await _context.AcademicYear
                 .Include(t => t.Terms)
                 .ToListAsync();
                 academicYear.IsAdd = true;
                 return View("Index", academicYear);
             }
-            return RedirectToAction("Index");
         }
         public async Task<IActionResult> Delete(string id)
         {
-            var exists = await _context.AcademicYear.FindAsync(id);
-            if (exists != null)
+            try
             {
-                _context.AcademicYear.Remove(exists);
-                await _context.SaveChangesAsync();
+               var result = await _yearLogic.Delete(id);
+                if (!result.Success)
+                {
+                    TempData["ErrorIndex"] = result.Message;
+                }
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
+            catch(Exception ex)
+            {
+                TempData["ErrorIndex"] = ex.Message;
+                return RedirectToAction("Index");
+            }
         }
         public async Task<IActionResult> Edit(AcademicYearViewModel viewModel)
         {
-            var fm = viewModel.From;
-            var result = await _yearLogic.EditAcademicYear(fm);
-            if (!result.Success)
+            try
             {
-                TempData["Error"] = result.Message;
+                var fm = viewModel.From;
+                var result = await _yearLogic.EditAcademicYear(fm);
+                if (!result.Success)
+                {
+                    TempData["Error"] = result.Message;
+                    viewModel.AcademicYears = await _context.AcademicYear
+                    .Include(t => t.Terms)
+                    .ToListAsync();
+                    viewModel.IsEdit = true;
+                    return View("Index", viewModel);
+                }
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
                 viewModel.AcademicYears = await _context.AcademicYear
                 .Include(t => t.Terms)
                 .ToListAsync();
                 viewModel.IsEdit = true;
                 return View("Index", viewModel);
             }
-            return RedirectToAction("Index");
         }
     }
 }

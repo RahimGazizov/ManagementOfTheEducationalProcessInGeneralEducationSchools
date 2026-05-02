@@ -1,5 +1,6 @@
 ﻿using InformationSystemOfASchoolIducationalPortal.Data;
 using InformationSystemOfASchoolIducationalPortal.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,9 +9,11 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
     public class TermLogic
     {
         private readonly AppDbContext _context;
-        public TermLogic(AppDbContext context)
+        private readonly ActionLogService _actionLogService;
+        public TermLogic(AppDbContext context, ActionLogService actionLogService)
         {
             _context = context;
+            _actionLogService = actionLogService;
         }
         public class OperationResult
         {
@@ -18,6 +21,13 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             public string Message { get; set; }
             public static OperationResult Ok() => new OperationResult { Success = true };
             public static OperationResult Fail(string message) => new OperationResult { Success = false, Message = message };
+        }
+        private class TermDto
+        {
+            public string Name { get; set; }
+            public DateTime StartDate { get; set; }
+            public DateTime EndDate { get; set; }
+            public string AcademicYearName { get; set; }
         }
         public async Task<OperationResult> AddTerm(Term term)
         {
@@ -29,8 +39,20 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             string hasError = await CheckData(term);
             if (!string.IsNullOrWhiteSpace(hasError))
                 return OperationResult.Fail(hasError);
+            var num = term.Name.Split(' ');
+            term.QuarterNumber = Convert.ToInt32(num[0]);
             _context.Term.Add(term);
             await _context.SaveChangesAsync();
+            var termForLog = await GetTerm(term.Id);
+            if (termForLog == null)
+                return OperationResult.Fail("Четверть не найдена для лога");
+            await _actionLogService.LogAsync(
+                "Добавление четверти",
+                "Четверть",
+                term.Id,
+                $"Добавлена четверть: Название: {termForLog.Name}. Дата начало: {termForLog.StartDate.ToString("dd-MM-yyyy")}." +
+                $" Дата конца: {termForLog.EndDate.ToString("dd-MM-yyyy")} Учебный год: {termForLog.AcademicYearName}."
+                );
             return OperationResult.Ok();
         }
         public async Task<OperationResult> EditTerm(Term term)
@@ -51,14 +73,29 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             string hasError = await CheckData(term);
             if (!string.IsNullOrWhiteSpace(hasError))
                 return OperationResult.Fail(hasError);
-
+            var oldTerm = await GetTerm(current.Id);
+            if (oldTerm == null)
+                return OperationResult.Fail("Четверть не найдена для лога");
             current.QuarterNumber = term.QuarterNumber;
             current.DateStartTerm = term.DateStartTerm;
             current.DateEndTerm = term.DateEndTerm;
             current.Name = term.Name;
             current.AcademicYearId = term.AcademicYearId;
-
+            var num = term.Name.Split(' ');
+            current.QuarterNumber = Convert.ToInt32(num[0]);
             await _context.SaveChangesAsync();
+            var newTerm = await GetTerm(term.Id);
+            if (newTerm == null)
+                return OperationResult.Fail("Четверть не найдена для лога");
+            await _actionLogService.LogAsync(
+              "Редактирование четверти",
+              "Четверть",
+              term.Id,
+              $"Редактирована четверть: Название: {oldTerm.Name} → {newTerm.Name}. Дата начало: " +
+              $"{oldTerm.StartDate.ToString("dd-MM-yyyy")} → {newTerm.StartDate.ToString("dd-MM-yyyy")}." +
+              $" Дата конца: {oldTerm.EndDate.ToString("dd-MM-yyyy")} → {newTerm.EndDate.ToString("dd-MM-yyyy")}" +
+              $" Учебный год: {oldTerm.AcademicYearName} → {newTerm.AcademicYearName}."
+              );
             return OperationResult.Ok();
         }
         private async Task<string?> CheckData(Term term)
@@ -116,6 +153,25 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
 
             return null;
         }
+        public async Task<OperationResult> Delete(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return OperationResult.Fail("Айди пуст удаление не возможно");
+            var term = await _context.Term.FirstOrDefaultAsync(s => s.Id == id);
+            if (term == null)
+                return OperationResult.Fail("Четверть не найдена для лога, удаление не возможно");
+            var termForLog = await GetTerm(term.Id);
+            _context.Term.Remove(term);
+            await _context.SaveChangesAsync();
+            await _actionLogService.LogAsync(
+    "Удаление четверти",
+    "Четверть",
+    id,
+    $"Удалена четверть: Название: {termForLog.Name}. Дата начало: {termForLog.StartDate.ToString("dd-MM-yyyy")}." +
+    $" Дата конца: {termForLog.EndDate.ToString("dd-MM-yyyy")} Учебный год: {termForLog.AcademicYearName}."
+    );
+            return OperationResult.Ok();
+        }
         public List<SelectListItem> ListAcademicYear()
         {
             var list = _context.AcademicYear.Select(a => new SelectListItem
@@ -124,6 +180,19 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 Text = a.Name
             }).ToList();
             return list;
+        }
+        private async Task<TermDto> GetTerm(string id)
+        {
+            return await _context.Term
+                .Where(s => s.Id == id)
+                .Select(s => new TermDto
+                {
+                    Name = s.Name,
+                    StartDate = s.DateStartTerm,
+                    EndDate = s.DateEndTerm,
+                    AcademicYearName = s.AcademicYear.Name,
+                })
+                .FirstOrDefaultAsync();
         }
     }
 }
