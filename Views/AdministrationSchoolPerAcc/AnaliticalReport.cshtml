@@ -1,0 +1,171 @@
+﻿@model AnaliticalReportDto
+<div class="report-container">
+
+    <h3>Аналитический отчет</h3>
+
+    <p>Класс: <b>@Model.ClassName</b></p>
+    <p>Предмет: <b>@Model.SubjectName</b></p>
+    <div id="errorMessageEmail" style="color: red; font-size: 18px;"></div>
+    <div id="successMessageEmail" style="color: lightgreen; font-size: 18px;"></div>
+    <table>
+        <thead>
+            <tr>
+                <th>ФИО студента</th>
+                <th>Средний балл</th>
+                <th>Посещаемость</th>
+                <th>Индекс успеваемости</th>
+                <th>Действие</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (Model.DataStudents == null || !Model.DataStudents.Any())
+            {
+                <tr>
+                    <td colspan="4" class="empty">Данных нет</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var s in Model.DataStudents)
+                {
+                    bool isBad = s.AcademicPerformanceIndex < 3;
+
+                    <tr class="@(isBad ? "low-student" : "")">
+                        <td>@s.StudentFullName</td>
+                        <td>@s.AverageGrade</td>
+                        <td>@s.PercentOfPresence</td>
+                        <td>@s.AcademicPerformanceIndex</td>
+
+                        <td>
+                            @if (isBad)
+                            {
+                                <button type="button"
+                                        class="notifyParents"
+                                        data-academic="@Model.AcademicId"
+                                        data-term="@Model.TermId"
+                                        data-class="@Model.ClassId"
+                                        data-subject="@Model.SubjectId"
+                                        data-student="@s.StudentId">
+                                    Уведомить родителя
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+</div>
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background: #f5f7fb;
+    }
+
+    h3 {
+        margin-bottom: 10px;
+        font-size: 22px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    p {
+        margin: 4px 0;
+        color: #4b5563;
+        font-size: 14px;
+    }
+
+    /* контейнер */
+    .report-container {
+        padding: 20px;
+    }
+
+    /* таблица */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    }
+
+    thead {
+        background: linear-gradient(135deg, #4f46e5, #06b6d4);
+        color: white;
+    }
+
+    th {
+        text-align: left;
+        padding: 14px;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    td {
+        padding: 14px;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 14px;
+        color: #111827;
+    }
+
+    tr:hover {
+        background: #f9fafb;
+        transition: 0.2s;
+    }
+
+    /* центр пустого состояния */
+    .empty {
+        text-align: center;
+        padding: 20px;
+        color: #9ca3af;
+        font-style: italic;
+    }
+
+    .low-student {
+        background: #fee2e2; /* светло-красный фон */
+    }
+
+        .low-student td {
+            color: #b91c1c;
+            font-weight: 600;
+        }
+
+
+    .notifyParents {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 6px 15px rgba(220, 38, 38, 0.25);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .notifyParents:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(220, 38, 38, 0.35);
+        }
+
+        .notifyParents:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 10px rgba(220, 38, 38, 0.2);
+        }
+
+        .notifyParents:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+</style>
+<script src="~/js/AdministrationJSCode/sendEmail.js" asp-append-version="true"></script>

@@ -9,6 +9,7 @@
         <thead>
             <tr>
                 <th>ФИО</th>
+                <th>Почта</th>
                 <th>Дата рождения</th>
                 <th>Номер телефона</th>
                 <th>Логин</th>
@@ -23,6 +24,9 @@
                 {
                     <tr>
                         <td>@par.User.FullName</td>
+                        <td>
+                            @(par.Email != null ? par.Email : "Почта не указана")
+                        </td>
                         <td>@par.User.BirthDate.ToString("dd-MM-yyyy")</td>
                         <td>@par.User.PhoneNumber</td>
                         <td>@par.User.UserName</td>

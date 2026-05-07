@@ -53,6 +53,10 @@
                 </select>
             </div>
         </div>
+        <div id="parentEmail" class="parent_block">
+            <label style="margin-bottom: 10px;">Почта:</label>
+            <input type="text" asp-for="Email">
+        </div>
         <button type="submit" class="btn_add">Обновить</button>
         <a asp-action="ResetPassword"
            asp-controller="Users"
@@ -110,6 +114,7 @@
         border-radius: 6px;
         outline: none;
         transition: 0.2s;
+        width: 100%;
     }
 
         input:focus, select:focus {
@@ -185,12 +190,18 @@
 <script>
     const roleSelect = document.getElementById("role");
     const classDiv = document.getElementById("classDiv");
-
+    const emailData = document.getElementById("parentEmail");
     function toggleClassDiv() {
         if (roleSelect.value === "Ученик") {
             classDiv.style.display = "block";
         } else {
             classDiv.style.display = "none";
+        }
+        if(roleSelect.value === "Родитель"){
+            emailData.style.display = "block";
+        }
+        else{
+              emailData.style.display = "none";
         }
     }
 

@@ -167,8 +167,8 @@
         <div class="message" style="color:lightgreen; font-size: 18px;">@TempData["Success"]</div>
     }
     <div class="menu">
-        <button id="on">Включить maintenance</button>
-        <button id="off">Выключить maintenance</button>
+        @* <button id="on">Включить maintenance</button>
+        <button id="off">Выключить maintenance</button> *@
 
         <a href="/Users/Index">Пользователи</a>
 
@@ -193,6 +193,8 @@
         <a href="/Parents/Index">Родители</a>
 
         <a href="/ActionLogs/Index">Логи действий</a>
+
+        <a href="/SchoolAdministrations/Index">Администрация школы</a>
 
         <form asp-controller="AdminPersonalAccount" asp-action="CreateBackup" method="post">
             <button type="submit">

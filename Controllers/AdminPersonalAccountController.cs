@@ -17,9 +17,10 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         private readonly ActionLogService _actionLogService;
         private readonly BackupsService _backupsService;
         private readonly SystemStateService _systemStateService;
+        private readonly RoleManager<IdentityRole> _role;
         public AdminPersonalAccountController(SignInManager<Users> signInManager, AppDbContext context,
-            UserManager<Users> manager, ActionLogService actionLogService, BackupsService backupsService, 
-            SystemStateService systemStateService)
+            UserManager<Users> manager, ActionLogService actionLogService, BackupsService backupsService,
+            SystemStateService systemStateService, RoleManager<IdentityRole> role)
         {
             _signIn = signInManager;
             _context = context;
@@ -27,6 +28,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             _actionLogService = actionLogService;
             _backupsService = backupsService;
             _systemStateService = systemStateService;
+            _role = role;
         }
         public async Task<IActionResult> Index()
         {

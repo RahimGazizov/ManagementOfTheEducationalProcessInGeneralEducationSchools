@@ -58,6 +58,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                         return RedirectToAction("Index", "StudentPerAcc");
                     if (await _users.IsInRoleAsync(user, "Родитель"))
                         return RedirectToAction("Index", "ParentPerAccount");
+                    if (await _users.IsInRoleAsync(user, "АдминистрацияШколы"))
+                        return RedirectToAction("Index", "AdministrationSchoolPerAcc");
                     return RedirectToAction("Index", "Authoriz");
                 }
                 else

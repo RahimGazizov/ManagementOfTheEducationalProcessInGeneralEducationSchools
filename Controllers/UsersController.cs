@@ -95,6 +95,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 dto.StudentClassNumber = student.Class?.NumClass ?? 0;
                 dto.StudentClassLetter = student.Class?.LetterClass ?? "нет буквы";
             }
+            if (roles.Contains("Родитель"))
+            {
+                var parent = await _context.Parent.FirstOrDefaultAsync(s => s.UserId == user.Id);
+                dto.Email = parent?.Email ?? "";
+            }
             ViewBag.Roles = await GetSelectList(await GetRoles());
             TempData["Url"] = returnUrl;
             return View(dto);

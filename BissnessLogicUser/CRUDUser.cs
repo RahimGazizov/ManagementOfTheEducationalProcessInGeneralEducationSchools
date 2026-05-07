@@ -234,7 +234,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
 
                 string? oldClassName = null;
                 string? newClassName = null;
-
+                string? oldEmail = null;
                 Students? student = null;
 
                 // Если редактируем ученика — заранее проверяем учебный год, четверть и ученика
@@ -292,7 +292,15 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                         _context.StudentsHistory.Add(studentHistory);
                     }
                 }
-
+                if (dto.Role == "Родитель")
+                {
+                    var parent = await _context.Parent.FirstOrDefaultAsync(u => u.UserId == dto.UserId);
+                    if (parent == null)
+                        return OperationResult.Fail("Родитель не найден");
+                    oldEmail = parent.Email;
+                    parent.Email = dto.Email;
+                    _context.Update(parent);
+                }
                 // Меняем роль
                 if (oldRoles.Any())
                 {
@@ -331,7 +339,10 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 {
                     details += $" Класс: {oldClassName} → {newClassName}.";
                 }
-
+                if (dto.Role == "Родитель" && dto.Email != null)
+                {
+                    details += $"Почта: {oldEmail} → {dto.Email}";
+                }
                 await _actionLogService.LogAsync(
                     action: "Редактирование пользователя",
                     entityName: "Пользователи",
@@ -357,7 +368,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 if (user == null)
                     return OperationResult.Fail("Пользователь не найден");
                 var roles = await _users.GetRolesAsync(user);
-               
+
                 var token = await _users.GeneratePasswordResetTokenAsync(user);
                 var result = await _users.ResetPasswordAsync(user, token, newPassword);
                 if (!result.Succeeded)

@@ -24,7 +24,10 @@ builder.Services.AddScoped<ParentPerAccLogic>();
 builder.Services.AddScoped<LessonSlotService>();
 builder.Services.AddScoped<JournalService>();
 builder.Services.AddScoped<ActionLogService>();
+builder.Services.AddScoped<AnaliticalService>();
 builder.Services.AddSingleton<SystemStateService>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddTransient<SendEmailService>();
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
@@ -48,7 +51,7 @@ builder.Services.AddIdentity<Users, IdentityRole>(options =>
 async Task EnsureRoles(IServiceProvider serviceProvider)
 {
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    string[] roles = { "Админ", "Учитель", "Ученик", "Родитель", "АдмнистрацияШколы" };
+    string[] roles = { "Админ", "Учитель", "Ученик", "Родитель", "АдминистрацияШколы" };
 
     foreach(var role in roles)
     {

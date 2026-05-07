@@ -17,5 +17,8 @@
         // Для учителя
         public List<string> TeacherSubjects { get; set; } = new();
         public List<string> TeacherClassIds { get; set; } = new();
+
+        // Для родителя
+        public string? Email { get; set; }
     }
 }

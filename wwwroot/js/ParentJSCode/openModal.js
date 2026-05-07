@@ -5,6 +5,7 @@
     initModal("btnOpenModalRating", "ratingModalForParent");
     initModal("scheduleStudentForParent", "scheduleModal");
     initModal("btnForRestoreBackup", "modalForRestoreBackup");
+    initModal("btnAnaliticalReport", "modalAnaliticalReport");
 });
 
 function initModal(btnId, modalId) {
