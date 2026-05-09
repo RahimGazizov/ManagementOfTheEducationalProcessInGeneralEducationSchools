@@ -245,14 +245,13 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LessonSlotId")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Room")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("TeachinsAssignmentId")
+                    b.Property<string>("TeacherAssigmentId")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -262,7 +261,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
 
                     b.HasIndex("LessonSlotId");
 
-                    b.HasIndex("TeachinsAssignmentId");
+                    b.HasIndex("TeacherAssigmentId");
 
                     b.ToTable("Schedules");
                 });
@@ -752,13 +751,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
 
                     b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.LessonSlot", "LessonSlot")
                         .WithMany()
-                        .HasForeignKey("LessonSlotId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("LessonSlotId");
 
                     b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.TeacherAssigment", "Assigment")
                         .WithMany()
-                        .HasForeignKey("TeachinsAssignmentId")
+                        .HasForeignKey("TeacherAssigmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

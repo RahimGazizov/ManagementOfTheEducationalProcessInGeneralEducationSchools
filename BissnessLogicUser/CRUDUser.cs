@@ -137,7 +137,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                     _context.Parent.Add(parent);
                     await _context.SaveChangesAsync();
                 }
-                else if (createUser.Role == "АдмнистрацияШколы")
+                else if (createUser.Role == "АдминистрацияШколы")
                 {
                     var schoolAdmin = new SchoolAdministrations
                     {
@@ -257,8 +257,8 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
 
                     if (student == null)
                         return OperationResult.Fail("Ученик не найден");
-
-                    oldClassName = $"{student.Class.NumClass}-{student.Class.LetterClass}";
+                    
+                    oldClassName = student.ClassId != null ? $"{student.Class.NumClass}-{student.Class.LetterClass}": "-";
 
                     var newClass = await _context.Classes
                         .FirstOrDefaultAsync(c => c.Id == dto.StudentClassId);
@@ -335,7 +335,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                               $"\nДата рождения: {oldBirthDate:dd.MM.yyyy} → {findUser.BirthDate:dd.MM.yyyy}. " +
                               $"\nТелефон: {oldPhoneNumber} → {findUser.PhoneNumber}.";
 
-                if (dto.Role == "Ученик" && oldClassName != null && newClassName != null)
+                if (dto.Role == "Ученик" && newClassName != null)
                 {
                     details += $" Класс: {oldClassName} → {newClassName}.";
                 }

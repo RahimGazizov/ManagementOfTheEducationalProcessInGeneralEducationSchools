@@ -43,12 +43,12 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
         }
         public async Task<OperationResult> AddScheduleClass(ScheduleLesson fm)
         {
-            var exists = await _context.Schedules.AnyAsync(s => s.TeachinsAssignmentId == fm.TeachinsAssignmentId &&
+            var exists = await _context.Schedules.AnyAsync(s => s.TeacherAssigmentId == fm.TeacherAssigmentId &&
             s.LessonSlotId == fm.LessonSlotId && s.DayOfWeek == fm.DayOfWeek && s.Room == fm.Room);
             if (exists)
                 return OperationResult.Fail("Такая запись уже существует!");
             var teacherId = await _context.TeacherAssigments
-               .Where(t => t.Id == fm.TeachinsAssignmentId)
+               .Where(t => t.Id == fm.TeacherAssigmentId)
                .Select(t => t.TeacherId)
                .FirstOrDefaultAsync();
             exists = await _context.Schedules
@@ -57,7 +57,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             if (exists)
                 return OperationResult.Fail("У учителя в это время стоит урок!");
             var classId = await _context.TeacherAssigments
-               .Where(t => t.Id == fm.TeachinsAssignmentId)
+               .Where(t => t.Id == fm.TeacherAssigmentId)
                .Select(t => t.ClassId)
                .FirstOrDefaultAsync();
             exists = await _context.Schedules
@@ -66,7 +66,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             if (exists)
                 return OperationResult.Fail("У класса в это время стоит урок!");
             var subName = await _context.TeacherAssigments
-                .Where(t => t.Id == fm.TeachinsAssignmentId)
+                .Where(t => t.Id == fm.TeacherAssigmentId)
                 .Select(t => t.Subject.Name)
                 .FirstOrDefaultAsync();
             exists = await _context.Schedules
@@ -113,12 +113,12 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
         }
         public async Task<OperationResult> EditScheduleClass(ScheduleLesson fm)
         {
-            var exists = await _context.Schedules.AnyAsync(s => s.TeachinsAssignmentId == fm.TeachinsAssignmentId &&
+            var exists = await _context.Schedules.AnyAsync(s => s.TeacherAssigmentId == fm.TeacherAssigmentId &&
             s.LessonSlotId == fm.LessonSlotId && s.DayOfWeek == fm.DayOfWeek && s.Room == fm.Room && s.Id != fm.Id);
             if (exists)
                 return OperationResult.Fail("Такая запись уже существует!");
             var teacherId = await _context.TeacherAssigments
-               .Where(t => t.Id == fm.TeachinsAssignmentId)
+               .Where(t => t.Id == fm.TeacherAssigmentId)
                .Select(t => t.TeacherId)
                .FirstOrDefaultAsync();
             exists = await _context.Schedules
@@ -127,7 +127,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             if (exists)
                 return OperationResult.Fail("У учителя в это время стоит урок!");
             var classId = await _context.TeacherAssigments
-               .Where(t => t.Id == fm.TeachinsAssignmentId)
+               .Where(t => t.Id == fm.TeacherAssigmentId)
                .Select(t => t.ClassId)
                .FirstOrDefaultAsync();
             exists = await _context.Schedules
@@ -136,7 +136,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
             if (exists)
                 return OperationResult.Fail("У класса в это время стоит урок!");
             var subName = await _context.TeacherAssigments
-                .Where(t => t.Id == fm.TeachinsAssignmentId)
+                .Where(t => t.Id == fm.TeacherAssigmentId)
                 .Select(t => t.Subject.Name)
                 .FirstOrDefaultAsync();
             var count = await _context.Schedules.
@@ -154,7 +154,7 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 return OperationResult.Fail("Старые записи не найдены для лога");
             schedule.DayOfWeek = fm.DayOfWeek;
             schedule.LessonSlotId = fm.LessonSlotId;
-            schedule.TeachinsAssignmentId = fm.TeachinsAssignmentId;
+            schedule.TeacherAssigmentId = fm.TeacherAssigmentId;
             schedule.Room = fm.Room;
             await _context.SaveChangesAsync();
             var newSchedule = await GetSchedule(schedule.Id);

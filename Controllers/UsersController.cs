@@ -8,7 +8,7 @@ using InformationSystemOfASchoolIducationalPortal.Data;
 using Microsoft.AspNetCore.Authorization;
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
-    //[Authorize(Roles = "Админ")]
+    [Authorize(Roles = "Админ")]
     public class UsersController : Controller
     {
         private readonly UserManager<Users> _users;
@@ -108,6 +108,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         public async Task<IActionResult> EditUser(EditUserDTO dto, string returnUrl)
         {
             var result = await _crudUser.Edit(dto);
+            
+
             if (!result.Succeeded)
             {
                 TempData["Error"] = result.Message;

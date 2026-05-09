@@ -1,6 +1,6 @@
 ﻿using InformationSystemOfASchoolIducationalPortal.Data;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-
 namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
 {
     public class BackupsService
@@ -31,21 +31,25 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
                 if (!Directory.Exists(folder))
                     Directory.CreateDirectory(folder);
 
-                var bachupsPath = Path.Combine(folder,
-                    $"backups_{DateTime.Now:yyyy-MM-dd}.db");
+                var backupPath = Path.Combine(folder,
+                    $"backup_{DateTime.Now:yyyy-MM-dd}.db");
 
-                using (var source = new FileStream(_dbPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (var dest = new FileStream(bachupsPath, FileMode.Create))
-                {
-                    await source.CopyToAsync(dest);
-                }
+                await _context.SaveChangesAsync();
+
+                var connection = (SqliteConnection)_context.Database.GetDbConnection();
+                await connection.OpenAsync();
+                using var backup = new SqliteConnection($"Data Source={backupPath}");
+                await backup.OpenAsync();
+                connection.BackupDatabase(backup);
+
                 await _actionService.LogAsync(
-                    "Создание резервной копии бд",
+                    "Создание резервной копии",
                     null,
                     null,
-                    $"Создана резервная копия: {bachupsPath}"
-                    );
-                return OperationResult.Ok("Резервное копирование создано");
+                    $"Backup создан: {backupPath}"
+                );
+
+                return OperationResult.Ok("Резервная копия создана");
             }
             catch (Exception ex)
             {
@@ -54,18 +58,26 @@ namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
         }
         public async Task<OperationResult> RestoreBackup(string fileName)
         {
-            if (fileName == null)
+            if (string.IsNullOrEmpty(fileName))
                 return OperationResult.Fail("Название файла пуст");
+
             var backupPath = Path.Combine("Backups", fileName);
+
             if (!File.Exists(backupPath))
                 return OperationResult.Fail("Файл не найден");
+
             try
             {
                 _systemStateService.IsMaintenanceMode = true;
 
                 await _context.Database.CloseConnectionAsync();
+                _context.ChangeTracker.Clear();
+
+                await Task.Delay(1000); // даём завершиться запросам
 
                 File.Copy(backupPath, _dbPath, true);
+
+                SqliteConnection.ClearAllPools();
 
                 _systemStateService.IsMaintenanceMode = false;
 

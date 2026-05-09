@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InformationSystemOfASchoolIducationalPortal.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260506104508_AddNewColumnEmailInParents")]
-    partial class AddNewColumnEmailInParents
+    [Migration("20260509084014_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -248,14 +248,13 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LessonSlotId")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Room")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("TeachinsAssignmentId")
+                    b.Property<string>("TeacherAssigmentId")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -265,7 +264,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
 
                     b.HasIndex("LessonSlotId");
 
-                    b.HasIndex("TeachinsAssignmentId");
+                    b.HasIndex("TeacherAssigmentId");
 
                     b.ToTable("Schedules");
                 });
@@ -755,13 +754,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
 
                     b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.LessonSlot", "LessonSlot")
                         .WithMany()
-                        .HasForeignKey("LessonSlotId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("LessonSlotId");
 
                     b.HasOne("InformationSystemOfASchoolIducationalPortal.Models.TeacherAssigment", "Assigment")
                         .WithMany()
-                        .HasForeignKey("TeachinsAssignmentId")
+                        .HasForeignKey("TeacherAssigmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

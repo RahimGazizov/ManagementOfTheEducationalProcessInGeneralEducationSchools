@@ -1,4 +1,4 @@
-﻿using InformationSystemOfASchoolIducationalPortal.Data;
+﻿    using InformationSystemOfASchoolIducationalPortal.Data;
 using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -81,6 +81,9 @@ l.StartTime == fm.StartTime && l.EndTime == fm.EndTime && l.Id != fm.Id);
             var exists = await _context.LessonSlots.FirstOrDefaultAsync(x => x.Id == id);
             if (exists == null)
                 return OperationResult.Fail("Обьект не найден удаление не возможно");
+            var IsUsed = await _context.Schedules.AnyAsync(x => x.LessonSlotId == id);
+            if (IsUsed)
+                return OperationResult.Fail("Этот слот используется удаление невозможно");
             _context.LessonSlots.Remove(exists);
             await _context.SaveChangesAsync();
             await _actionLogService.LogAsync(

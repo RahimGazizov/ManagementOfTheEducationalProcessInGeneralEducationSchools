@@ -26,6 +26,26 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ActionLog",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserId = table.Column<string>(type: "TEXT", nullable: true),
+                    UserName = table.Column<string>(type: "TEXT", nullable: true),
+                    Role = table.Column<string>(type: "TEXT", nullable: true),
+                    Action = table.Column<string>(type: "TEXT", nullable: false),
+                    EntityName = table.Column<string>(type: "TEXT", nullable: true),
+                    EntityId = table.Column<string>(type: "TEXT", nullable: true),
+                    Details = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ActionLog", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
                 {
@@ -281,7 +301,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false)
+                    UserId = table.Column<string>(type: "TEXT", nullable: false),
+                    Email = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -521,10 +542,10 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
-                    TeachinsAssignmentId = table.Column<string>(type: "TEXT", nullable: false),
+                    TeacherAssigmentId = table.Column<string>(type: "TEXT", nullable: false),
                     AcademicYearId = table.Column<string>(type: "TEXT", nullable: false),
                     DayOfWeek = table.Column<string>(type: "TEXT", nullable: false),
-                    LessonSlotId = table.Column<string>(type: "TEXT", nullable: false),
+                    LessonSlotId = table.Column<string>(type: "TEXT", nullable: true),
                     Room = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -540,11 +561,10 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                         name: "FK_Schedules_LessonSlots_LessonSlotId",
                         column: x => x.LessonSlotId,
                         principalTable: "LessonSlots",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Schedules_TeacherAssigments_TeachinsAssignmentId",
-                        column: x => x.TeachinsAssignmentId,
+                        name: "FK_Schedules_TeacherAssigments_TeacherAssigmentId",
+                        column: x => x.TeacherAssigmentId,
                         principalTable: "TeacherAssigments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -659,9 +679,9 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
                 column: "LessonSlotId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Schedules_TeachinsAssignmentId",
+                name: "IX_Schedules_TeacherAssigmentId",
                 table: "Schedules",
-                column: "TeachinsAssignmentId");
+                column: "TeacherAssigmentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Students_ClassId",
@@ -729,6 +749,9 @@ namespace InformationSystemOfASchoolIducationalPortal.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ActionLog");
+
             migrationBuilder.DropTable(
                 name: "Administrations");
 
