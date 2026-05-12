@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.EntityFrameworkCore;
 using InformationSystemOfASchoolIducationalPortal.Data;
-using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
+using InformationSystemOfASchoolIducationalPortal.Service;
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
 

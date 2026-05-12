@@ -16,7 +16,7 @@
         <label>Телефон</label>
         <input type="tel" asp-for="PhoneNumber" required />
         <label asp-for="Login">Введите логин</label>
-        <input type="text" asp-for="Login" required />
+        <input type="text" asp-for="Login" value="@ViewBag.TemproryUserName" readonly />
         <label asp-for="Password">Пароль</label>
         <input type="text" asp-for="Password" value="@ViewBag.TemproryPassword" readonly required />
         <label asp-for="BirthDate">Введите дату рождения</label>

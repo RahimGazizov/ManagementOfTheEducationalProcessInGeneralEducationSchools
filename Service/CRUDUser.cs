@@ -3,7 +3,7 @@ using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
+namespace InformationSystemOfASchoolIducationalPortal.Service
 {
     public class CRUDUser
     {

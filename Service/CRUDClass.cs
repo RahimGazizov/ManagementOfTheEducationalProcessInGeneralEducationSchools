@@ -3,7 +3,7 @@ using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
+namespace InformationSystemOfASchoolIducationalPortal.Service
 {
     public class CRUDClass
     {

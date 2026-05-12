@@ -1,7 +1,7 @@
 ﻿using InformationSystemOfASchoolIducationalPortal.Data;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
+namespace InformationSystemOfASchoolIducationalPortal.Service
 {
     public class BackupsService
     {

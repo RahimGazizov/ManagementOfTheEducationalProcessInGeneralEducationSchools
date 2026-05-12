@@ -1,4 +1,4 @@
-using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
+using InformationSystemOfASchoolIducationalPortal.Service;
 using InformationSystemOfASchoolIducationalPortal.Data;
 using InformationSystemOfASchoolIducationalPortal.Middlewares;
 using InformationSystemOfASchoolIducationalPortal.Models;
@@ -26,6 +26,7 @@ builder.Services.AddScoped<JournalService>();
 builder.Services.AddScoped<ActionLogService>();
 builder.Services.AddScoped<AnaliticalService>();
 builder.Services.AddSingleton<SystemStateService>();
+builder.Services.AddScoped<AuthorizService>(); 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<SendEmailService>();
 builder.Services.AddControllersWithViews()
@@ -38,16 +39,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddIdentity<Users, IdentityRole>(options =>
 {
-    options.SignIn.RequireConfirmedAccount = false;
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 6; // или сколько хочешь
-
+    options.SignIn.RequireConfirmedAccount = false; // подтверждать ли почту ии телефон
+    options.Password.RequireDigit = true; // есть ли хоть одна цифра в пароле
+    options.Password.RequireLowercase = true; // отвечает за строчную букву
+    options.Password.RequireUppercase = true; // есть ли заглавная буква
+    options.Password.RequireNonAlphanumeric = true; // есть ли специальная символа ! @ $ # %
+    options.Password.RequiredLength = 8; // длинна пароля 
 })
     .AddDefaultTokenProviders()
-.AddEntityFrameworkStores<AppDbContext>();
+.AddEntityFrameworkStores<AppDbContext>()
+.AddErrorDescriber<RussianErrorDescriber>();
 async Task EnsureRoles(IServiceProvider serviceProvider)
 {
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();

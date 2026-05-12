@@ -1,4 +1,4 @@
-﻿using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
+﻿using InformationSystemOfASchoolIducationalPortal.Service;
 using InformationSystemOfASchoolIducationalPortal.Data;
 using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.AspNetCore.Authorization;

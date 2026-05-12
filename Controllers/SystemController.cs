@@ -1,4 +1,4 @@
-﻿using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
+﻿using InformationSystemOfASchoolIducationalPortal.Service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InformationSystemOfASchoolIducationalPortal.Controllers

@@ -3,7 +3,7 @@ using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.EntityFrameworkCore;
 using NuGet.DependencyResolver;
 
-namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
+namespace InformationSystemOfASchoolIducationalPortal.Service
 {
     public class JournalService
     {

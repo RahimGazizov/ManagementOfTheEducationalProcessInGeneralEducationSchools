@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using InformationSystemOfASchoolIducationalPortal.BissnessLogicUser;
+using InformationSystemOfASchoolIducationalPortal.Service;
 using InformationSystemOfASchoolIducationalPortal.Data;
 using Microsoft.AspNetCore.Authorization;
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
@@ -15,7 +15,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         private readonly RoleManager<IdentityRole> _roles;
         private readonly CRUDUser _crudUser;
         private readonly AppDbContext _context;
-
         public UsersController(UserManager<Users> users, RoleManager<IdentityRole> roles,
             CRUDUser crudUser, AppDbContext context)
         {
@@ -48,6 +47,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             var roles = await GetRoles();
             ViewBag.Roles = await GetSelectList(roles);
             Random random = new Random();
+            ViewBag.TemproryUserName =
+    $"User_{DateTime.UtcNow:HHmmssfff}_{Guid.NewGuid().ToString("N")[..4]}";
             ViewBag.TemproryPassword = "Temp" + random.Next(1000, 9999) + "!";
             return View();
         }

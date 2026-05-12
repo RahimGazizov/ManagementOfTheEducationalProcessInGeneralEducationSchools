@@ -2,7 +2,7 @@
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
-namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
+namespace InformationSystemOfASchoolIducationalPortal.Service
 {
     public class SendEmailService
     {

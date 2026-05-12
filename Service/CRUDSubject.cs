@@ -1,9 +1,9 @@
 ﻿using InformationSystemOfASchoolIducationalPortal.Data;
 using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.EntityFrameworkCore;
-using static InformationSystemOfASchoolIducationalPortal.BissnessLogicUser.CRUDClass;
+using static InformationSystemOfASchoolIducationalPortal.Service.CRUDClass;
 
-namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
+namespace InformationSystemOfASchoolIducationalPortal.Service
 {
     public class CRUDSubject
     {

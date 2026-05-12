@@ -2,7 +2,7 @@
 using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
+namespace InformationSystemOfASchoolIducationalPortal.Service
 {
     public class AnaliticalService
     {

@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using System.Reflection.Emit;
-using static InformationSystemOfASchoolIducationalPortal.BissnessLogicUser.CRUDClass;
-namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
+using static InformationSystemOfASchoolIducationalPortal.Service.CRUDClass;
+namespace InformationSystemOfASchoolIducationalPortal.Service
 {
     public class TeachingAssigmentLogic
     {

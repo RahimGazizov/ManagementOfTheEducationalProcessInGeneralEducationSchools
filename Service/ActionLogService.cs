@@ -4,7 +4,7 @@ using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore; // это информация о текущем пользователе и текущем запросе.
 
-namespace InformationSystemOfASchoolIducationalPortal.BissnessLogicUser
+namespace InformationSystemOfASchoolIducationalPortal.Service
 {
 
     public class ActionLogService
