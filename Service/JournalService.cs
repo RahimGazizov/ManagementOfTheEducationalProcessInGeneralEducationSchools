@@ -9,12 +9,10 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
     {
         private readonly AppDbContext _context;
         private readonly ActionLogService _actionService;
-        private readonly SystemStateService _systemStateService;
-        public JournalService(AppDbContext context, ActionLogService actionService, SystemStateService systemStateService)
+        public JournalService(AppDbContext context, ActionLogService actionService)
         {
             _context = context;
             _actionService = actionService;
-            _systemStateService = systemStateService;
         }
         public class OperationResult<T>
         {
@@ -47,7 +45,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
         }
         public async Task<OperationResult<string>> CreateJournal(string teacherId, string subjectId, string classId)
         {
-           
             var dayToday = DateTime.Today;
             var currentYear = await GetAcademicYear(dayToday);
             if (currentYear == null)
@@ -55,6 +52,25 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
             var currentTerm = await GetTerm(dayToday, currentYear.Id);
             if (currentTerm == null)
                 return OperationResult<string>.Fail("Не найдена текущая четверть");
+            var teacher = await _context.Teachers
+             .Where(s => s.Id == teacherId)
+             .Select(s => s.User.FullName).FirstOrDefaultAsync();
+            if (teacher == null)
+                return OperationResult<string>.Fail("Учитель не найден");
+            var subName = await _context.Subjects
+                .Where(s => s.Id == subjectId)
+                .Select(s => s.Name).FirstOrDefaultAsync();
+            if (subName == null)
+                return OperationResult<string>.Fail("Предмет не найден");
+            var className = await _context.Classes
+              .Where(s => s.Id == classId)
+              .Select(s => new
+              {
+                  classNum = s.NumClass,
+                  classLett = s.LetterClass
+              }).FirstOrDefaultAsync();
+            if (className == null)
+                return OperationResult<string>.Fail("Класс не найден");
 
             var journal = new Journal
             {
@@ -81,25 +97,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
             }
             _context.Journal.Add(journal);
             await _context.SaveChangesAsync();
-            var teacher = await _context.Teachers
-                .Where(s => s.Id == teacherId)
-                .Select(s => s.User.FullName).FirstOrDefaultAsync();
-            if (teacher == null)
-                return OperationResult<string>.Fail("Учитель не найден для лога");
-            var subName = await _context.Subjects
-                .Where(s => s.Id == subjectId)
-                .Select(s => s.Name).FirstOrDefaultAsync();
-            if (subName == null)
-                return OperationResult<string>.Fail("Предмет не найден для лога");
-            var className = await _context.Classes
-              .Where(s => s.Id == classId)
-              .Select(s => new
-              {
-                  classNum = s.NumClass,
-                  classLett = s.LetterClass
-              }).FirstOrDefaultAsync();
-            if (className == null)
-                return OperationResult<string>.Fail("Класс не найден для лога");
+         
             await _actionService.LogAsync(
                 "Создание журнала",
                 "Журнал",
@@ -127,8 +125,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
                    ClassNum = s.Class.NumClass,
                    ClassLett = s.Class.LetterClass
                }).FirstOrDefaultAsync();
-            if (journalForLog == null)
-                return OperationResult.Fail("Журнал для лога не найден");
             _context.Remove(journal);
             await _context.SaveChangesAsync();
             await _actionService.LogAsync(
@@ -146,11 +142,13 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
             var exists = await _context.Journal
                 .Include(s => s.Subject)
                 .Include(s => s.Class)
+                .Include(s => s.Entries)
                 .FirstOrDefaultAsync(j => j.Id == journal.Id);
 
             if (exists == null)
                 return OperationResult<string>.Fail("Журнал не найден");
-
+            if (!exists.IsLocked)
+                return OperationResult<string>.Fail("Редактирование не возможно, истек срок возможности редактирование");
             // фикс темы и дз
             bool lessonChanged =
                 exists.LessonTopic != journal.LessonTopic ||

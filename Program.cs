@@ -62,14 +62,15 @@ async Task EnsureRoles(IServiceProvider serviceProvider)
         }
     }
 }
-builder.Services.ConfigureApplicationCookie(option =>
+builder.Services.ConfigureApplicationCookie(options =>
 {
-    option.LoginPath = "/Authoriz/Index"; // адрес редиректа если пользователь не авторизован
-    option.ExpireTimeSpan = TimeSpan.FromHours(1); // кука удалиться после закрытия браузера
-    option.SlidingExpiration = true; // не продливать автоматически
-    option.Cookie.HttpOnly = true;
-    option.Cookie.IsEssential = true;
-    option.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.LoginPath = "/Authoriz/Index"; // куда отправлять неавторизованного пользователя
+    options.ExpireTimeSpan = TimeSpan.FromHours(1); // срок жизни auth-ticket
+    options.SlidingExpiration = true; // при активности срок будет продлеваться
+    options.Cookie.HttpOnly = true; // JavaScript не сможет читать cookie
+    options.Cookie.IsEssential = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // только по HTTPS
+    options.Cookie.SameSite = SameSiteMode.Lax; // базовая защита от части CSRF-сценариев
 });
 //builder.Services.ConfigureApplicationCookie(options =>
 //{
