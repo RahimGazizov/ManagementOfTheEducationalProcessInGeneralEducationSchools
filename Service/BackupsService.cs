@@ -37,15 +37,21 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
                 await _context.SaveChangesAsync();
 
                 var connection = (SqliteConnection)_context.Database.GetDbConnection();
-                await connection.OpenAsync();
-                using var backup = new SqliteConnection($"Data Source={backupPath}");
+
+                if (connection.State != System.Data.ConnectionState.Open)
+                    await connection.OpenAsync();
+
+                await using var backup = new SqliteConnection($"Data Source={backupPath};Pooling=False");
                 await backup.OpenAsync();
+
                 connection.BackupDatabase(backup);
+
+                await backup.CloseAsync();
 
                 await _actionService.LogAsync(
                     "Создание резервной копии",
-                    null,
-                    null,
+                    "Резервная копия",
+                    backupPath,
                     $"Backup создан: {backupPath}"
                 );
 
@@ -53,7 +59,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
             }
             catch (Exception ex)
             {
-                return OperationResult.Fail(ex.Message);
+                return OperationResult.Fail(ex.InnerException?.Message ?? ex.Message);
             }
         }
         public async Task<OperationResult> RestoreBackup(string fileName)
@@ -86,7 +92,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
             catch (Exception ex)
             {
                 _systemStateService.IsMaintenanceMode = false;
-                return OperationResult.Fail(ex.Message);
+                return OperationResult.Fail("Ошибка восстановление базы данных");
             }
         }
     }

@@ -24,6 +24,9 @@
         <a class="side-btn" id="RatingBtn" title="Рейтинг">
             <i class="bi bi-trophy"></i>
         </a>
+        <a class="side-btn" asp-action="LogOut" title="Закрыть">
+            <i class="bi bi-x-lg"></i>
+        </a>
     </div>
     <div class="personalAcc">
         <p class="hello">Привет, @Model.Student.User.FullName.OnlyName()!</p>
@@ -182,6 +185,7 @@
 @*Модальное окно для рейтинга*@
 <div class="modal" id="ratingModal">
     <div class="modal-content">
+        <div id="errorMessage"></div>
         <input type="hidden" value="@Model.Student.Id" id="studentIdForRating">
         <label>Список классов</label>
         @if (Model.Classes != null && Model.Classes.Any())
@@ -211,7 +215,7 @@
     </div>
 </div>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"> 
 <style>
     .left-content {
         width: 72px;
@@ -263,39 +267,7 @@
             font-size: 18px;
         }
 
-    .resultReting {
-        display: none;
-        overflow-y: auto;
-        margin-top: 15px;
-    }
-
-        .resultReting h4, .resultReting h5 {
-            text-align: center;
-            font-size: 17px;
-        }
-
-    .showRating {
-        width: 100%;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        border-radius: 12px;
-        background-color: #fff;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        padding: 10px;
-    }
-
-    .rating-list {
-        margin-top: 10px;
-    }
-
-    .rating-row {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-        padding: 8px 0;
-        border-bottom: 1px solid #eee;
-    }
+   
 </style>
 <script>
     const modal = document.getElementById("openModalForm");
@@ -336,7 +308,7 @@
         }
     }
 </script>
-<link rel="stylesheet" href="/css/studentPerAcc.css" />
+<link rel="stylesheet" href="/css/studentPerAcc.css" asp-append-version="true"/>
 <script src="/js/studentJSCode/getInfoAboutClass.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/js/studentJSCode/dataForGraph.js"></script>
