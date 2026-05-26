@@ -1,6 +1,7 @@
 ﻿using InformationSystemOfASchoolIducationalPortal.Data;
 using InformationSystemOfASchoolIducationalPortal.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Build.Evaluation;
 using Microsoft.EntityFrameworkCore;
 
 namespace InformationSystemOfASchoolIducationalPortal.Service
@@ -8,25 +9,27 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
     public class ParentPerAccLogic
     {
         private readonly AppDbContext _context;
-        public ParentPerAccLogic(AppDbContext context)
+        private readonly StudentPerAccLogic _studentPerAccLogic;
+        public ParentPerAccLogic(AppDbContext context, StudentPerAccLogic studentPerAccLogic)
         {
             _context = context;
+            _studentPerAccLogic = studentPerAccLogic;
         }
-        public class OperatinResult<T>
+        public class OperationResult<T>
         {
             public bool Success { get; set; }
             public string? Message { get; set; }
             public T Data { get; set; }
-            public static OperatinResult<T> Ok(string? message, T data) => new OperatinResult<T> { Success = true, Message = message, Data = data };
-            public static OperatinResult<T> Fail(string message) => new OperatinResult<T> { Success = false, Message = message };
+            public static OperationResult<T> Ok(string? message, T data) => new OperationResult<T> { Success = true, Message = message, Data = data };
+            public static OperationResult<T> Fail(string message) => new OperationResult<T> { Success = false, Message = message };
         }
-        public async Task<OperatinResult<ModelViewForParents>> ForIndexData(Parents parent)
+        public async Task<OperationResult<ModelViewForParents>> ForIndexData(Parents parent)
         {
             try
             {
                 string[] name = parent.User.FullName.Split(',');
                 if (parent == null)
-                    return OperatinResult<ModelViewForParents>.Fail("Родитель не найден");
+                    return OperationResult<ModelViewForParents>.Fail("Родитель не найден");
                 var parentWithStudents = await _context.Parent
         .Include(p => p.Students)
         .ThenInclude(s => s.User)
@@ -34,7 +37,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
         .ThenInclude(s => s.Class)
         .FirstOrDefaultAsync(p => p.Id == parent.Id);
                 if (parentWithStudents == null)
-                    return OperatinResult<ModelViewForParents>.Fail($"{name[1]} вам не назначили ученика");
+                    return OperationResult<ModelViewForParents>.Fail($"{name[1]} вам не назначили ученика");
 
                 var children = parentWithStudents.Students
          .Select(s => new SelectListItem
@@ -69,14 +72,27 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
                 {
                     Parent = parent,
                     Childrens = children,
-                    Students = avgScores
+                    Students = avgScores,
+                    AvgDynamicsInfo = await AvgScoreDimamicsChildren(parentWithStudents.Students)
                 };
-                return OperatinResult<ModelViewForParents>.Ok(null, viewModel);
+                return OperationResult<ModelViewForParents>.Ok(null, viewModel);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return OperatinResult<ModelViewForParents>.Fail(ex.Message);
+                return OperationResult<ModelViewForParents>.Fail(ex.Message);
             }
+        }
+        public async Task<Dictionary<string, double>> AvgScoreDimamicsChildren(List<Students> students)
+        {
+            if (!students.Any())
+                return new();
+            var studentAvgDynamicsInfo = new Dictionary<string, double>();
+            foreach (var student in students)
+            {
+                var avg = await _studentPerAccLogic.AvgScoreDimamics(student);
+                studentAvgDynamicsInfo.Add(student.Id, avg);
+            }
+            return studentAvgDynamicsInfo;
         }
     }
 }

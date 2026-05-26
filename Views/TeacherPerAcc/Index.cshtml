@@ -22,7 +22,7 @@
                 @if (listS != null && listS.Any())
                 {
                     <select id="subjectSelectCreate" name="subjectId">
-                        <option>Выберите предмет</option>
+                        <option value="">Выберите предмет</option>
                         @foreach (var s in listS)
                         {
                             <option value="@s.Id">@s.Name</option>

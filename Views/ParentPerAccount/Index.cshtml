@@ -66,10 +66,26 @@
 
                             <div class="child-metric">
                                 <p class="metric-label">Средний балл</p>
-                                <p class="metric-value">@child.AvgScore</p>
+                                <p class="metric-value">
+                                    <span class="avg-score">@child.AvgScore</span>
+                            @if (Model.AvgDynamicsInfo[child.Student.Id] > 0)
+                                    {
+                                        <span class="avg-dynamics positive">
+                                            <span class="dynamics-arrow">↑</span>
+                                            +@Math.Abs(Model.AvgDynamicsInfo[child.Student.Id]).ToString("0.0")
+                                        </span>
+                                    }
+                                    else if (Model.AvgDynamicsInfo[child.Student.Id] < 0)
+                                    {
+                                        <span class="avg-dynamics negative">
+                                            <span class="dynamics-arrow">↓</span>
+                                            -@Math.Abs(Model.AvgDynamicsInfo[child.Student.Id]).ToString("0.0")
+                                        </span>
+                                    }
+                                </p>
                             </div>
                         </div>
-                                }
+                    }
                 </div>
             }
             else
@@ -80,7 +96,7 @@
             }
 
             <div class="parent-footer-note">
-                Здесь позже можно добавить рейтинг, уведомления или общую сводку по успеваемости.
+               
             </div>
         </div>
     </div>
@@ -264,7 +280,7 @@
         }
         else
         {
-            <input type="text" value="Вам пока не назначили ученика" readonly/>
+            <input type="text" value="Вам пока не назначили ученика" readonly />
         }
     </div>
 </div>
@@ -599,6 +615,44 @@
         width: 400px;
         max-height: calc(100vh - 60px);
         overflow-y: auto;
+    }
+
+    .metric-value {
+        margin: 0;
+        white-space: nowrap;
+        line-height: 1;
+    }
+
+    /* Средний балл: крупный */
+    .avg-score {
+        font-size: 32px;
+        font-weight: 700;
+        color: #FFF;
+    }
+
+    /* Стрелка и изменение: в той же строке, но меньше */
+    .avg-dynamics {
+        display: inline-block;
+        margin-left: 5px;
+        font-size: 15px;
+        font-weight: 600;
+        vertical-align: baseline;
+    }
+
+    /* Стрелка ещё немного меньше */
+    .dynamics-arrow {
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    /* Плюсовая динамика */
+    .avg-dynamics.positive {
+        color: #B6F5C7;
+    }
+
+    /* Минусовая динамика */
+    .avg-dynamics.negative {
+        color: #dc2626;
     }
 </style>
 <link rel="stylesheet" href="/css/modalWindow.css" />

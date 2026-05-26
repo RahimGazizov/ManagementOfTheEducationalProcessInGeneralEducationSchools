@@ -45,6 +45,12 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
         }
         public async Task<OperationResult<string>> CreateJournal(string teacherId, string subjectId, string classId)
         {
+            if(string.IsNullOrWhiteSpace(teacherId))
+                return OperationResult<string>.Fail("Айди учителя пустой");
+            if (string.IsNullOrWhiteSpace(subjectId))
+                return OperationResult<string>.Fail("Вы не выбрали предмет");
+            if (string.IsNullOrWhiteSpace(classId))
+                return OperationResult<string>.Fail("Вы не выбрали класс");
             var dayToday = DateTime.Today;
             var currentYear = await GetAcademicYear(dayToday);
             if (currentYear == null)

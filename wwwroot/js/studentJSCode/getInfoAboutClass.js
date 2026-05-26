@@ -72,6 +72,10 @@
 
             term.innerHTML = "";
 
+            const opt = document.createElement("option");
+            opt.value = "";
+            opt.text = "Выберите четверть";
+            term.appendChild(opt);
             if (!data.terms || data.terms.length === 0) {
                 console.warn("⚠ terms is empty");
             } else {
@@ -95,7 +99,8 @@
         const academicId = document.getElementById("academicYearId").value;
         const termId = document.getElementById("listTerms").value;
         const studentId = document.getElementById("studentId").value;
-        if (!classId || !subjectId || !academicId || !termId || !studentId) return;
+        const error = document.getElementById("errorForAvgGrade");
+        
 
         const params = new URLSearchParams();
         params.append("classId", classId);
@@ -103,12 +108,27 @@
         params.append("academicId", academicId);
         params.append("termId", termId);
         params.append("studentId", studentId);
+
         const response = await fetch(`/StudentPerAcc/GetResultInfo?${params.toString()}`);
-        if (!response.ok) {
-            console.error("❌ Server error:", response.status);
+        let data;
+        try {
+            data = await response.json();
+        }
+        catch {
+            console.log("Данные пришли не в JSON формате");
+            error.innerText = "Не удалось получить средней балл";
+            setTimeout(function () {
+                error.innerText = "";
+            }, 2500)
             return;
         }
-        const data = await response.json();
+        if (!response.ok || data.success === false) {
+            error.innerText = data.message;
+            setTimeout(function () {
+                error.innerText = "";
+            }, 2500)
+            return;
+        }
         document.getElementById("resSubject").textContent = data.name;
         document.getElementById("resAverage").textContent = data.average;
 

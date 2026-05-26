@@ -1,11 +1,12 @@
-﻿using InformationSystemOfASchoolIducationalPortal.Models;
+﻿using InformationSystemOfASchoolIducationalPortal.Data;
+using InformationSystemOfASchoolIducationalPortal.Models;
+using InformationSystemOfASchoolIducationalPortal.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using InformationSystemOfASchoolIducationalPortal.Service;
-using InformationSystemOfASchoolIducationalPortal.Data;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using System;
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
     [Authorize(Roles = "Админ")]
@@ -57,12 +58,14 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         {
             Console.WriteLine("Номера телефона" + createUser.PhoneNumber);
             var result = await _crudUser.AddUser(createUser);
+            Random random = new Random();
             if (!result.Succeeded)
             {
                 TempData["Error"] = result.Message;
                 var roles = await GetRoles();
                 ViewBag.Roles = await GetSelectList(roles);
-                ViewBag.TemproryPassword = createUser.Password;
+                ViewBag.TemproryUserName = createUser.Login; 
+                ViewBag.TemproryPassword = "Temp" +  random.Next(1000, 9999) + "!";
                 return View(createUser);
             }
             return RedirectToAction("Index");

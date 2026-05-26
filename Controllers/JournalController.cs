@@ -31,7 +31,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 if (!result.Success)
                 {
                     TempData["Error"] = result.Message;
-                    return RedirectToAction("Index", "TeacherPerAcc");
+                    return RedirectToAction("Index", "TeacherPerAcc", new {error = result.Message});
                 }
                 return RedirectToAction("Edit", new { id = result.Data });
             }

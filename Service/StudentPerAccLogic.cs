@@ -177,6 +177,10 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
             {
                 var numClass = await _context.Classes
                     .Where(s => s.Id == classId).Select(s => s.NumClass).FirstOrDefaultAsync();
+                var parrallelCLass = await _context.Classes
+                    .Where(s => s.NumClass == numClass).ToListAsync();
+                if (parrallelCLass.Count < 2)
+                    return OperationResult<RatingParallelClass>.Fail(null);
                 var data = await _context.JournalEntry
                     .Where(s => s.Journal.Class.NumClass == numClass
                     && s.Journal.AcademicYearId == academicId

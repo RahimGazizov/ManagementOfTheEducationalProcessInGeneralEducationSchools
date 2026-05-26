@@ -30,7 +30,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
             try
             {
                 if (createUser == null)
-                    return OperationResult.Fail("Ошибка создания пользователя");
+                    return OperationResult.Fail("Данные пользователя отсутствуют");
 
                 if (string.IsNullOrWhiteSpace(createUser.Role))
                     return OperationResult.Fail("Роль пользователя не указана");
@@ -51,7 +51,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
                     if (studentClass == null)
                         return OperationResult.Fail("Класс не найден");
 
-                    if (studentClass.Students.Count >= 30)
+                    if (studentClass.Students.Count >= 2)
                         return OperationResult.Fail($"Класс {studentClass.NumClass}-{studentClass.LetterClass} полный. Больше нельзя добавлять");
 
                     currentYear = await _context.AcademicYear

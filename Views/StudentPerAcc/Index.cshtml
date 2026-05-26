@@ -61,8 +61,23 @@
                 <p style="font-weight: 700;font-size:19px;color:rgba(255, 255, 255, 0.8);">@Model.Student.Class.NumClass"@Model.Student.Class.LetterClass"</p>
                 <p style="font-weight: 400; font-style: italic; font-size:10px; color:rgba(255, 255, 255, 0.8);">Средний балл</p>
                 <p style="font-weight: 700; font-size:26px; color:rgba(255, 255, 255, 1);">
-                    @Model.AverageGrade
-                    @(Model.Delta > 0 ? $" ↑ +{Math.Abs(Model.Delta):0.0}" : Model.Delta < 0 ? $" ↓ -{Math.Abs(Model.Delta):0.0}" : "")
+                <p class="metric-value">
+                    <span class="avg-score">@Model.AverageGrade</span>
+                    @if (Model.Delta > 0)
+                    {
+                        <span class="avg-dynamics positive">
+                            <span class="dynamics-arrow">↑</span>
+                            +@Math.Abs(Model.Delta).ToString("0.0")
+                        </span>
+                    }
+                    else if (Model.Delta < 0)
+                    {
+                        <span class="avg-dynamics negative">
+                            <span class="dynamics-arrow">↓</span>
+                            -@Math.Abs(Model.Delta).ToString("0.0")
+                        </span>
+                    }
+                </p>
                 </p>
             </div>
         </div>
@@ -91,12 +106,13 @@
 <div class="modal" id="openAverageInfo">
     <div class="modal-content">
         <h3 style="text-align:center">Просмотр среднего балла</h3>
+        <div id="errorForAvgGrade" style="color: red;"></div>
         <input type="hidden" value="@Model.Student.Id" id="studentId">
         <label>Класс</label>
         @if (Model.Classes != null && Model.Classes.Any())
         {
             <select id="classStudent">
-                <option>Выберите класс</option>
+                <option value="">Выберите класс</option>
                 @foreach (var c in Model.Classes)
                 {
                     @*  if (c.Value == Model.CurrentClass.Id)
@@ -191,7 +207,7 @@
         @if (Model.Classes != null && Model.Classes.Any())
         {
             <select id="classIdForRating">
-                <option>Выберите класс</option>
+                <option value="">Выберите класс</option>
                 @foreach (var cl in Model.Classes)
                 {
                     <option value="@cl.Value">@cl.Text</option>
@@ -211,11 +227,12 @@
         </select>
         <button type="button" id="showRatingBtn" class="btn_result" style="margin-top:15px;">Показать рейтинг</button>
         <div class="resultReting" id="resultRatingForStudent">
+            <div id="resultContainer"></div>
         </div>
     </div>
 </div>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"> 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <style>
     .left-content {
         width: 72px;
@@ -267,7 +284,43 @@
             font-size: 18px;
         }
 
-   
+    .metric-value {
+        margin: 0;
+        white-space: nowrap;
+        line-height: 1;
+    }
+
+    /* Средний балл: крупный */
+    .avg-score {
+        font-size: 32px;
+        font-weight: 700;
+        color: #FFF;
+    }
+
+    /* Стрелка и изменение: в той же строке, но меньше */
+    .avg-dynamics {
+        display: inline-block;
+        margin-left: 5px;
+        font-size: 15px;
+        font-weight: 600;
+        vertical-align: baseline;
+    }
+
+    /* Стрелка ещё немного меньше */
+    .dynamics-arrow {
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    /* Плюсовая динамика */
+    .avg-dynamics.positive {
+        color: #B6F5C7;
+    }
+
+    /* Минусовая динамика */
+    .avg-dynamics.negative {
+        color: #dc2626;
+    }
 </style>
 <script>
     const modal = document.getElementById("openModalForm");
@@ -308,8 +361,8 @@
         }
     }
 </script>
-<link rel="stylesheet" href="/css/studentPerAcc.css" asp-append-version="true"/>
-<script src="/js/studentJSCode/getInfoAboutClass.js"></script>
+<link rel="stylesheet" href="/css/studentPerAcc.css" asp-append-version="true" />
+<script src="/js/studentJSCode/getInfoAboutClass.js" asp-append-version="true"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/js/studentJSCode/dataForGraph.js"></script>
 <script src="/js/studentJSCode/ratingStudents.js" asp-append-version="true"></script>

@@ -142,13 +142,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
             var result = await _studentPer.AvgGradeForTheSubject(classId, subjectId, academicId, termId, studentId);
             if (!result.Success)
             {
-                TempData["Error"] = result.Message;
-                var userId = _userMan.GetUserId(User);
-                var student = await _context.Students.Include(u => u.User)
-                    .Include(c => c.Class)
-                    .FirstOrDefaultAsync(s => s.UserId == userId);
-                var studentDash = await ViewBagList(student);
-                return View(studentDash);
+                return Json(new
+                {
+                    success = false,
+                    message = result.Message
+                });
             }
             return Json(new
             {

@@ -12,6 +12,7 @@
     <table>
         <thead>
             <tr>
+                <th>Id</th>
                 <th>Название класса</th>
                 <th>Количество учеников</th>
                 <th>Учебный год</th>
@@ -24,6 +25,7 @@
                 @foreach (var cla in Model)
                 {
                     <tr>
+                        <td>@cla.Id</td>
                         <td>@cla.NumClass@cla.LetterClass</td>
                         <td>@cla.Students.Count()</td>
                         <td>@cla.AcademicYear.Name</td>

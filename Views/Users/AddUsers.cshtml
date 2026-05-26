@@ -22,7 +22,9 @@
         <label asp-for="BirthDate">Введите дату рождения</label>
         <input type="date" asp-for="BirthDate" required />
         <label asp-for="Role">Выберите роль:</label>
-        <select id="role" asp-for="Role" asp-items="ViewBag.Roles"></select>
+        <select id="role" asp-for="Role" asp-items="ViewBag.Roles">
+            <option value="">Выберите роль</option>
+        </select>
         <div id="classDiv" style="display:none; margin-top:10px;">
             <div class="class">
                 <label>Выберите номер класса</label>
