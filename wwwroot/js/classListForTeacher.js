@@ -34,7 +34,7 @@
                 opt.value = c.id;         // или c.Id, смотри как отдаёшь JSON
                 opt.textContent = c.name; // или c.Name
                 classSelect.appendChild(opt);
-            }
+            }   
 
             classSelect.disabled = false;
         } catch (err) {

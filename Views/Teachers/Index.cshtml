@@ -7,7 +7,6 @@
     <table>
         <thead>
             <tr>
-                <th>Id</th>
                 <th>ФИО</th>
                 <th>Дата рождения</th>
                 <th>Логин</th>
@@ -21,7 +20,6 @@
                 @foreach (var t in Model)
                 {
                     <tr>
-                        <td>@t.Id</td>
                         <td>@t.User.FullName</td>
                         <td>@t.User.BirthDate.ToString("dd-MM-yyyy")</td>
                         <td>@t.User.UserName</td>

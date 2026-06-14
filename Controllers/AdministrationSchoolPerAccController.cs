@@ -116,13 +116,6 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                   string classId,
                   string subjectId)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"StudentID-{studentId}");
-            Console.WriteLine($"academicId-{academicId}");
-            Console.WriteLine($"termId-{termId}");
-            Console.WriteLine($"classId-{classId}");
-            Console.WriteLine($"subjectId-{subjectId}");
-            Console.ForegroundColor = ConsoleColor.White;
 
             if (string.IsNullOrWhiteSpace(studentId))
                 return BadRequest(new { message = "Айди студента пуст" });
@@ -133,7 +126,8 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
                 .FirstOrDefaultAsync();
             if (student == null)
                 return BadRequest(new { message = "Студент не найден" });
-            
+            if(!student.Parents.Any())
+                return BadRequest(new { message = "Студенту не назначен родитель" });
             var emails = student.Parents
                 .Where(p => !string.IsNullOrWhiteSpace(p.Email))
                 .Select(p => new

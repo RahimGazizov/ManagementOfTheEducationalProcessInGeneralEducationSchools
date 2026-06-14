@@ -55,7 +55,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
                     ? 0
                     : (double)s.presentCount / s.subjectCount * 100;
 
-                double index = 0.8 * s.averageScore + 0.2 * (attendance / 100 * 10);
+                double index = 0.8 * s.averageScore + 0.2 * (attendance / 20);
 
                 return new DataStudents
                 {

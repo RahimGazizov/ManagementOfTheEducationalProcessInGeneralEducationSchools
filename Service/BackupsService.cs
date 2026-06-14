@@ -77,9 +77,11 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
                 _systemStateService.IsMaintenanceMode = true;
 
                 await _context.Database.CloseConnectionAsync();
+
                 _context.ChangeTracker.Clear();
 
-                await Task.Delay(1000); // даём завершиться запросам
+                SqliteConnection.ClearAllPools();
+
 
                 File.Copy(backupPath, _dbPath, true);
 
@@ -91,6 +93,7 @@ namespace InformationSystemOfASchoolIducationalPortal.Service
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 _systemStateService.IsMaintenanceMode = false;
                 return OperationResult.Fail("Ошибка восстановление базы данных");
             }

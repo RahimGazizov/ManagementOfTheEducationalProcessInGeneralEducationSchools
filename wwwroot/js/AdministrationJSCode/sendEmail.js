@@ -29,7 +29,7 @@
             if (res.ok) {
                 success.innerText = result.results.message ?? "Успешно отправлено";
             } else {
-                error.innerText = result.results.message ?? "Ошибка";
+                error.innerText = result.message ?? "Ошибка";
             }
         });
     });

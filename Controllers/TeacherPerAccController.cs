@@ -47,6 +47,10 @@ namespace InformationSystemOfASchoolIducationalPortal.Controllers
         }
         public async Task<IActionResult> GetClassesBySubject(string subjectId)
         {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Subject {subjectId}");
+            Console.ForegroundColor = ConsoleColor.White;
+
             string currentAcademic = await _context.AcademicYear
                 .Where(d => DateTime.Now >= d.StartDateYear && DateTime.Now <= d.EndDateYear)
                 .Select(d => d.Id)

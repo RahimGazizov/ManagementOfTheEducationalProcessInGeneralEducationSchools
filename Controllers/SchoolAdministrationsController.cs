@@ -4,8 +4,10 @@ using InformationSystemOfASchoolIducationalPortal.Models;
 using InformationSystemOfASchoolIducationalPortal.Data;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 namespace InformationSystemOfASchoolIducationalPortal.Controllers
 {
+    [Authorize(Roles = "Админ")]
     public class SchoolAdministrationsController : Controller
     {
         private readonly AppDbContext _context;
